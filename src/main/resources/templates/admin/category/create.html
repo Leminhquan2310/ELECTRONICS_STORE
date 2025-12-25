@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Category</title>
+    <link rel="stylesheet" th:href="@{/admin/plugins/bootstrap-select/dist/css/bootstrap-select.min.css}">
+    <th:block th:replace="~{layout/layout-admin :: css}"></th:block>
+</head>
+<body>
+<div th:replace="~{layout/layout-admin :: preloader}"></div>
+<div id="main-wrapper">
+    <div class="nav-header" th:replace="~{layout/layout-admin :: nav-header}"></div>
+
+    <div class="header" th:replace="~{layout/layout-admin :: header}"></div>
+
+    <div th:replace="~{layout/layout-admin :: nk-sidebar}"></div>
+
+    <div class="content-body">
+        <div class="row page-titles mx-0">
+            <div class="col-sm-6 p-md-0">
+                <div class="breadcrumb-range-picker">
+                    <span><i class="icon-folder-alt"></i></span>
+                    <span class="ml-1">Category Management</span>
+                </div>
+            </div>
+            <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
+                    <li class="breadcrumb-item active"><a th:href="@{/admin/categories}">Category</a></li>
+                    <li class="breadcrumb-item active"><a th:href="@{/admin/categories/create}">Create</a></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/admin/categories}" th:method="post"
+                                  th:object="${categoryDtoCreate}" id="step-form-horizontal">
+                                <div>
+                                    <section>
+                                        <div class="row">
+                                            <div class="col-lg-6 mb-4">
+                                                <div class="form-group">
+                                                    <label class="text-label">Name*</label>
+                                                    <input type="text" th:field="*{name}"
+                                                           class="form-control border-primary"
+                                                           placeholder="Laptop" required>
+                                                    <div class="text-danger mt-1"
+                                                         th:if="${#fields.hasErrors('name')}"
+                                                         th:errors="*{name}"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 mb-4">
+                                                <div class="form-group">
+                                                    <label class="text-label">Slug*</label>
+                                                    <input type="text" class="form-control border-primary"
+                                                           th:field="*{slug}"
+                                                           placeholder="lap-top-dell-dell-i7" required>
+                                                    <div class="text-danger mt-1"
+                                                         th:if="${#fields.hasErrors('slug')}"
+                                                         th:errors="*{slug}"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 mb-4">
+                                                <div class="form-group">
+                                                    <label class="text-label">Parent Category*</label>
+                                                    <select class="selectpicker form-control" th:field="*{parent}"
+                                                            data-style="btn-outline-primary">
+                                                        <option value="">Root</option>
+                                                        <th:block th:each="cat : ${categories}">
+                                                            <option th:value="${cat.id}"
+                                                                    th:text="${'—'.repeat(cat.level) + ' ' + cat.name}">
+                                                            </option>
+                                                        </th:block>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12 mb-4">
+                                                <button type="submit" class="btn btn-rounded btn-ft btn-primary">
+                                                    + Add
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{layout/layout-admin :: script}"></th:block>
+<script th:src="@{/admin/plugins/bootstrap-select/dist/js/bootstrap-select.min.js}"></script>
+
+</body>
+</html>

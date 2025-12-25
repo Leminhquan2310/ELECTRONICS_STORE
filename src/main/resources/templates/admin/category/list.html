@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <title>Admin - Category Manage</title>
+    <th:block th:replace="~{layout/layout-admin :: css}"></th:block>
+</head>
+<body>
+<div th:replace="~{layout/layout-admin :: preloader}"></div>
+<div id="main-wrapper">
+    <div class="nav-header" th:replace="~{layout/layout-admin :: nav-header}"></div>
+
+    <div class="header" th:replace="~{layout/layout-admin :: header}"></div>
+
+    <div th:replace="~{layout/layout-admin :: nk-sidebar}"></div>
+
+    <div class="content-body">
+        <div class="row page-titles mx-0">
+            <div class="col-sm-6 p-md-0">
+                <div class="breadcrumb-range-picker">
+                    <span><i class="icon-folder-alt"></i></span>
+                    <span class="ml-1">Category Management</span>
+                </div>
+            </div>
+            <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
+                    <li class="breadcrumb-item active"><a th:href="@{/admin/categories}">Category</a></li>
+                </ol>
+            </div>
+        </div>
+
+        <div style="margin-left: 30px">
+            <a class="text-primary" th:href="@{/admin/categories/create}">+ Create</a>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="example" class="display" style="min-width: 845px">
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Parent Category</th>
+                                        <th>Slug</th>
+                                        <th>Sort Order</th>
+                                        <th>Level</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="category : ${categories}" th:object="${category}">
+                                        <td th:text="${category.name}">Name</td>
+                                        <td th:text="${category.parent != null ? category.parent.name : 'Root'}">
+                                            Root
+                                        </td>
+                                        <td th:text="${category.slug}">Slug</td>
+                                        <td th:text="${category.sortOrder}">Sort Order</td>
+                                        <td th:text="${category.level}">Level</td>
+                                        <td>
+                                            <span>
+                                                <a th:href="@{/admin/categories/update/{id}(id=${category.id})}"
+                                                   class="mr-4" data-toggle="tooltip" data-placement="top" title="Edit">
+                                                    <i class="icon-pencil"></i></a>
+                                                <a href="javascript:void(0)"
+                                                   th:onclick="'handleDelete(' + ${category.id} + ')'"
+                                                   style="cursor: pointer"
+                                                   data-toggle="tooltip"
+                                                   data-placement="top"
+                                                   title="Delete">
+                                                <i class="icon-trash"></i></a>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{layout/layout-admin :: script}"></th:block>
+<script>
+    const BASE_URL = "[[${baseUrl}]]";
+
+    function handleDelete(id) {
+        console.log(id)
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.value) {
+                console.log("Yes")
+                const form = document.createElement("form");
+                form.method = "POST";
+                form.action = BASE_URL + "/admin/categories/" + id;
+
+                // _method=DELETE (Spring hiểu là DELETE)
+                const methodInput = document.createElement("input");
+                methodInput.type = "hidden";
+                methodInput.name = "_method";
+                methodInput.value = "DELETE";
+
+                // CSRF token (BẮT BUỘC nếu bật security)
+                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                const csrfInput = document.createElement("input");
+                csrfInput.type = "hidden";
+                csrfInput.name = "_csrf";
+                csrfInput.value = csrfToken;
+
+                form.appendChild(methodInput);
+                form.appendChild(csrfInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    };
+</script>
+</body>
+</html>

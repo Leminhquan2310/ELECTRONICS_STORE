@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Category</title>
+    <link rel="stylesheet" th:href="@{/admin/plugins/bootstrap-select/dist/css/bootstrap-select.min.css}">
+    <th:block th:replace="~{layout/layout-admin :: css}"></th:block>
+    <style>
+        /* ====== CONTAINER ====== */
+        #categoryList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* ====== ITEM ====== */
+        #categoryList .list-group-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding: 14px 16px;
+            margin-bottom: 10px;
+
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* hover */
+        #categoryList .list-group-item:hover {
+            background-color: #f8fafc;
+            border-color: #c7d2fe;
+        }
+
+        /* click / active */
+        #categoryList .list-group-item:active {
+            background-color: #eef2ff;
+        }
+
+        /* ====== DRAG HANDLE ====== */
+        .drag-handle {
+            font-size: 18px;
+            color: #6b7280;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .list-group-item:active .drag-handle {
+            cursor: grabbing;
+            color: #4f46e5;
+        }
+
+        /* ====== CATEGORY NAME ====== */
+        #categoryList .list-group-item span:last-child {
+            flex: 1;
+            font-weight: 500;
+            color: #111827;
+        }
+
+        /* ====== SORTABLEJS EFFECT ====== */
+
+        /* item đang kéo */
+        .sortable-chosen {
+            background-color: #eef2ff !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.25);
+        }
+
+        /* placeholder khi kéo */
+        .sortable-ghost {
+            opacity: 0.35;
+        }
+
+        /* ====== ITEM ĐANG ĐƯỢC CHỌN (CLICK) ====== */
+        .list-group-item.active {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+        }
+
+    </style>
+</head>
+<body>
+<div th:replace="~{layout/layout-admin :: preloader}"></div>
+<div id="main-wrapper">
+    <div class="nav-header" th:replace="~{layout/layout-admin :: nav-header}"></div>
+
+    <div class="header" th:replace="~{layout/layout-admin :: header}"></div>
+
+    <div th:replace="~{layout/layout-admin :: nk-sidebar}"></div>
+
+    <div class="content-body">
+        <div class="row page-titles mx-0">
+            <div class="col-sm-6 p-md-0">
+                <div class="breadcrumb-range-picker">
+                    <span><i class="icon-folder-alt"></i></span>
+                    <span class="ml-1">Category Management</span>
+                </div>
+            </div>
+            <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
+                    <li class="breadcrumb-item active"><a th:href="@{/admin/categories}">Category</a></li>
+                    <li class="breadcrumb-item active"><a th:href="@{/admin/categories/update}">Update</a></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <form th:action="@{/admin/categories}" th:method="post"
+                  th:object="${categoryDtoUpdate}" id="step-form-horizontal">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <input type="hidden" name="_method" value="PUT"/>
+                                <input type="hidden" th:field="*{id}">
+                                <div>
+                                    <section>
+                                        <div class="row">
+                                            <div class="col-lg-6 mb-4">
+                                                <div class="form-group">
+                                                    <label class="text-label">Name*</label>
+                                                    <input type="text" th:field="*{name}"
+                                                           class="form-control border-primary"
+                                                           placeholder="Laptop" required>
+                                                    <div class="text-danger mt-1"
+                                                         th:if="${#fields.hasErrors('name')}"
+                                                         th:errors="*{name}"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 mb-4">
+                                                <div class="form-group">
+                                                    <label class="text-label">Slug*</label>
+                                                    <input type="text" class="form-control border-primary"
+                                                           th:field="*{slug}"
+                                                           placeholder="lap-top-dell-dell-i7" required>
+                                                    <div class="text-danger mt-1"
+                                                         th:if="${#fields.hasErrors('slug')}"
+                                                         th:errors="*{slug}"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 mb-4">
+                                                <div class="form-group">
+                                                    <label class="text-label">Parent Category*</label>
+                                                    <select class="selectpicker form-control" th:field="*{parent}"
+                                                            data-style="btn-outline-primary" >
+                                                        <option value="">Root</option>
+                                                        <th:block th:each="cat : ${categories}">
+                                                            <option th:value="${cat.id}"
+                                                                    th:disabled="${cat.id == categoryDtoUpdate.id}"
+                                                                    th:selected="${categoryDtoUpdate.parent != null && cat.id == categoryDtoUpdate.parent}"
+                                                                    th:text="${'—'.repeat(cat.level) + ' ' + cat.name}">
+                                                            </option>
+                                                        </th:block>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12 mb-4">
+                                                <button type="submit" class="btn btn-rounded btn-ft btn-primary">
+                                                    + Save
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{layout/layout-admin :: script}"></th:block>
+<script th:src="@{/admin/plugins/bootstrap-select/dist/js/bootstrap-select.min.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+    const list = document.getElementById('categoryList');
+
+    new Sortable(categoryList, {
+        animation: 150,
+        handle: '.drag-handle',
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        onChange: function () {
+            updateSortOrder();
+        }
+    });
+
+    function updateSortOrder() {
+        const items = document.querySelectorAll('#categoryList .list-group-item');
+
+        items.forEach((item, index) => {
+            const categoryId = item.getAttribute('data-id');
+
+            // sortOrder mới (bắt đầu từ 1)
+            const newSortOrder = index + 1;
+
+            // tìm hidden input trong li
+            const hiddenInput = item.querySelector('input[name="sortOrders"]');
+
+            if (hiddenInput) {
+                hiddenInput.value = categoryId + ':' + newSortOrder;
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>

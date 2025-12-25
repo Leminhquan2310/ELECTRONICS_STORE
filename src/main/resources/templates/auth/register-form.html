@@ -1,0 +1,81 @@
+<!doctype html>
+<html class="no-js" lang="zxx" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/layout :: head}">
+    <title>My App</title>
+</head>
+<body>
+<header th:replace="~{layout/layout :: header}"></header>
+
+<div class="body-wrapper">
+    <div class="breadcrumb-area">
+        <div class="container">
+            <div class="breadcrumb-content">
+                <ul>
+                    <li><a th:href="@{/user}">Home</a></li>
+                    <li><a th:href="@{/auth/login}">Login</a></li>
+                    <li class="active">Register</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="page-section mb-60">
+        <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-sm-12 col-md-12 col-lg-6 col-xs-12">
+                    <div th:if="${message}" class="fade show mt-3 alert"
+                         th:classappend="'alert-' + ${status}" role="alert">
+                        <span th:text="${message}"></span>
+                        <a th:if="${status == 'success'}" class="text-primary mt-2" th:href="@{/auth/login}">Login
+                            now</a>
+                    </div>
+                    <form th:action="@{/auth}" th:method="post" th:object="${userDtoRegister}">
+                        <div class="login-form">
+                            <h4 class="login-title">Register</h4>
+                            <div class="row">
+                                <div class="col-md-6 col-12 mb-20">
+                                    <label for="fullname">Full Name*</label>
+                                    <input class="mb-0" type="text" id="fullname" placeholder="Full Name"
+                                           th:field="*{fullname}" required/>
+                                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('fullname')}"
+                                         th:errors="*{fullname}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12 mb-20">
+                                    <label>Username*</label>
+                                    <input class="mb-0" type="text" placeholder="Username" th:field="*{username}"
+                                           required>
+                                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('username')}"
+                                         th:errors="*{username}">
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mb-20">
+                                    <label>Password*</label>
+                                    <input class="mb-0" type="password" placeholder="Password" th:field="*{password}"
+                                           required>
+                                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('password')}"
+                                         th:errors="*{password}">
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mb-20">
+                                    <label>Confirm Password*</label>
+                                    <input class="mb-0" type="password" placeholder="Confirm Password"
+                                           th:field="*{confirmPassword}" required>
+                                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('confirmPassword')}"
+                                         th:errors="*{confirmPassword}">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button class="register-button mt-0">Register</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer th:replace="~{layout/layout :: footer}"></footer>
+<div th:replace="~{layout/layout :: script}"></div>
+</body>
+</html>

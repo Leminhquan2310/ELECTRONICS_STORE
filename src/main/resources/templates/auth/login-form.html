@@ -1,0 +1,70 @@
+<!doctype html>
+<html class="no-js" lang="zxx" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/layout :: head}">
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Login || limupa - Digital Products Store eCommerce Bootstrap 4 Template</title>
+</head>
+<body>
+<header th:replace="~{layout/layout :: header}"></header>
+
+<div class="body-wrapper">
+    <!-- Begin Li's Breadcrumb Area -->
+    <div class="breadcrumb-area">
+        <div class="container">
+            <div class="breadcrumb-content">
+                <ul>
+                    <li><a th:href="@{/user}">Home</a></li>
+                    <li class="active">Login</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Li's Breadcrumb Area End Here -->
+
+    <!-- Begin Login Content Area -->
+    <div class="page-section mb-60">
+        <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-sm-12 col-md-12 col-xs-12 col-lg-6 mb-30 mt-30">
+                    <div th:if="${param.error}" class="alert alert-danger">
+                        Wrongs Password or Username!
+                    </div>
+                    <!-- Login Form s-->
+                    <form th:action="@{/auth/login}" method="post">
+                        <input type="hidden"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}"/>
+                        <div class="login-form">
+                            <h4 class="login-title">Login</h4>
+                            <div class="row">
+                                <div class="col-md-12 col-12 mb-20">
+                                    <label>Username*</label>
+                                    <input class="mb-0" type="text" placeholder="Username" name="username">
+                                </div>
+                                <div class="col-12 mb-20">
+                                    <label>Password</label>
+                                    <input class="mb-0" type="password" placeholder="Password" name="password">
+                                </div>
+                                <div class="col-md-8">
+                                    <button type="submit" class="register-button mt-0">Login</button>
+                                </div>
+                                <div class="col-md-4 mb-20 text-left text-md-right">
+                                    <a th:href="@{#}"> Forgotten pasward?</a>
+                                    <a class="text-primary" th:href="@{/auth/register}"> Create a new account</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Login Content Area End Here -->
+</div>
+
+<footer th:replace="~{layout/layout :: footer}"></footer>
+
+<div th:replace="~{layout/layout :: script}"></div>
+</body>
+</html>

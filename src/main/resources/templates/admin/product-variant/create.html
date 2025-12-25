@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Product</title>
+    <link rel="stylesheet" th:href="@{/admin/plugins/bootstrap-select/dist/css/bootstrap-select.min.css}">
+    <th:block th:replace="~{layout/layout-admin :: css}"></th:block>
+    <style>
+        .text-label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: inline-block;
+        }
+
+        /* ===== FILE INPUT ===== */
+        .custom-file {
+            position: relative;
+        }
+
+        .custom-file-input {
+            cursor: pointer;
+        }
+
+        .custom-file-label {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        /* ===== OPTION AREA ===== */
+        #option-container {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .option-item {
+            border: 1px solid #e3e6f0;
+            border-radius: 6px;
+            background: #fafbfe;
+        }
+
+        .option-item .card-body {
+            padding: 1rem;
+        }
+
+        /* Option name */
+        .option-item input[type="text"]:first-child {
+            font-weight: 600;
+        }
+
+        /* ===== VALUE INPUT ===== */
+        .value-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* ===== OPTION BUTTONS ===== */
+        .option-item .btn-secondary {
+            margin-top: 5px;
+        }
+
+        .option-item .btn-danger {
+            margin-top: 5px;
+        }
+
+        /* ===== ADD OPTION BUTTON ===== */
+        .btn-add-option-wrapper {
+            width: 100%;
+            margin: 10px 0 20px;
+        }
+
+        .btn-add-option-wrapper button {
+            min-width: 140px;
+        }
+
+    </style>
+</head>
+<body>
+<div th:replace="~{layout/layout-admin :: preloader}"></div>
+<div id="main-wrapper">
+    <div class="nav-header" th:replace="~{layout/layout-admin :: nav-header}"></div>
+
+    <div class="header" th:replace="~{layout/layout-admin :: header}"></div>
+
+    <div th:replace="~{layout/layout-admin :: nk-sidebar}"></div>
+
+    <div class="content-body">
+        <div class="row page-titles mx-0">
+            <div class="col-sm-6 p-md-0">
+                <div class="breadcrumb-range-picker">
+                    <span><i class="icon-folder-alt"></i></span>
+                    <span class="ml-1">Product Management</span>
+                </div>
+            </div>
+            <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
+                    <li class="breadcrumb-item active"><a th:href="@{/admin/products}">Product</a></li>
+                    <li class="breadcrumb-item active"><a th:href="@{/admin/products/create}">Create</a></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/admin/products}"
+                                  th:object="${product}"
+                                  method="post"
+                                  enctype="multipart/form-data">
+                                <div>
+                                    <section>
+                                        <div class="row">
+                                            <!-- Tên sản phẩm -->
+                                            <div class="col-lg-6 mb-4">
+                                                <div class="col-lg-12 mb-4">
+                                                    <div class="form-group">
+                                                        <label class="text-label">Name*</label>
+                                                        <input type="text" th:field="*{name}"
+                                                               class="form-control border-primary"
+                                                               placeholder="Name of product" required>
+                                                        <div class="text-danger mt-1"
+                                                             th:if="${#fields.hasErrors('name')}"
+                                                             th:errors="*{name}"></div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Description -->
+                                                <div class="col-lg-12 mb-4">
+                                                    <div class="form-group">
+                                                        <label class="text-label">Description*</label>
+                                                        <textarea th:field="*{description}" rows="4" cols="50"
+                                                                  class="form-control border-primary"
+                                                                  placeholder="Description of product" required></textarea>
+                                                        <div class="text-danger mt-1"
+                                                             th:if="${#fields.hasErrors('description')}"
+                                                             th:errors="*{description}"></div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Base price -->
+                                                <div class="col-lg-12 mb-4">
+                                                    <div class="form-group">
+                                                        <label class="text-label">Base Price*</label>
+                                                        <input type="number" th:field="*{basePrice}"
+                                                               class="form-control border-primary"
+                                                               placeholder="Base price" required>
+                                                        <div class="text-danger mt-1"
+                                                             th:if="${#fields.hasErrors('basePrice')}"
+                                                             th:errors="*{basePrice}"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-lg-6 mb-4">
+                                                <div class="col-lg-12 mb-4">
+                                                    <!-- Upload ảnh -->
+                                                    <div class="col-lg-6 mb-4">
+                                                        <div class="form-group">
+                                                            <label class="text-label">Images*</label>
+                                                            <div class="custom-file">
+                                                                <input type="file" class="custom-file-input"
+                                                                       th:field="*{images}" multiple>
+                                                                <label class="custom-file-label">Choose file</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="col-lg-12 mb-4">
+                                                        <div class="form-group">
+                                                            <label class="text-label">Category*</label>
+                                                            <select class="selectpicker form-control"
+                                                                    th:field="*{categoryId}"
+                                                                    data-style="btn-outline-primary">
+                                                                <th:block th:each="cat : ${categories}">
+                                                                    <option th:value="${cat.id}"
+                                                                            th:text="${cat.name}">
+                                                                    </option>
+                                                                </th:block>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Product Option -->
+                                                    <div class="col-lg-12 mb-4">
+                                                        <div id="option-container">
+
+                                                        </div>
+
+                                                        <div class="btn-add-option-wrapper">
+                                                            <button type="button"
+                                                                    class="btn btn-sm btn-primary"
+                                                                    onclick="addOption()">
+                                                                + Add Option
+                                                            </button>
+                                                        </div>
+
+                                                        <!-- Product Option Value -->
+                                                        <template id="option-template">
+                                                            <div class="card mb-3 option-item">
+                                                                <div class="card-body">
+
+                                                                    <!-- Option name -->
+                                                                    <div class="mb-2">
+                                                                        <input type="text" class="form-control"
+                                                                               placeholder="Option name (e.g. Color)">
+                                                                    </div>
+
+                                                                    <!-- Values -->
+                                                                    <div class="value-container"></div>
+
+                                                                    <button type="button"
+                                                                            class="btn btn-sm btn-secondary"
+                                                                            onclick="addValue(this)">+ Add Value
+                                                                    </button>
+
+                                                                    <button type="button"
+                                                                            class="btn btn-sm btn-danger float-end"
+                                                                            onclick="removeOption(this)">Remove
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-lg-12 mb-4">
+                                                <button type="submit" class="btn btn-rounded btn-ft btn-primary">
+                                                    + Add
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{layout/layout-admin :: script}"></th:block>
+<script th:src="@{/admin/plugins/bootstrap-select/dist/js/bootstrap-select.min.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.custom-file-input')
+            .forEach(function (input) {
+                input.addEventListener('change', function () {
+                    const files = this.files;
+                    const label = this.nextElementSibling;
+
+                    if (!label) return;
+
+                    if (files.length === 1) {
+                        label.textContent = files[0].name;
+                    } else if (files.length > 1) {
+                        label.textContent = files.length + ' files selected';
+                    } else {
+                        label.textContent = 'Choose file';
+                    }
+                });
+            });
+    });
+
+    let optionIndex = 0;
+
+    function addOption() {
+        const container = document.getElementById('option-container');
+        const template = document.getElementById('option-template');
+
+        const clone = template.content.cloneNode(true);
+        const optionItem = clone.querySelector('.option-item');
+
+        // set option name input
+        const optionNameInput = optionItem.querySelector('input');
+        optionNameInput.name = `options[${optionIndex}].name`;
+
+        // init value container
+        const valueContainer = optionItem.querySelector('.value-container');
+        valueContainer.dataset.optionIndex = optionIndex;
+
+        // add first value by default
+        addValue(optionItem.querySelector('.btn-secondary'));
+
+        container.appendChild(clone);
+        optionIndex++;
+    }
+
+    function addValue(btn) {
+        const optionItem = btn.closest('.option-item');
+        const valueContainer = optionItem.querySelector('.value-container');
+        const optionIdx = valueContainer.dataset.optionIndex;
+
+        const valueIndex = valueContainer.children.length;
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control mb-2';
+        input.placeholder = 'Value (e.g. Red)';
+        input.name = `options[${optionIdx}].values[${valueIndex}]`;
+
+        valueContainer.appendChild(input);
+    }
+
+    function removeOption(btn) {
+        btn.closest('.option-item').remove();
+    }
+</script>
+</body>
+</html>
