@@ -27,10 +27,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category create(Object categoryDtoCreate) throws ChangeSetPersister.NotFoundException {
         CategoryDtoCreate categoryDto = (CategoryDtoCreate) categoryDtoCreate;
-        Category category = categoryMapper.dtoCreateToEntity(categoryDto);
+        Category categoryParent = categoryDto.getParent() != null ? categoryRepository.findById(categoryDto.getParent()).get() : null;
+        Category category = categoryMapper.dtoCreateToEntity(categoryDto, categoryParent);
         if (category.getParent() != null) {
             Category parentCategory = categoryRepository.findById(categoryDto.getParent()).get();
-            parentCategory.setIsLeaf(false);
+            parentCategory.setLeaf(false);
             category.setParent(parentCategory);
             category.setSortOrder(categoryRepository.findMaxSortOrderByParenId(parentCategory.getId()) + 1);
             category.setLevel(parentCategory.getLevel() + 1);
@@ -58,9 +59,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category update(Object categoryDtoUpdate) {
-        // set lại name, slug, parent, (Xử lý sort_order, level)
         CategoryDtoUpdate categoryDto = (CategoryDtoUpdate) categoryDtoUpdate;
-        Category category = categoryMapper.dtoUpdateToEntity(categoryDto);
+        Category parent = categoryDto.getParent() != null ? categoryRepository.findById(categoryDto.getParent()).get() : null;
+        Category category = categoryMapper.dtoUpdateToEntity(categoryDto, parent);
         if (isChangeParentId(category.getId(), categoryDto.getParent())) {
             if (category.getParent() != null) {
                 Category parentCategory = categoryRepository.findById(categoryDto.getParent()).get();
@@ -85,7 +86,7 @@ public class CategoryServiceImpl implements CategoryService {
     public boolean delete(Long id) {
         if (checkCanDelete(id)) {
             Category category = categoryRepository.findById(id).get();
-            category.setIsActive(false);
+            category.setLeaf(false);
             categoryRepository.save(category);
             return true;
         }
@@ -116,10 +117,16 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findByIsActiveTrueAndIsLeafTrue();
     }
 
+    @Override
+    public List<Category> getListByLevelAndIsActiveTrue(Integer level) {
+        return categoryRepository.findByIsActiveTrueAndLevel(level);
+    }
+
     private boolean isChangeParentId(Long id, Long newParentId) {
         Category category = categoryRepository.findById(id).get();
         if (category.getParent() == null && newParentId != null) return true;
         if (category.getParent() != null && newParentId == null) return true;
+        if (category.getParent() == null) return false;
         return !category.getParent().getId().equals(newParentId);
     }
 

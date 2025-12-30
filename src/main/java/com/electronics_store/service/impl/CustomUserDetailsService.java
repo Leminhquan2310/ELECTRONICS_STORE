@@ -9,6 +9,9 @@ import com.electronics_store.repository.RoleRepository;
 import com.electronics_store.repository.UserRepository;
 import com.electronics_store.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Primary
 @Service
 public class CustomUserDetailsService implements UserDetailsService, UserService {
     @Autowired
@@ -82,5 +86,22 @@ public class CustomUserDetailsService implements UserDetailsService, UserService
     public void checkUniqueUsernameRegister(UserDtoRegister userDTO, BindingResult bindingResult) {
         if (!userDTO.getUsername().isEmpty() && userRepository.existsByUsername(userDTO.getUsername()))
             bindingResult.rejectValue("username", "username.exists", "Username already existed");
+    }
+
+    @Override
+    public User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null ||
+                !auth.isAuthenticated() ||
+                auth.getPrincipal().equals("anonymousUser")) {
+            throw new RuntimeException("Vui lòng đăng nhập");
+        }
+
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+
+        return userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() ->
+                        new RuntimeException("User không tồn tại"));
     }
 }

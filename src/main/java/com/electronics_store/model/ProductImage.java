@@ -2,10 +2,13 @@ package com.electronics_store.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "product_images")
-@Data
+@Getter
+@Setter
 public class ProductImage {
 
     @Id

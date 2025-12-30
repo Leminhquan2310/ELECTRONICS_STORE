@@ -1,5 +1,6 @@
 package com.electronics_store.controller;
 
+import com.electronics_store.controller.auth.AuthController;
 import com.electronics_store.dto.user.UserDtoRegister;
 import com.electronics_store.exception.RoleNotFoundException;
 import com.electronics_store.mapper.UserMapper;

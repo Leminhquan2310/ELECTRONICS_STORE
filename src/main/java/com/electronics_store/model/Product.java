@@ -1,16 +1,16 @@
 package com.electronics_store.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -38,8 +38,8 @@ public class Product {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "rating_avg", precision = 3, scale = 2)
-    private BigDecimal ratingAvg = BigDecimal.ZERO;
+    @Column(name = "rating_avg")
+    private Double ratingAvg = 0.0;
 
     @Column(name = "rating_count")
     private Integer ratingCount = 0;
@@ -66,6 +66,20 @@ public class Product {
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private java.util.Date updatedAt;
+
+    /* ---------- IMAGES ---------- */
+    @OneToMany(
+            mappedBy = "product",
+            fetch = FetchType.LAZY
+    )
+    private List<ProductImage> images = new ArrayList<>();
+
+    /* ---------- VARIANTS ---------- */
+    @OneToMany(
+            mappedBy = "product",
+            fetch = FetchType.LAZY
+    )
+    private List<ProductVariant> variants = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

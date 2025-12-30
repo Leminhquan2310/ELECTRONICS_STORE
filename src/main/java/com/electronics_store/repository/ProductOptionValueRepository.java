@@ -1,5 +1,6 @@
 package com.electronics_store.repository;
 
+import com.electronics_store.model.ProductOption;
 import com.electronics_store.model.ProductOptionValue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,4 +16,7 @@ public interface ProductOptionValueRepository extends JpaRepository<ProductOptio
     List<ProductOptionValue> findProductOptionValueByProductId(@Param("productId") Long productId);
 
     List<ProductOptionValue> findByProductOptionId(Long optionId);
+
+    List<ProductOptionValue> findByProductOption(ProductOption option);
+
 }

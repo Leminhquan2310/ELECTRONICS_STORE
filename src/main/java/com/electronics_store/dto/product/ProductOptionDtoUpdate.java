@@ -20,5 +20,5 @@ public class ProductOptionDtoUpdate {
     private String name;
 
     @Size(min = 1, message = "Option must have at least 1 character")
-    private List<ProductOptionValueDtoUpdate> values;
+    private List<ProductOptionValueDto> values;
 }

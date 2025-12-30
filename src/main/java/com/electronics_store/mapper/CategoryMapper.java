@@ -12,22 +12,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class CategoryMapper {
 
-    public Category dtoCreateToEntity(CategoryDtoCreate categoryDtoCreate) {
+    public Category dtoCreateToEntity(CategoryDtoCreate categoryDtoCreate, Category categoryParent) {
         Category category = new Category();
         category.setName(categoryDtoCreate.getName());
         category.setSlug(categoryDtoCreate.getSlug());
-        Category parent = categoryDtoCreate.getParent() != null ? new Category(categoryDtoCreate.getParent()) : null;
-        category.setParent(parent);
+        category.setParent(categoryParent);
         return category;
     }
 
-    public Category dtoUpdateToEntity(CategoryDtoUpdate categoryDtoUpdate) {
+    public Category dtoUpdateToEntity(CategoryDtoUpdate categoryDtoUpdate, Category categoryParent) {
         Category category = new Category();
         category.setId(categoryDtoUpdate.getId());
         category.setName(categoryDtoUpdate.getName());
         category.setSlug(categoryDtoUpdate.getSlug());
-        Category parent = categoryDtoUpdate.getParent() != null ? new Category(categoryDtoUpdate.getParent()) : null;
-        category.setParent(parent);
+        category.setParent(categoryParent);
         return category;
     }
 

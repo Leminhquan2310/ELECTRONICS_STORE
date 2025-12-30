@@ -1,10 +1,7 @@
-package com.electronics_store.controller;
+package com.electronics_store.controller.auth;
 
 import com.electronics_store.dto.user.UserDtoRegister;
 import com.electronics_store.mapper.UserMapper;
-import com.electronics_store.model.Category;
-import com.electronics_store.model.User;
-import com.electronics_store.service.CategoryService;
 import com.electronics_store.service.impl.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

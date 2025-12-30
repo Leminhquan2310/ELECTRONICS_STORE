@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cart</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <th:block th:replace="~{layout/layout :: css}"></th:block>
+
+    <style>.cart-plus-minus {
+        display: flex;
+        align-items: center;
+        gap: 0;
+    }
+
+    .qtybutton {
+        width: 35px;
+        height: 35px;
+        border: 1px solid #ddd;
+        background: #f8f8f8;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+
+    .qtybutton:hover {
+        background: #e0e0e0;
+    }
+
+    .cart-plus-minus-box {
+        width: 50px;
+        height: 35px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-left: none;
+        border-right: none;
+    }
+    </style>
+</head>
+<body>
+<header th:replace="~{layout/layout :: header}"></header>
+
+<div class="body-wrapper">
+
+    <!-- Breadcrumb Area -->
+    <div class="breadcrumb-area">
+        <div class="container">
+            <div class="breadcrumb-content">
+                <ul>
+                    <li><a th:href="@{/}">Home</a></li>
+                    <li class="active">Shopping Cart</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- GIỎ HÀNG TRỐNG -->
+    <div th:if="${#lists.isEmpty(cart.items)}" class="empty-cart"
+         style="text-align: center; padding: 50px 20px; color: #555;">
+
+        <!-- Icon giỏ hàng trống -->
+        <div style="font-size: 80px; color: #f39c12; margin-bottom: 20px;">
+            <i class="fa fa-shopping-cart"></i>
+        </div>
+
+        <!-- Thông báo -->
+        <p style="font-size: 24px; font-weight: 500; margin-bottom: 15px;">
+            Giỏ hàng của bạn đang trống
+        </p>
+
+        <!-- Gợi ý tiếp tục mua sắm -->
+        <p style="font-size: 16px; color: #888; margin-bottom: 25px;">
+            Hãy thêm sản phẩm yêu thích vào giỏ hàng và trải nghiệm mua sắm thú vị!
+        </p>
+
+        <!-- Nút đi tới trang sản phẩm -->
+        <a th:href="@{/}"
+           class="btn btn-primary"
+           style="padding: 12px 30px; font-size: 16px; border-radius: 8px; text-decoration: none;">
+            <i class="fa fa-arrow-left" style="margin-right: 8px;"></i> Tiếp tục mua sắm
+        </a>
+    </div>
+
+    <div class="Shopping-cart-area pt-60 pb-60" th:if="${!#lists.isEmpty(cart.items)}">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-content table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th class="li-product-remove">Remove</th>
+                                <th class="li-product-thumbnail">Images</th>
+                                <th class="cart-product-name">Product</th>
+                                <th class="li-product-price">Unit Price</th>
+                                <th class="li-product-quantity">Quantity</th>
+                                <th class="li-product-subtotal">Total</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="item : ${cart.items}">
+                                <td class="li-product-remove">
+                                    <form th:action="@{/user/cart/remove}" method="post">
+                                        <input type="hidden" name="itemId" th:value="${item.id}">
+                                        <button class="btn btn-outline btn-remove" type="submit"><i
+                                                class="fa fa-times"></i></button>
+                                    </form>
+                                </td>
+                                <td class="li-product-thumbnail">
+                                    <a href="#">
+                                        <img width="150px" th:src="${item.product.imageMain}" alt="Li's Product Image">
+                                    </a>
+                                </td>
+                                <td class="li-product-name">
+                                    <a href="#">
+                                        <strong th:text="${item.product.name}"></strong>
+                                        <div class="variant"
+                                             th:if="${item.variantSku != null}"
+                                             th:text="'Options: ' + ${item.variantSku}">
+                                        </div>
+                                    </a>
+                                </td>
+                                <td class="li-product-price"><span class="amount"
+                                                                   th:text="${#numbers.formatCurrency(item.price)}">$46.80</span>
+                                </td>
+                                <td class="quantity">
+                                    <form th:action="@{/user/cart/update}" method="post">
+                                        <input type="hidden" name="itemId" th:value="${item.id}">
+                                        <button type="button" class="dec qtybutton" onclick="decreaseQuantity(this)">-
+                                        </button>
+                                        <input type="number"
+                                               class="cart-plus-minus-box inputQuantity"
+                                               min="1"
+                                               name="quantity"
+                                               th:value="${item.quantity}"
+                                               readonly>
+                                        <button type="button" class="inc qtybutton" onclick="increaseQuantity(this)">+
+                                        </button>
+                                    </form>
+
+                                </td>
+                                <td class="product-subtotal"><span class="amount"
+                                                                   th:text="${#numbers.formatCurrency(item.total)}">$70.00</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="coupon-all">
+                                <div class="coupon">
+                                    <input id="coupon_code" class="input-text" name="coupon_code" value=""
+                                           placeholder="Coupon code" type="text">
+                                    <input class="button" name="apply_coupon" value="Apply coupon" type="submit">
+                                </div>
+                                <div class="coupon2">
+                                    <input class="button" name="update_cart" value="Update cart" type="submit">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5 ml-auto">
+                            <div class="cart-page-total">
+                                <h2>Cart totals</h2>
+                                <ul>
+                                    <li>Subtotal <span
+                                            th:text="${#numbers.formatCurrency(cart.subTotal)}">$130.00</span></li>
+                                    <li>Total <span
+                                            th:text="${#numbers.formatCurrency(cart.subTotal)}">$130.00</span></li>
+                                </ul>
+                                <a href="#">Proceed to checkout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer th:replace="~{layout/layout :: footer}"></footer>
+
+<div th:replace="~{layout/layout :: script}"></div>
+<script>
+    function decreaseQuantity(btn) {
+        const input = btn.nextElementSibling;
+        let value = parseInt(input.value);
+        if (value > 1) {
+            input.value = value - 1;
+            input.form.submit();
+        }
+    }
+
+    function increaseQuantity(btn) {
+        const input = btn.previousElementSibling;
+        let value = parseInt(input.value);
+        input.value = value + 1;
+        input.form.submit();
+    }
+</script>
+
+</body>
+</html>

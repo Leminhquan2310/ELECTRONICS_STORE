@@ -76,7 +76,7 @@
                         <div class="dropdown-content-body">
                             <ul>
                                 <li class="notification-unread">
-                                    <a href="javascript:void()">
+                                    <a href="javascript:void(0)">
                                         <img class="float-left mr-3 avatar-img" th:src="@{/admin/images/avatar/1.jpg}"
                                              alt="avatar">
                                         <div class="notification-content">
@@ -87,7 +87,7 @@
                                     </a>
                                 </li>
                                 <li class="notification-unread">
-                                    <a href="javascript:void()">
+                                    <a href="javascript:void(0)">
                                         <img class="float-left mr-3 avatar-img" th:src="@{/admin/images/avatar/2.jpg}"
                                              alt="avatar">
                                         <div class="notification-content">
@@ -97,7 +97,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="javascript:void()">
+                                    <a href="javascript:void(0)">
                                         <img class="float-left mr-3 avatar-img" th:src="@{/admin/images/avatar/3.jpg}"
                                              alt="avatar">
                                         <div class="notification-content">
@@ -107,7 +107,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="javascript:void()">
+                                    <a href="javascript:void(0)">
                                         <img class="float-left mr-3 avatar-img" th:src="@{/admin/images/avatar/4.jpg}"
                                              alt="avatar">
                                         <div class="notification-content">
@@ -132,7 +132,7 @@
                         <div class="dropdown-content-body">
                             <ul>
                                 <li>
-                                    <a href="javascript:void()">
+                                    <a href="javascript:void(0)">
                                                 <span class="mr-3 avatar-icon bg-success-lighten-2"><i
                                                         class="icon-calender"></i></span>
                                         <div class="notification-content">
@@ -142,7 +142,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="javascript:void()">
+                                    <a href="javascript:void(0)">
                                         <span class="mr-3 avatar-icon bg-danger-lighten-2"><i class="icon-calender"></i></span>
                                         <div class="notification-content">
                                             <h5 class="notification-heading">Event Started</h5>
@@ -151,7 +151,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="javascript:void()">
+                                    <a href="javascript:void(0)">
                                                 <span class="mr-3 avatar-icon bg-success-lighten-2"><i
                                                         class="icon-calender"></i></span>
                                         <div class="notification-content">
@@ -161,7 +161,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="javascript:void()">
+                                    <a href="javascript:void(0)">
                                         <span class="mr-3 avatar-icon bg-danger-lighten-2"><i class="icon-calender"></i></span>
                                         <div class="notification-content">
                                             <h5 class="notification-heading">Event Started</h5>
@@ -171,7 +171,7 @@
                                 </li>
                             </ul>
                             <a class="d-flex justify-content-between bg-primary px-4 text-white"
-                               href="javascript:void()">
+                               href="javascript:void(0)">
                                 <span>All Notifications</span>
                                 <span><i class="icon-settings"></i></span>
                             </a>
@@ -186,24 +186,28 @@
                     <div class="drop-down dropdown-profile animated flipInX">
                         <div class="dropdown-content-body">
                             <ul>
-                                <li><a href="javascript:void()"><i class="icon-user"></i> <span>My Profile</span></a>
+                                <li><a href="javascript:void(0)"><i class="icon-user"></i> <span>My Profile</span></a>
                                 </li>
-                                <li><a href="javascript:void()"><i class="icon-calender"></i>
+                                <li><a href="javascript:void(0)"><i class="icon-calender"></i>
                                     <span>My Calender</span></a>
                                 </li>
-                                <li><a href="javascript:void()"><i class="icon-envelope-open"></i> <span>My Inbox</span>
+                                <li><a href="javascript:void(0)"><i class="icon-envelope-open"></i>
+                                    <span>My Inbox</span>
                                     <div class="badge gradient-3 badge-pill badge-primary">3</div>
                                 </a>
                                 </li>
-                                <li><a href="javascript:void()"><i class="icon-paper-plane"></i> <span>My Tasks</span>
+                                <li><a href="javascript:void(0)"><i class="icon-paper-plane"></i> <span>My Tasks</span>
                                     <div class="badge badge-pill bg-dark">3</div>
                                 </a>
                                 </li>
-                                <li><a href="javascript:void()"><i class="icon-check"></i> <span>Online</span></a>
+                                <li><a href="javascript:void(0)"><i class="icon-check"></i> <span>Online</span></a>
                                 </li>
-                                <li><a href="javascript:void()"><i class="icon-lock"></i> <span>Lock Screen</span></a>
+                                <li><a href="javascript:void(0)"><i class="icon-lock"></i> <span>Lock Screen</span></a>
                                 </li>
-                                <li><a href="javascript:void()"><i class="icon-key"></i> <span>Logout</span></a>
+                                <li>
+                                    <a href="#" onclick="logout(); return false;">
+                                        <i class="icon-key"></i> <span>Logout</span>
+                                    </a>
                                 </li>
                             </ul>
                         </div>
@@ -219,108 +223,112 @@
         <ul class="metismenu" id="menu">
             <li class="nav-label">Dashboard</li>
             <li>
-                <a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                <a class="has-arrow" href="javascript:void(0)" aria-expanded="false">
                     <i class="icon-speedometer"></i><span class="nav-text">Dashboard</span>
                 </a>
                 <ul aria-expanded="false">
                     <li><a href="index.html">Admin Overview</a></li>
                     <li><a href="index-2.html">Custommer Overview</a></li>
                     <li><a href="index-3.html">Employee Overview</a></li>
-                    <li><a th:href="@{/admin/products}">Product</a></li>
-                    <li><a th:href="@{/admin/product-variants}">Product Variant</a></li>
-                    <li><a th:href="@{/admin/categories}">Category</a></li>
-                    <li><a href="restaurant-reservation.html">Reservation</a></li>
-                    <li><a href="restaurant-employees.html">Employees</a></li>
-                    <li><a href="restaurant-custommer.html">Custommer</a></li>
-                    <li><a href="restaurant-order.html">Order</a></li>
-                    <li><a href="restaurant-packages.html">Packages</a></li>
-                </ul>
-            </li>
 
-            <li>
-                <a class="has-arrow" href="javascript:void()" aria-expanded="false">
-                    <i class="icon-layers"></i><span class="nav-text">Layouts</span>
-                </a>
-                <ul aria-expanded="false">
-                    <li><a href="layout-blank.html">Blank</a></li>
-                    <li><a href="layout-one-column.html">One Column</a></li>
-                    <li><a href="layout-two-column.html">Two column</a></li>
-                    <li><a href="layout-fixed-header.html">Fixed Header</a></li>
-                    <li><a href="layout-fixed-sidebar.html">Fixed Sidebar</a></li>
-                    <li><a href="layout-horizontal-nav.html">Horizontal</a></li>
-                    <li><a href="layout-rtl.html">RTL</a></li>
-                    <li><a href="layout-boxed.html">Boxed</a></li>
-                    <li><a href="layout-wide-boxed.html">Wide Boxed</a></li>
-                    <li><a href="layout-wide.html">Wide</a></li>
-                    <li><a href="layout-dark.html">Dark</a></li>
-                    <li><a href="layout-light.html">Light</a></li>
+                    <!--                    <li><a href="restaurant-reservation.html">Reservation</a></li>-->
+                    <!--                    <li><a href="restaurant-employees.html">Employees</a></li>-->
+                    <!--                    <li><a href="restaurant-custommer.html">Custommer</a></li>-->
+                    <!--                    <li><a href="restaurant-order.html">Order</a></li>-->
+                    <!--                    <li><a href="restaurant-packages.html">Packages</a></li>-->
                 </ul>
             </li>
-            <li class="nav-label">Apps</li>
-            <li>
-                <a class="has-arrow" href="javascript:void()" aria-expanded="false">
-                    <i class="icon-screen-smartphone"></i><span class="nav-text">Apps</span>
-                </a>
-                <ul aria-expanded="false">
-                    <li><a href="email-inbox.html">Mailbox</a></li>
-                    <li><a href="app-profile.html">Profile</a></li>
-                    <li><a href="app-calender.html">Calendar</a></li>
-                </ul>
-            </li>
-            <li>
-                <a href="charts.html" aria-expanded="false">
-                    <i class="icon-chart"></i> <span class="nav-text">Charts</span>
-                </a>
-            </li>
-            <li class="nav-label">UI Components</li>
-            <li>
-                <a href="ui-bootstrap.html" aria-expanded="false">
-                    <i class="icon-diamond"></i>
-                    <span class="nav-text">UI Bootstrap</span>
-                </a>
-            </li>
-            <li>
-                <a href="components.html" aria-expanded="false"
-                ><i class="icon-puzzle"></i><span class="nav-text">Components</span></a
-                >
-            </li>
-            <li>
-                <a href="widget-basic.html" aria-expanded="false"
-                ><i class="icon-badge"></i><span class="nav-text">Widget</span></a
-                >
-            </li>
-            <li class="nav-label">Forms</li>
-            <li>
-                <a href="forms.html" aria-expanded="false"
-                ><i class="icon-settings"></i><span class="nav-text">Forms</span></a
-                >
-            </li>
-            <li class="nav-label">Table</li>
-            <li>
-                <a href="tables.html" aria-expanded="false"
-                ><i class="icon-briefcase"></i><span class="nav-text">Table</span></a
-                >
-            </li>
-            <li>
-                <a class="has-arrow" href="javascript:void()" aria-expanded="false"
-                ><i class="icon-globe"></i><span class="nav-text">Pages</span></a
-                >
-                <ul aria-expanded="false">
-                    <li><a href="page-login.html">Login</a></li>
-                    <li><a href="page-register.html">Register</a></li>
-                    <li><a href="page-user-lock.html">Lock Screen</a></li>
-                    <li>
-                        <a class="has-arrow" href="javascript:void()" aria-expanded="false">Erorr</a>
-                        <ul aria-expanded="false" class="collapse">
-                            <li><a href="page-error-400.html">Erorr 400</a></li>
-                            <li><a href="page-error-403.html">Erorr 403</a></li>
-                            <li><a href="page-error-404.html">Erorr 404</a></li>
-                            <li><a href="page-error-500.html">Erorr 500</a></li>
-                            <li><a href="page-error-503.html">Erorr 503</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
+            <li><a th:href="@{/admin/products}" aria-expanded="false">
+                <i class="icon-layers"></i><span class="nav-text">Product</span></a></li>
+            <li><a th:href="@{/admin/product-variants}" aria-expanded="false">
+                <i class="icon-screen-smartphone"></i><span class="nav-text">Product Variant</span></a></li>
+            <li><a th:href="@{/admin/categories}" aria-expanded="false">
+                <i class="icon-diamond"></i><span class="nav-text">Category</span></a></li>
+
+            <!--            <li>-->
+            <!--                <a class="has-arrow" href="javascript:void()" aria-expanded="false">-->
+            <!--                    <i class="icon-layers"></i><span class="nav-text">Layouts</span>-->
+            <!--                </a>-->
+            <!--                <ul aria-expanded="false">-->
+            <!--                    <li><a href="layout-blank.html">Blank</a></li>-->
+            <!--                    <li><a href="layout-one-column.html">One Column</a></li>-->
+            <!--                    <li><a href="layout-two-column.html">Two column</a></li>-->
+            <!--                    <li><a href="layout-fixed-header.html">Fixed Header</a></li>-->
+            <!--                    <li><a href="layout-fixed-sidebar.html">Fixed Sidebar</a></li>-->
+            <!--                    <li><a href="layout-horizontal-nav.html">Horizontal</a></li>-->
+            <!--                    <li><a href="layout-rtl.html">RTL</a></li>-->
+            <!--                    <li><a href="layout-boxed.html">Boxed</a></li>-->
+            <!--                    <li><a href="layout-wide-boxed.html">Wide Boxed</a></li>-->
+            <!--                    <li><a href="layout-wide.html">Wide</a></li>-->
+            <!--                    <li><a href="layout-dark.html">Dark</a></li>-->
+            <!--                    <li><a href="layout-light.html">Light</a></li>-->
+            <!--                </ul>-->
+            <!--            </li>-->
+            <!--            <li class="nav-label">Apps</li>-->
+            <!--            <li>-->
+            <!--                <a class="has-arrow" href="javascript:void()" aria-expanded="false">-->
+            <!--                    <i class="icon-screen-smartphone"></i><span class="nav-text">Apps</span>-->
+            <!--                </a>-->
+            <!--                <ul aria-expanded="false">-->
+            <!--                    <li><a href="email-inbox.html">Mailbox</a></li>-->
+            <!--                    <li><a href="app-profile.html">Profile</a></li>-->
+            <!--                    <li><a href="app-calender.html">Calendar</a></li>-->
+            <!--                </ul>-->
+            <!--            </li>-->
+            <!--            <li>-->
+            <!--                <a href="charts.html" aria-expanded="false">-->
+            <!--                    <i class="icon-chart"></i> <span class="nav-text">Charts</span>-->
+            <!--                </a>-->
+            <!--            </li>-->
+            <!--            <li class="nav-label">UI Components</li>-->
+            <!--            <li>-->
+            <!--                <a href="ui-bootstrap.html" aria-expanded="false">-->
+            <!--                    <i class="icon-diamond"></i>-->
+            <!--                    <span class="nav-text">UI Bootstrap</span>-->
+            <!--                </a>-->
+            <!--            </li>-->
+            <!--            <li>-->
+            <!--                <a href="components.html" aria-expanded="false"-->
+            <!--                ><i class="icon-puzzle"></i><span class="nav-text">Components</span></a-->
+            <!--                >-->
+            <!--            </li>-->
+            <!--            <li>-->
+            <!--                <a href="widget-basic.html" aria-expanded="false"-->
+            <!--                ><i class="icon-badge"></i><span class="nav-text">Widget</span></a-->
+            <!--                >-->
+            <!--            </li>-->
+            <!--            <li class="nav-label">Forms</li>-->
+            <!--            <li>-->
+            <!--                <a href="forms.html" aria-expanded="false"-->
+            <!--                ><i class="icon-settings"></i><span class="nav-text">Forms</span></a-->
+            <!--                >-->
+            <!--            </li>-->
+            <!--            <li class="nav-label">Table</li>-->
+            <!--            <li>-->
+            <!--                <a href="tables.html" aria-expanded="false"-->
+            <!--                ><i class="icon-briefcase"></i><span class="nav-text">Table</span></a-->
+            <!--                >-->
+            <!--            </li>-->
+            <!--            <li>-->
+            <!--                <a class="has-arrow" href="javascript:void()" aria-expanded="false"-->
+            <!--                ><i class="icon-globe"></i><span class="nav-text">Pages</span></a-->
+            <!--                >-->
+            <!--                <ul aria-expanded="false">-->
+            <!--                    <li><a href="page-login.html">Login</a></li>-->
+            <!--                    <li><a href="page-register.html">Register</a></li>-->
+            <!--                    <li><a href="page-user-lock.html">Lock Screen</a></li>-->
+            <!--                    <li>-->
+            <!--                        <a class="has-arrow" href="javascript:void()" aria-expanded="false">Erorr</a>-->
+            <!--                        <ul aria-expanded="false" class="collapse">-->
+            <!--                            <li><a href="page-error-400.html">Erorr 400</a></li>-->
+            <!--                            <li><a href="page-error-403.html">Erorr 403</a></li>-->
+            <!--                            <li><a href="page-error-404.html">Erorr 404</a></li>-->
+            <!--                            <li><a href="page-error-500.html">Erorr 500</a></li>-->
+            <!--                            <li><a href="page-error-503.html">Erorr 503</a></li>-->
+            <!--                        </ul>-->
+            <!--                    </li>-->
+            <!--                </ul>-->
+            <!--            </li>-->
         </ul>
     </div>
 </div>
@@ -394,6 +402,24 @@
             });
         }
     });
+</script>
+<script th:inline="javascript">
+    function logout() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/logout';
+
+        // Thêm CSRF token
+        const csrfToken = /*[[${_csrf.token}]]*/ '';
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = /*[[${_csrf.parameterName}]]*/ '_csrf';
+        csrfInput.value = csrfToken;
+
+        form.appendChild(csrfInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
 </script>
 </body>
 </html>

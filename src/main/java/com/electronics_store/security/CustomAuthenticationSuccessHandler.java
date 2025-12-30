@@ -1,9 +1,13 @@
 package com.electronics_store.security;
 
+import com.electronics_store.model.User;
+import com.electronics_store.service.CartService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -17,7 +21,6 @@ import java.util.Collection;
 @Slf4j
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-
     private final HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
 
     @Override
@@ -25,12 +28,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             throws IOException, ServletException {
 
         // 1️⃣ Lấy request trước khi bị redirect login
-        SavedRequest savedRequest =
-                requestCache.getRequest(request, response);
+        SavedRequest savedRequest = requestCache.getRequest(request, response);
 
         if (savedRequest != null) {
             String targetUrl = savedRequest.getRedirectUrl();
-            log.info("Redirect to: {}", targetUrl);
             response.sendRedirect(targetUrl);
             return;
         }

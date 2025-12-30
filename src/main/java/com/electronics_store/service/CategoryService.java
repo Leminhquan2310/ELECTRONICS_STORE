@@ -13,4 +13,6 @@ public interface CategoryService extends IGenerateService<Category> {
     List<Category> getListByParentId(Long parentId);
 
     List<Category> getListByIsLeafTrue();
+
+    List<Category> getListByLevelAndIsActiveTrue(Integer level);
 }

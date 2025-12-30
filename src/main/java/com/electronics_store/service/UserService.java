@@ -6,4 +6,6 @@ import org.springframework.validation.BindingResult;
 
 public interface UserService extends IGenerateService<User>{
     void checkUniqueUsernameRegister(UserDtoRegister userDTO, BindingResult bindingResult);
+
+    User getCurrentUser();
 }

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Account - Electronic Store</title>
+    <th:block  th:replace="~{layout/layout :: css}"></th:block>
+    <link rel="stylesheet" th:href="@{/client-user/css/my-account.css}">
+</head>
+<body>
+<header th:replace="~{layout/layout :: header}"></header>
+
+<!-- Begin Body Wrapper -->
+<div class="body-wrapper">
+    <!-- Begin Header Area -->
+    <!-- [GIỮ NGUYÊN HEADER CODE TỪ TEMPLATE] -->
+    <!-- Header Area End Here -->
+
+    <!-- Begin Li's Breadcrumb Area -->
+    <div class="breadcrumb-area">
+        <div class="container">
+            <div class="breadcrumb-content">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li class="active">My Account</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Li's Breadcrumb Area End Here -->
+
+    <!-- Begin Main Content Area -->
+    <div class="main-content_area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="my-account-area pt-60 pb-60">
+                        <div class="row">
+                            <!-- Begin Sidebar Area -->
+                            <div class="col-lg-3 col-md-4">
+                                <div class="my-account-sidebar">
+                                    <div class="account-user-info">
+                                        <div class="user-avatar">
+                                            <img src="images/product/small-size/1.jpg" alt="User Avatar">
+                                        </div>
+                                        <div class="user-info">
+                                            <h4>Nguyễn Văn A</h4>
+                                            <p>nguyenvana@email.com</p>
+                                        </div>
+                                    </div>
+                                    <ul class="account-menu nav flex-column" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" href="#personal-info" data-toggle="tab" role="tab" aria-controls="personal-info" aria-selected="true">
+                                                <i class="fa fa-user"></i> Personal Information
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="#payment-info" data-toggle="tab" role="tab" aria-controls="payment-info" aria-selected="false">
+                                                <i class="fa fa-credit-card"></i> Payment Information
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="#order-history" data-toggle="tab" role="tab" aria-controls="order-history" aria-selected="false">
+                                                <i class="fa fa-shopping-bag"></i> Order History
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="#change-password" data-toggle="tab" role="tab" aria-controls="change-password" aria-selected="false">
+                                                <i class="fa fa-lock"></i> Change Password
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="login-register.html"><i class="fa fa-sign-out"></i> Logout</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- Sidebar Area End Here -->
+
+                            <!-- Begin Account Content Area -->
+                            <div class="col-lg-9 col-md-8">
+                                <div class="tab-content">
+                                    <!-- Begin Personal Information Tab -->
+                                    <div id="personal-info" class="tab-pane fade show active" role="tabpanel" aria-labelledby="personal-info-tab">
+                                        <div class="account-content-wrapper">
+                                            <div class="account-content-header">
+                                                <h3>Personal Information</h3>
+                                                <p>Manage your personal information and contact details</p>
+                                            </div>
+                                            <div class="account-form-wrapper">
+                                                <form action="#" method="post">
+                                                    <div class="row">
+                                                        <div class="col-lg-6">
+                                                            <div class="single-input-item">
+                                                                <label for="first-name" class="required">First Name</label>
+                                                                <input type="text" id="first-name" name="first_name" value="Nguyễn Văn" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6">
+                                                            <div class="single-input-item">
+                                                                <label for="last-name" class="required">Last Name</label>
+                                                                <input type="text" id="last-name" name="last_name" value="A" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <label for="email" class="required">Email Address</label>
+                                                        <input type="email" id="email" name="email" value="nguyenvana@email.com" required>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <label for="phone" class="required">Phone Number</label>
+                                                        <input type="text" id="phone" name="phone" value="+84 123 456 789" required>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <label for="address">Address</label>
+                                                        <input type="text" id="address" name="address" value="123 Đường ABC, Quận 1">
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6">
+                                                            <div class="single-input-item">
+                                                                <label for="city">City</label>
+                                                                <input type="text" id="city" name="city" value="Hồ Chí Minh">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6">
+                                                            <div class="single-input-item">
+                                                                <label for="zipcode">Zip Code</label>
+                                                                <input type="text" id="zipcode" name="zipcode" value="700000">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <label for="country">Country</label>
+                                                        <select class="nice-select" id="country" name="country">
+                                                            <option value="VN" selected>Vietnam</option>
+                                                            <option value="US">United States</option>
+                                                            <option value="UK">United Kingdom</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <button class="li-btn-account li-btn-dark">Save Changes</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Personal Information Tab End Here -->
+
+                                    <!-- Begin Payment Information Tab -->
+                                    <div id="payment-info" class="tab-pane fade" role="tabpanel" aria-labelledby="payment-info-tab">
+                                        <div class="account-content-wrapper">
+                                            <div class="account-content-header">
+                                                <h3>Payment Information</h3>
+                                                <p>Manage your payment methods</p>
+                                            </div>
+
+                                            <!-- Saved Cards -->
+                                            <div class="saved-payment-methods">
+                                                <h4>Saved Payment Methods</h4>
+                                                <div class="payment-card-list">
+                                                    <div class="payment-card-item">
+                                                        <div class="card-info">
+                                                            <i class="fa fa-credit-card"></i>
+                                                            <div class="card-details">
+                                                                <h5>Visa ending in 4242</h5>
+                                                                <p>Expires 12/2025</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-actions">
+                                                            <span class="badge badge-primary">Default</span>
+                                                            <button class="btn-edit"><i class="fa fa-edit"></i></button>
+                                                            <button class="btn-delete"><i class="fa fa-trash"></i></button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="payment-card-item">
+                                                        <div class="card-info">
+                                                            <i class="fa fa-credit-card"></i>
+                                                            <div class="card-details">
+                                                                <h5>Mastercard ending in 8888</h5>
+                                                                <p>Expires 06/2026</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-actions">
+                                                            <button class="btn-edit"><i class="fa fa-edit"></i></button>
+                                                            <button class="btn-delete"><i class="fa fa-trash"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Add New Card -->
+                                            <div class="add-payment-method mt-30">
+                                                <h4>Add New Payment Method</h4>
+                                                <form action="#" method="post">
+                                                    <div class="single-input-item">
+                                                        <label for="card-name" class="required">Cardholder Name</label>
+                                                        <input type="text" id="card-name" name="card_name" placeholder="John Doe" required>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <label for="card-number" class="required">Card Number</label>
+                                                        <input type="text" id="card-number" name="card_number" placeholder="1234 5678 9012 3456" required>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6">
+                                                            <div class="single-input-item">
+                                                                <label for="expiry-date" class="required">Expiry Date</label>
+                                                                <input type="text" id="expiry-date" name="expiry_date" placeholder="MM/YY" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6">
+                                                            <div class="single-input-item">
+                                                                <label for="cvv" class="required">CVV</label>
+                                                                <input type="text" id="cvv" name="cvv" placeholder="123" required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <label class="checkbox-label">
+                                                            <input type="checkbox" name="default_card">
+                                                            <span>Set as default payment method</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <button class="li-btn li-btn-dark">Add Card</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Payment Information Tab End Here -->
+
+                                    <!-- Begin Order History Tab -->
+                                    <div id="order-history" class="tab-pane fade" role="tabpanel" aria-labelledby="order-history-tab">
+                                        <div class="account-content-wrapper">
+                                            <div class="account-content-header">
+                                                <h3>Order History</h3>
+                                                <p>View and track your orders</p>
+                                            </div>
+
+                                            <!-- Order List -->
+                                            <div class="order-list">
+                                                <!-- Single Order Item -->
+                                                <div class="order-item">
+                                                    <div class="order-header">
+                                                        <div class="order-info-group">
+                                                            <div class="order-info-item">
+                                                                <span class="label">Order ID:</span>
+                                                                <span class="value">#ORD-2024-001</span>
+                                                            </div>
+                                                            <div class="order-info-item">
+                                                                <span class="label">Date:</span>
+                                                                <span class="value">Dec 15, 2024</span>
+                                                            </div>
+                                                            <div class="order-info-item">
+                                                                <span class="label">Total:</span>
+                                                                <span class="value price">$250.00</span>
+                                                            </div>
+                                                            <div class="order-info-item">
+                                                                <span class="badge badge-success">Delivered</span>
+                                                            </div>
+                                                        </div>
+                                                        <button class="toggle-order-details"><i class="fa fa-angle-down"></i></button>
+                                                    </div>
+                                                    <div class="order-details" style="display: none;">
+                                                        <div class="order-products">
+                                                            <h5>Products:</h5>
+                                                            <div class="product-item">
+                                                                <div class="product-image">
+                                                                    <img src="images/product/small-size/1.jpg" alt="Product">
+                                                                </div>
+                                                                <div class="product-info">
+                                                                    <h6>Accusantium dolorem laptop</h6>
+                                                                    <p>Quantity: 1</p>
+                                                                </div>
+                                                                <div class="product-price">
+                                                                    <span>$150.00</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="product-item">
+                                                                <div class="product-image">
+                                                                    <img src="images/product/small-size/2.jpg" alt="Product">
+                                                                </div>
+                                                                <div class="product-info">
+                                                                    <h6>Wireless Mouse Gaming</h6>
+                                                                    <p>Quantity: 2</p>
+                                                                </div>
+                                                                <div class="product-price">
+                                                                    <span>$100.00</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="order-summary">
+                                                            <div class="summary-row">
+                                                                <span>Subtotal:</span>
+                                                                <span>$250.00</span>
+                                                            </div>
+                                                            <div class="summary-row">
+                                                                <span>Shipping:</span>
+                                                                <span>Free</span>
+                                                            </div>
+                                                            <div class="summary-row total">
+                                                                <span>Total:</span>
+                                                                <span>$250.00</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="order-actions">
+                                                            <button class="li-btn li-btn-sm">Track Order</button>
+                                                            <button class="li-btn li-btn-sm li-btn-secondary">Download Invoice</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Single Order Item -->
+                                                <div class="order-item">
+                                                    <div class="order-header">
+                                                        <div class="order-info-group">
+                                                            <div class="order-info-item">
+                                                                <span class="label">Order ID:</span>
+                                                                <span class="value">#ORD-2024-002</span>
+                                                            </div>
+                                                            <div class="order-info-item">
+                                                                <span class="label">Date:</span>
+                                                                <span class="value">Dec 20, 2024</span>
+                                                            </div>
+                                                            <div class="order-info-item">
+                                                                <span class="label">Total:</span>
+                                                                <span class="value price">$180.50</span>
+                                                            </div>
+                                                            <div class="order-info-item">
+                                                                <span class="badge badge-warning">Processing</span>
+                                                            </div>
+                                                        </div>
+                                                        <button class="toggle-order-details"><i class="fa fa-angle-down"></i></button>
+                                                    </div>
+                                                    <div class="order-details" style="display: none;">
+                                                        <div class="order-products">
+                                                            <h5>Products:</h5>
+                                                            <div class="product-item">
+                                                                <div class="product-image">
+                                                                    <img src="images/product/small-size/3.jpg" alt="Product">
+                                                                </div>
+                                                                <div class="product-info">
+                                                                    <h6>Mechanical Keyboard RGB</h6>
+                                                                    <p>Quantity: 1</p>
+                                                                </div>
+                                                                <div class="product-price">
+                                                                    <span>$180.50</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="order-summary">
+                                                            <div class="summary-row">
+                                                                <span>Subtotal:</span>
+                                                                <span>$180.50</span>
+                                                            </div>
+                                                            <div class="summary-row">
+                                                                <span>Shipping:</span>
+                                                                <span>Free</span>
+                                                            </div>
+                                                            <div class="summary-row total">
+                                                                <span>Total:</span>
+                                                                <span>$180.50</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="order-shipping-info">
+                                                            <h5>Shipping Information:</h5>
+                                                            <div class="shipping-timeline">
+                                                                <div class="timeline-item completed">
+                                                                    <div class="timeline-icon"><i class="fa fa-check"></i></div>
+                                                                    <div class="timeline-content">
+                                                                        <h6>Order Confirmed</h6>
+                                                                        <p>Dec 20, 2024 - 10:30 AM</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="timeline-item completed">
+                                                                    <div class="timeline-icon"><i class="fa fa-check"></i></div>
+                                                                    <div class="timeline-content">
+                                                                        <h6>Processing</h6>
+                                                                        <p>Dec 20, 2024 - 02:00 PM</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="timeline-item active">
+                                                                    <div class="timeline-icon"><i class="fa fa-spinner"></i></div>
+                                                                    <div class="timeline-content">
+                                                                        <h6>Preparing for Shipment</h6>
+                                                                        <p>In progress...</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="timeline-item">
+                                                                    <div class="timeline-icon"><i class="fa fa-circle-o"></i></div>
+                                                                    <div class="timeline-content">
+                                                                        <h6>Shipped</h6>
+                                                                        <p>Pending</p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="timeline-item">
+                                                                    <div class="timeline-icon"><i class="fa fa-circle-o"></i></div>
+                                                                    <div class="timeline-content">
+                                                                        <h6>Delivered</h6>
+                                                                        <p>Pending</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="order-actions">
+                                                            <button class="li-btn li-btn-sm li-btn-danger">Cancel Order</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Single Order Item -->
+                                                <div class="order-item">
+                                                    <div class="order-header">
+                                                        <div class="order-info-group">
+                                                            <div class="order-info-item">
+                                                                <span class="label">Order ID:</span>
+                                                                <span class="value">#ORD-2024-003</span>
+                                                            </div>
+                                                            <div class="order-info-item">
+                                                                <span class="label">Date:</span>
+                                                                <span class="value">Dec 25, 2024</span>
+                                                            </div>
+                                                            <div class="order-info-item">
+                                                                <span class="label">Total:</span>
+                                                                <span class="value price">$420.00</span>
+                                                            </div>
+                                                            <div class="order-info-item">
+                                                                <span class="badge badge-info">Shipped</span>
+                                                            </div>
+                                                        </div>
+                                                        <button class="toggle-order-details"><i class="fa fa-angle-down"></i></button>
+                                                    </div>
+                                                    <div class="order-details" style="display: none;">
+                                                        <div class="order-products">
+                                                            <h5>Products:</h5>
+                                                            <div class="product-item">
+                                                                <div class="product-image">
+                                                                    <img src="images/product/small-size/4.jpg" alt="Product">
+                                                                </div>
+                                                                <div class="product-info">
+                                                                    <h6>Gaming Headset Pro</h6>
+                                                                    <p>Quantity: 3</p>
+                                                                </div>
+                                                                <div class="product-price">
+                                                                    <span>$420.00</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="order-summary">
+                                                            <div class="summary-row">
+                                                                <span>Subtotal:</span>
+                                                                <span>$420.00</span>
+                                                            </div>
+                                                            <div class="summary-row">
+                                                                <span>Shipping:</span>
+                                                                <span>Free</span>
+                                                            </div>
+                                                            <div class="summary-row total">
+                                                                <span>Total:</span>
+                                                                <span>$420.00</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="order-shipping-info">
+                                                            <h5>Tracking Information:</h5>
+                                                            <div class="tracking-info-box">
+                                                                <p><strong>Carrier:</strong> DHL Express</p>
+                                                                <p><strong>Tracking Number:</strong> DHL123456789VN</p>
+                                                                <p><strong>Estimated Delivery:</strong> Dec 28, 2024</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="order-actions">
+                                                            <button class="li-btn li-btn-sm">Track Package</button>
+                                                            <button class="li-btn li-btn-sm li-btn-secondary">Contact Support</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Empty State (ẩn khi có đơn hàng) -->
+                                            <div class="empty-orders" style="display: none;">
+                                                <i class="fa fa-shopping-bag"></i>
+                                                <h4>No Orders Yet</h4>
+                                                <p>You haven't placed any orders yet. Start shopping now!</p>
+                                                <a href="shop-left-sidebar.html" class="li-btn">Start Shopping</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Order History Tab End Here -->
+
+                                    <!-- Begin Change Password Tab -->
+                                    <div id="change-password" class="tab-pane fade" role="tabpanel" aria-labelledby="change-password-tab">
+                                        <div class="account-content-wrapper">
+                                            <div class="account-content-header">
+                                                <h3>Change Password</h3>
+                                                <p>Update your password to keep your account secure</p>
+                                            </div>
+                                            <div class="account-form-wrapper">
+                                                <form action="#" method="post">
+                                                    <div class="single-input-item">
+                                                        <label for="current-pwd" class="required">Current Password</label>
+                                                        <input type="password" id="current-pwd" name="current_password" required>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <label for="new-pwd" class="required">New Password</label>
+                                                        <input type="password" id="new-pwd" name="new_password" required>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <label for="confirm-pwd" class="required">Confirm New Password</label>
+                                                        <input type="password" id="confirm-pwd" name="confirm_password" required>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <button class="li-btn li-btn-dark">Change Password</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Change Password Tab End Here -->
+                                </div>
+                            </div>
+                            <!-- Account Content Area End Here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Content Area End Here -->
+
+    <!-- Begin Footer Area -->
+    <!-- [GIỮ NGUYÊN FOOTER CODE TỪ TEMPLATE] -->
+    <!-- Footer Area End Here -->
+</div>
+
+<footer th:replace="~{layout/layout :: footer}"></footer>
+
+<div th:replace="~{layout/layout :: script}"></div>
+<script>
+    // Toggle Order Details - Chờ DOM và jQuery ready
+    jQuery(document).ready(function($) {
+        // Toggle Order Details
+        $(document).on('click', '.toggle-order-details', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var $button = $(this);
+            var $orderItem = $button.closest('.order-item');
+            var $orderDetails = $orderItem.find('.order-details');
+
+            // Toggle display
+            $orderDetails.slideToggle(300);
+            $button.toggleClass('active');
+        });
+
+        // Click on order header to toggle
+        $(document).on('click', '.order-header', function(e) {
+            if ($(e.target).hasClass('toggle-order-details') || $(e.target).closest('.toggle-order-details').length) {
+                return;
+            }
+            $(this).find('.toggle-order-details').trigger('click');
+        });
+    });
+</script>
+</body>
+</html>

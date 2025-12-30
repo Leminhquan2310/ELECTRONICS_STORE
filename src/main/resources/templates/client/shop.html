@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Shop - Electronics Store</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <th:block th:replace="~{layout/layout :: css}"></th:block>
+    <style>
+        .search-result-header {
+            margin-bottom: 2rem;
+        }
+
+        .search-keyword-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .keyword-display {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .keyword-label {
+            color: #666;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .keyword-text {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .result-count {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .clear-search {
+            background: transparent;
+            border: 1px solid #dee2e6;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .clear-search:hover {
+            background: #f8f9fa;
+            color: #495057;
+            border-color: #adb5bd;
+        }
+
+        .search-icon {
+            color: #666;
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .search-result-header {
+                padding: 1.5rem 0;
+            }
+
+            .search-info {
+                padding: 1rem 0;
+            }
+
+            .keyword-text {
+                font-size: 1.2rem;
+            }
+
+            .keyword-display {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="body-wrapper">
+    <header th:replace="~{layout/layout :: header}"></header>
+
+    <div class="content-wraper pt-60 pb-60">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-9 order-1 order-lg-2">
+
+                    <div class="search-result-header">
+                        <div class="search-keyword-container">
+                            <div class="search-info">
+                                <div class="keyword-display">
+                                    <i class="icon-magnifier search-icon"></i>
+                                    <div style="flex: 1;">
+                                        <div>
+                                            <span class="keyword-label">Kết quả tìm kiếm cho:</span>
+                                            <span class="keyword-text">"Laptop Gaming"</span>
+                                        </div>
+                                        <div class="result-count">
+                                            <i class="icon-check" style="color: #28a745;"></i>
+                                            <span>Tìm thấy <strong>48 sản phẩm</strong></span>
+                                        </div>
+                                    </div>
+                                    <a href="#" class="clear-search">
+                                        <i class="icon-close"></i>
+                                        Xóa tìm kiếm
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Begin Li's Banner Area -->
+                    <div class="single-banner shop-page-banner">
+                        <a href="#">
+                            <img th:src="@{client-user/images/bg-banner/2.jpg}" alt="Li's Static Banner">
+                        </a>
+                    </div>
+                    <!-- Li's Banner Area End Here -->
+                    <!-- shop-top-bar start -->
+                    <div class="shop-top-bar mt-30">
+                        <div class="shop-bar-inner">
+                            <div class="product-view-mode">
+                                <!-- shop-item-filter-list start -->
+                                <ul class="nav shop-item-filter-list" role="tablist">
+                                    <li role="presentation"><a data-toggle="tab" role="tab" aria-controls="grid-view"
+                                                               href="#grid-view"><i class="fa fa-th"></i></a></li>
+                                    <li class="active" role="presentation"><a aria-selected="true" class="active show"
+                                                                              data-toggle="tab" role="tab"
+                                                                              aria-controls="list-view"
+                                                                              href="#list-view"><i
+                                            class="fa fa-th-list"></i></a></li>
+                                </ul>
+                                <!-- shop-item-filter-list end -->
+                            </div>
+                            <div class="toolbar-amount">
+                                <span th:if="${page.totalElements > 0}"
+                                      th:text="|Showing
+          ${page.number * page.size + 1}
+          to
+          ${page.number * page.size + page.numberOfElements}
+          of
+          ${page.totalElements}|"></span>
+                            </div>
+                        </div>
+                        <!-- product-select-box start -->
+                        <div class="product-select-box">
+                            <div class="product-short">
+                                <p>Sort By:</p>
+                                <select class="nice-select">
+                                    <option value="trending">Relevance</option>
+                                    <option value="sales">Name (A - Z)</option>
+                                    <option value="sales">Name (Z - A)</option>
+                                    <option value="rating">Price (Low &gt; High)</option>
+                                    <option value="date">Rating (Lowest)</option>
+                                    <option value="price-asc">Model (A - Z)</option>
+                                    <option value="price-asc">Model (Z - A)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- product-select-box end -->
+                    </div>
+                    <!-- shop-top-bar end -->
+                    <!-- shop-products-wrapper start -->
+                    <div class="shop-products-wrapper">
+                        <div class="tab-content">
+                            <div id="grid-view" class="tab-pane fade" role="tabpanel">
+                                <div class="product-area shop-product-area">
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-4 col-sm-6 mt-40"
+                                             th:each="product : ${page.getContent()}">
+                                            <!-- single-product-wrap start -->
+                                            <div class="single-product-wrap">
+                                                <div class="product-image">
+                                                    <a th:href="@{/product-detail/{id}(id=${product.id})}">
+                                                        <img th:src="${product.imageMain}"
+                                                             alt="Li's Product Image">
+                                                    </a>
+                                                </div>
+                                                <div class="product_desc">
+                                                    <div class="product_desc_info">
+                                                        <div class="product-review">
+                                                            <h5 class="manufacturer">
+                                                                <a th:text="${product.categoryName}">Graphic Corner</a>
+                                                            </h5>
+                                                            <div class="rating-box">
+                                                                <ul class="rating">
+                                                                    <li th:each="i : ${#numbers.sequence(1, 5)}"
+                                                                        th:classappend="${i <= product.ratingAvg ? '' : 'no-star' }">
+                                                                        <i class="fa fa-star-o"></i></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <h4><a class="product_name"
+                                                               th:href="@{/product-detail/{id}(id=${product.id})}"
+                                                               th:text="${product.name}">Accusantium
+                                                            dolorem1</a></h4>
+                                                        <div class="price-box">
+                                                            <span class="new-price"
+                                                                  th:text="${#numbers.formatCurrency(product.basePrice)}">$46.80</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="add-actions">
+                                                        <ul class="add-actions-link">
+                                                            <li class="add-cart active"><a href="shopping-cart.html">Add
+                                                                to cart</a></li>
+                                                            <li><a href="javascript:void(0)" title="quick view"
+                                                                   class="quick-view-btn"
+                                                                   data-toggle="modal"
+                                                                   data-target="#modalQuickView"
+                                                                   th:data-id="${product.id}"><i
+                                                                    class="fa fa-eye"></i></a></li>
+                                                            <li><a class="links-details" href="wishlist.html"><i
+                                                                    class="fa fa-heart-o"></i></a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- single-product-wrap end -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="list-view" class="tab-pane fade product-list-view active show" role="tabpanel">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="row product-layout-list" th:each="product : ${page.getContent()}">
+                                            <div class="col-lg-3 col-md-5 ">
+                                                <div class="product-image">
+                                                    <a th:href="@{/product-detail/{id}(id=${product.id})}">
+                                                        <img th:src="${product.imageMain}"
+                                                             alt="Li's Product Image">
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5 col-md-7">
+                                                <div class="product_desc">
+                                                    <div class="product_desc_info">
+                                                        <div class="product-review">
+                                                            <h5 class="manufacturer">
+                                                                <a th:text="${product.categoryName}">Graphic Corner</a>
+                                                            </h5>
+                                                            <div class="rating-box">
+                                                                <ul class="rating">
+                                                                    <li th:each="i : ${#numbers.sequence(1, 5)}"
+                                                                        th:classappend="${i <= product.ratingAvg ? '' : 'no-star' }">
+                                                                        <i class="fa fa-star-o"></i></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <h4><a class="product_name"
+                                                               th:href="@{/product-detail/{id}(id=${product.id})}"
+                                                               th:text="${product.name}"></a></h4>
+                                                        <div class="price-box">
+                                                            <span class="new-price"
+                                                                  th:text="${#numbers.formatCurrency(product.basePrice)}"></span>
+                                                        </div>
+                                                        <p th:text="${product.description}"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <div class="shop-add-action mb-xs-30">
+                                                    <ul class="add-actions-link">
+                                                        <li class="add-cart"><a href="#">Add to cart</a></li>
+                                                        <li class="wishlist"><a href="wishlist.html"><i
+                                                                class="fa fa-heart-o"></i>Add to wishlist</a></li>
+                                                        <li><a class="quick-view" data-toggle="modal"
+                                                               data-target="#modalQuickView" href="javascript:void(0)"
+                                                               th:data-id="${product.id}"><i
+                                                                class="fa fa-eye"></i>Quick view</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="paginatoin-area">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6">
+                                        <p th:if="${page.totalElements > 0}"
+                                           th:text="|Showing
+                                                          ${page.number * page.size + 1}-${page.number * page.size + page.numberOfElements}
+                                                          of
+                                                          ${page.totalElements} items|"
+                                        >Showing 1-12 of 13 item(s)</p>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <ul class="pagination-box">
+                                            <li th:if="${!page.first}">
+                                                <a th:href="@{/shop(page=${page.number - 1})}" class="Previous">
+                                                    <i class="fa fa-chevron-left"></i> Previous
+                                                </a>
+                                            </li>
+                                            <li class="page-item"
+                                                th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                                                th:classappend="${i == page.number} ? 'active'">
+                                                <a th:href="@{/shop(page=${i})}"
+                                                   th:text="${i + 1}">
+                                                </a>
+                                            </li>
+                                            <li th:if="${!page.last}">
+                                                <a th:href="@{/shop(page=${page.number + 1})}" class="Next">
+                                                    Next <i class="fa fa-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- shop-products-wrapper end -->
+                </div>
+                <div class="col-lg-3 order-2 order-lg-1">
+                    <!--sidebar-categores-box start  -->
+                    <div class="sidebar-categores-box mt-sm-30 mt-xs-30">
+                        <div class="sidebar-title">
+                            <h2>Laptop</h2>
+                        </div>
+                        <!-- category-sub-menu start -->
+                        <div class="category-sub-menu">
+                            <ul>
+                                <li class="has-sub"><a href="# ">Prime Video</a>
+                                    <ul>
+                                        <li><a href="#">All Videos</a></li>
+                                        <li><a href="#">Blouses</a></li>
+                                        <li><a href="#">Evening Dresses</a></li>
+                                        <li><a href="#">Summer Dresses</a></li>
+                                        <li><a href="#">T-Rent or Buy</a></li>
+                                        <li><a href="#">Your Watchlist</a></li>
+                                        <li><a href="#">Watch Anywhere</a></li>
+                                        <li><a href="#">Getting Started</a></li>
+                                    </ul>
+                                </li>
+                                <li class="has-sub"><a href="#">Computer</a>
+                                    <ul>
+                                        <li><a href="#">TV & Video</a></li>
+                                        <li><a href="#">Audio & Theater</a></li>
+                                        <li><a href="#">Camera, Photo</a></li>
+                                        <li><a href="#">Cell Phones</a></li>
+                                        <li><a href="#">Headphones</a></li>
+                                        <li><a href="#">Video Games</a></li>
+                                        <li><a href="#">Wireless Speakers</a></li>
+                                    </ul>
+                                </li>
+                                <li class="has-sub"><a href="#">Electronics</a>
+                                    <ul>
+                                        <li><a href="#">Amazon Home</a></li>
+                                        <li><a href="#">Kitchen & Dining</a></li>
+                                        <li><a href="#">Bed & Bath</a></li>
+                                        <li><a href="#">Appliances</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- category-sub-menu end -->
+                    </div>
+                    <!--sidebar-categores-box end  -->
+                    <!--sidebar-categores-box start  -->
+                    <div class="sidebar-categores-box">
+                        <div class="sidebar-title">
+                            <h2>Filter By</h2>
+                        </div>
+                        <!-- btn-clear-all start -->
+                        <button class="btn-clear-all mb-sm-30 mb-xs-30">Clear all</button>
+                        <!-- btn-clear-all end -->
+                        <!-- filter-sub-area start -->
+                        <div class="filter-sub-area">
+                            <h5 class="filter-sub-titel">Brand</h5>
+                            <div class="categori-checkbox">
+                                <form action="#">
+                                    <ul>
+                                        <li><input type="checkbox" name="product-categori"><a href="#">Prime Video
+                                            (13)</a></li>
+                                        <li><input type="checkbox" name="product-categori"><a href="#">Computers
+                                            (12)</a></li>
+                                        <li><input type="checkbox" name="product-categori"><a href="#">Electronics
+                                            (11)</a></li>
+                                    </ul>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- filter-sub-area end -->
+                        <!-- filter-sub-area start -->
+                        <div class="filter-sub-area pt-sm-10 pt-xs-10">
+                            <h5 class="filter-sub-titel">Categories</h5>
+                            <div class="categori-checkbox">
+                                <form action="#">
+                                    <ul>
+                                        <li><input type="checkbox" name="product-categori"><a href="#">Graphic Corner
+                                            (10)</a></li>
+                                        <li><input type="checkbox" name="product-categori"><a href="#"> Studio Design
+                                            (6)</a></li>
+                                    </ul>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- filter-sub-area end -->
+                        <!-- filter-sub-area start -->
+                        <div class="filter-sub-area pt-sm-10 pt-xs-10">
+                            <h5 class="filter-sub-titel">Size</h5>
+                            <div class="size-checkbox">
+                                <form action="#">
+                                    <ul>
+                                        <li><input type="checkbox" name="product-size"><a href="#">S (3)</a></li>
+                                        <li><input type="checkbox" name="product-size"><a href="#">M (3)</a></li>
+                                        <li><input type="checkbox" name="product-size"><a href="#">L (3)</a></li>
+                                        <li><input type="checkbox" name="product-size"><a href="#">XL (3)</a></li>
+                                    </ul>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- filter-sub-area end -->
+                        <!-- filter-sub-area start -->
+                        <div class="filter-sub-area pt-sm-10 pt-xs-10">
+                            <h5 class="filter-sub-titel">Color</h5>
+                            <div class="color-categoriy">
+                                <form action="#">
+                                    <ul>
+                                        <li><span class="white"></span><a href="#">White (1)</a></li>
+                                        <li><span class="black"></span><a href="#">Black (1)</a></li>
+                                        <li><span class="Orange"></span><a href="#">Orange (3) </a></li>
+                                        <li><span class="Blue"></span><a href="#">Blue (2) </a></li>
+                                    </ul>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- filter-sub-area end -->
+                        <!-- filter-sub-area start -->
+                        <div class="filter-sub-area pt-sm-10 pb-sm-15 pb-xs-15">
+                            <h5 class="filter-sub-titel">Dimension</h5>
+                            <div class="categori-checkbox">
+                                <form action="#">
+                                    <ul>
+                                        <li><input type="checkbox" name="product-categori"><a href="#">40x60cm (6)</a>
+                                        </li>
+                                        <li><input type="checkbox" name="product-categori"><a href="#">60x90cm (6)</a>
+                                        </li>
+                                        <li><input type="checkbox" name="product-categori"><a href="#">80x120cm (6)</a>
+                                        </li>
+                                    </ul>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- filter-sub-area end -->
+                    </div>
+                    <!--sidebar-categores-box end  -->
+                    <!-- category-sub-menu start -->
+                    <div class="sidebar-categores-box mb-sm-0">
+                        <div class="sidebar-title">
+                            <h2>Laptop</h2>
+                        </div>
+                        <div class="category-tags">
+                            <ul>
+                                <li><a href="# ">Devita</a></li>
+                                <li><a href="# ">Cameras</a></li>
+                                <li><a href="# ">Sony</a></li>
+                                <li><a href="# ">Computer</a></li>
+                                <li><a href="# ">Big Sale</a></li>
+                                <li><a href="# ">Accessories</a></li>
+                            </ul>
+                        </div>
+                        <!-- category-sub-menu end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- Modal Quick View-->
+<div class="modal fade modal-wrapper" id="modalQuickView">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="modal-inner-area row">
+                    <div class="col-lg-5 col-md-6 col-sm-6">
+                        <!-- Product Details Left -->
+                        <div class="product-details-left">
+                            <div class="product-details-images slider-navigation-1" id="qv-images">
+                            </div>
+                            <div class="product-details-thumbs slider-thumbs-1" id="qv-thumbs">
+                            </div>
+                        </div>
+                        <!--// Product Details Left -->
+                    </div>
+
+                    <div class="col-lg-7 col-md-6 col-sm-6">
+                        <div class="product-details-view-content pt-60">
+                            <div class="product-info">
+                                <h2 id="qv-name">Today is a good day Framed poster</h2>
+                                <span class="product-details-ref" id="qv-category">Category: demo_15</span>
+                                <div class="rating-box pt-20">
+                                    <ul class="rating rating-with-review-item">
+                                        <li><i class="fa fa-star-o"></i></li>
+                                        <li><i class="fa fa-star-o"></i></li>
+                                        <li><i class="fa fa-star-o"></i></li>
+                                        <li class="no-star"><i class="fa fa-star-o"></i></li>
+                                        <li class="no-star"><i class="fa fa-star-o"></i></li>
+                                        <li class="review-item"><a href="#">Read Review</a></li>
+                                        <li class="review-item"><a href="#">Write Review</a></li>
+                                    </ul>
+                                </div>
+                                <div class="price-box pt-20">
+                                    <span class="new-price new-price-2" id="qv-price">$57.98</span>
+                                </div>
+                                <div class="product-desc">
+                                    <p>
+                                                    <span id="qv-desc">100% cotton double printed dress. Black and white striped top and orange high waisted skater skirt bottom. Lorem ipsum dolor sit amet, consectetur adipisicing elit. quibusdam corporis, earum facilis et nostrum dolorum accusamus similique eveniet quia pariatur.
+                                                    </span>
+                                    </p>
+                                </div>
+
+                                <form th:action="@{/user/cart/add}" method="post" class="cart-quantity">
+                                    <!-- CSRF Token -->
+                                    <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <input type="hidden" name="productId" id="qv-id" value=""/>
+                                    <div class="product-variants d-flex">
+                                        <div class="produt-variants-size"></div>
+                                    </div>
+                                    <div class="single-add-to-cart">
+                                        <div class="quantity">
+                                            <label>Quantity</label>
+                                            <div class="cart-plus-minus">
+                                                <input class="cart-plus-minus-box" value="1" type="text"
+                                                       name="quantity">
+                                                <div class="dec qtybutton"><i class="fa fa-angle-down"></i></div>
+                                                <div class="inc qtybutton"><i class="fa fa-angle-up"></i></div>
+                                            </div>
+                                        </div>
+                                        <button class="add-to-cart" type="submit">Add to cart</button>
+                                    </div>
+                                </form>
+                                <div class="product-additional-info pt-25">
+                                    <a class="wishlist-btn" href="wishlist.html"><i class="fa fa-heart-o"></i>Add to
+                                        wishlist</a>
+                                    <div class="product-social-sharing pt-25">
+                                        <ul>
+                                            <li class="facebook"><a href="#"><i class="fa fa-facebook"></i>Facebook</a>
+                                            </li>
+                                            <li class="twitter"><a href="#"><i class="fa fa-twitter"></i>Twitter</a>
+                                            </li>
+                                            <li class="google-plus"><a href="#"><i class="fa fa-google-plus"></i>Google
+                                                +</a></li>
+                                            <li class="instagram"><a href="#"><i
+                                                    class="fa fa-instagram"></i>Instagram</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{layout/layout :: footer}"></footer>
+
+<div th:replace="~{layout/layout :: script}"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let quickViewModal = $('#modalQuickView');
+
+        // Reset modal content khi đóng modal
+        quickViewModal.on('hidden.bs.modal', function () {
+            destroySlick('#qv-images');
+            destroySlick('#qv-thumbs');
+
+            // Reset nội dung về trạng thái ban đầu
+            document.getElementById('qv-images').innerHTML = '';
+            document.getElementById('qv-thumbs').innerHTML = '';
+        });
+
+        document.querySelectorAll('.quick-view, .quick-view-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const productId = this.dataset.id;
+
+                // Reset content
+                document.getElementById('qv-images').innerHTML = '';
+                document.getElementById('qv-thumbs').innerHTML = '';
+                document.getElementById('qv-name').textContent = 'Loading...';
+                document.getElementById('qv-id').textContent = '';
+                document.getElementById('qv-category').textContent = 'Loading...';
+                document.getElementById('qv-price').textContent = '$0.00';
+                document.getElementById('qv-desc').textContent = 'Loading...';
+
+                // Clear previous options
+                const optionsContainer = document.querySelector('#modalQuickView .product-variants');
+                optionsContainer.innerHTML = '<div class="produt-variants-size">' +
+                    '<label>Dimension</label><select class="nice-select"></select></div>';
+
+                fetch('/product-detail/api/' + productId)
+                    .then(res => {
+                        if (!res.ok) throw new Error('Fetch error');
+                        return res.json();
+                    })
+                    .then(data => {
+                        // Update text content
+                        document.getElementById('qv-name').textContent = data.product.name || 'Product Name';
+                        document.getElementById('qv-category').textContent = 'Category: ' + (data.product.categoryName || 'N/A');
+                        // Price
+                        const price = data.product.salePrice || data.product.basePrice;
+                        document.getElementById('qv-price').textContent = '$' + (price || '0.00');
+                        // Description
+                        document.getElementById('qv-desc').textContent = data.product.description || 'No description available';
+                        document.getElementById('qv-id').value = data.product.id;
+
+
+                        // Update rating stars
+                        updateRatingStars(data.product.ratingAvg || 0);
+
+                        // Update product options
+                        updateProductOptions(data.productOptions || []);
+
+                        // Create images
+                        const imagesContainer = document.getElementById('qv-images');
+                        const thumbsContainer = document.getElementById('qv-thumbs');
+
+                        if (data.product.images && data.product.images.length > 0) {
+                            data.product.images.forEach((img, index) => {
+                                // Large images
+                                const lg = document.createElement('div');
+                                lg.className = 'lg-image';
+                                const lgImg = document.createElement('img');
+                                lgImg.src = img;
+                                lgImg.alt = 'product image';
+                                lg.appendChild(lgImg);
+                                imagesContainer.appendChild(lg);
+
+                                // Thumbnail images
+                                const sm = document.createElement('div');
+                                sm.className = 'sm-image';
+                                const smImg = document.createElement('img');
+                                smImg.src = img;
+                                smImg.alt = 'product thumbnail';
+                                sm.appendChild(smImg);
+                                thumbsContainer.appendChild(sm);
+                            });
+
+                            // Đảm bảo ảnh đã load xong trước khi init Slick
+                            const images = document.querySelectorAll('#qv-images img, #qv-thumbs img');
+                            let loadedImages = 0;
+                            const totalImages = images.length;
+
+                            images.forEach(img => {
+                                if (img.complete) {
+                                    loadedImages++;
+                                } else {
+                                    img.addEventListener('load', function () {
+                                        loadedImages++;
+                                        if (loadedImages === totalImages) {
+                                            initQuickViewSlick();
+                                        }
+                                    });
+                                }
+                            });
+
+                            if (loadedImages === totalImages) {
+                                initQuickViewSlick();
+                            }
+                        } else {
+                            console.log("false")
+                            initQuickViewSlick();
+                        }
+
+                        // Show modal
+                        quickViewModal.modal('show');
+                    })
+                    .catch((reason) => {
+                        console.log("Error")
+                        console.log(reason);
+                        alert('Không tải được sản phẩm');
+                    });
+            });
+        });
+
+        // Quantity buttons functionality
+        document.addEventListener('click', function (e) {
+            const modal = document.getElementById('modalQuickView');
+            if (!modal.classList.contains('show')) return;
+
+            const qtyInput = modal.querySelector('.cart-plus-minus-box');
+            if (!qtyInput) return;
+
+            if (e.target.closest('.inc') || e.target.closest('.inc i')) {
+                let value = parseInt(qtyInput.value) || 1;
+                qtyInput.value = value + 1;
+                e.preventDefault();
+            } else if (e.target.closest('.dec') || e.target.closest('.dec i')) {
+                let value = parseInt(qtyInput.value) || 1;
+                if (value > 1) {
+                    qtyInput.value = value - 1;
+                }
+                e.preventDefault();
+            }
+        });
+    });
+
+
+    // Function to update rating stars
+    function updateRatingStars(ratingAvg) {
+        const ratingContainer = document.querySelector('#modalQuickView .rating');
+        if (!ratingContainer) return;
+
+        // Clear existing stars
+        ratingContainer.innerHTML = '';
+
+        // Create 5 stars
+        for (let i = 1; i <= 5; i++) {
+            const li = document.createElement('li');
+            if (i <= Math.floor(ratingAvg)) {
+                // Full star
+                li.innerHTML = '<i class="fa fa-star-o"></i>';
+            } else {
+                // Empty star
+                li.className = 'no-star';
+                li.innerHTML = '<i class="fa fa-star-o"></i>';
+            }
+            ratingContainer.appendChild(li);
+        }
+
+        // Add review links
+        const readReview = document.createElement('li');
+        readReview.className = 'review-item';
+        readReview.innerHTML = '<a href="#">Read Review</a>';
+        ratingContainer.appendChild(readReview);
+
+        const writeReview = document.createElement('li');
+        writeReview.className = 'review-item';
+        writeReview.innerHTML = '<a href="#">Write Review</a>';
+        ratingContainer.appendChild(writeReview);
+    }
+
+    // Function to update product options
+    function updateProductOptions(productOptions) {
+        const optionsContainer = document.querySelector('#modalQuickView .product-variants');
+        if (!optionsContainer) return;
+
+        // Clear existing options
+        optionsContainer.innerHTML = '';
+
+        if (productOptions && productOptions.length > 0) {
+            productOptions.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'produt-variants-size';
+
+                // Create label
+                const label = document.createElement('label');
+                label.textContent = option.name || 'Option';
+                optionDiv.appendChild(label);
+
+                // Create select
+                const select = document.createElement('select');
+                select.className = 'nice-select  pr-15';
+                select.name = 'optionValueIds';
+
+                // Add options
+                if (option.values && option.values.length > 0) {
+                    option.values.forEach(optionValue => {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = optionValue.id || '';
+                        optionElement.title = optionValue.value || '';
+                        optionElement.textContent = optionValue.value || '';
+                        select.appendChild(optionElement);
+                    });
+                } else {
+                    // Default option if no values
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Select option';
+                    select.appendChild(defaultOption);
+                }
+
+                optionDiv.appendChild(select);
+                optionsContainer.appendChild(optionDiv);
+            });
+        } else {
+            // Default option if no product options
+            const defaultOptionDiv = document.createElement('div');
+            defaultOptionDiv.className = 'produt-variants-size';
+            defaultOptionDiv.innerHTML = `
+            <label>Options</label>
+            <select class="nice-select pr-15">
+                <option value="" selected>No options available</option>
+            </select>
+        `;
+            optionsContainer.appendChild(defaultOptionDiv);
+        }
+    }
+
+    function destroySlick(selector) {
+        const el = document.querySelector(selector);
+        if (!el) return;
+
+        if (typeof $ !== 'undefined' && $(el).hasClass('slick-initialized')) {
+            $(el).slick('unslick');
+        }
+    }
+
+    function initQuickViewSlick() {
+        // Đợi một chút để modal hoàn toàn hiển thị
+        setTimeout(() => {
+            // Destroy trước nếu đã được init
+            destroySlick('#qv-images');
+            destroySlick('#qv-thumbs');
+
+            // Init main slider
+            $('#qv-images').slick({
+                slidesToShow: 1,
+                slidesToScroll: 1,
+                arrows: false,
+                fade: true,
+                asNavFor: '#qv-thumbs',
+                infinite: true,
+                adaptiveHeight: true
+            });
+
+            // Init thumbnail slider
+            $('#qv-thumbs').slick({
+                slidesToShow: 4,
+                slidesToScroll: 1,
+                asNavFor: '#qv-images',
+                dots: false,
+                arrows: true,
+                centerMode: false,
+                focusOnSelect: true,
+                infinite: true,
+                prevArrow: '<button type="button" class="slick-prev"><i class="fa fa-angle-left"></i></button>',
+                nextArrow: '<button type="button" class="slick-next"><i class="fa fa-angle-right"></i></button>',
+                responsive: [
+                    {
+                        breakpoint: 768,
+                        settings: {
+                            slidesToShow: 3
+                        }
+                    },
+                    {
+                        breakpoint: 480,
+                        settings: {
+                            slidesToShow: 2
+                        }
+                    }
+                ]
+            });
+
+            // Trigger resize event để Slick tính toán lại kích thước
+            $(window).trigger('resize');
+        }, 100);
+    }
+</script>
+
+</body>
+</html>

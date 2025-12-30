@@ -33,4 +33,7 @@ public class ProductOption {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @OneToMany(mappedBy = "productOption", fetch = FetchType.LAZY)
+    private java.util.List<ProductOptionValue> values;
+
 }

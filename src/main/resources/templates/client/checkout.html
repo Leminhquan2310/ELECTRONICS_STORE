@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Check Out - Electronics Store</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <th:block th:replace="~{layout/layout :: css}"></th:block>
+</head>
+<body>
+<div class="body-wrapper">
+    <header th:replace="~{layout/layout :: header}"></header>
+
+    <!-- Breadcrumb Area -->
+    <div class="breadcrumb-area">
+        <div class="container">
+            <div class="breadcrumb-content">
+                <ul>
+                    <li><a th:href="@{/}">Home</a></li>
+                    <li class="active">Check Out</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer th:replace="~{layout/layout :: footer}"></footer>
+
+<div th:replace="~{layout/layout :: script}"></div>
+
+</body>
+</html>

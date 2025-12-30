@@ -7,17 +7,18 @@ import com.electronics_store.model.*;
 import com.electronics_store.repository.*;
 import com.electronics_store.service.ImageStorageService;
 import com.electronics_store.service.ProductService;
+import com.electronics_store.service.ProductVariantService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,6 +38,8 @@ public class ProductServiceImpl implements ProductService<Product> {
     private ImageStorageService imageStorageService;
     @Autowired
     private ProductImageRepository productImageRepository;
+    @Autowired
+    private ProductVariantService variantService;
 
     @Transactional
     @Override
@@ -60,6 +63,8 @@ public class ProductServiceImpl implements ProductService<Product> {
                     }
                 }
             }
+
+            variantService.generateVariants(product);
 
             // 2. Lưu từng ảnh
             if (productDtoCreate.getImages() != null && !productDtoCreate.getImages().isEmpty()) {
@@ -107,6 +112,8 @@ public class ProductServiceImpl implements ProductService<Product> {
 
             updateOptions(product, productDtoUpdate.getOptions());
 
+            variantService.syncVariants(product);
+
             updateImages(product, productDtoUpdate);
             return true;
         } catch (Exception e) {
@@ -139,8 +146,11 @@ public class ProductServiceImpl implements ProductService<Product> {
         Map<Long, ProductOption> optionMap = existingOptions.stream()
                 .collect(Collectors.toMap(ProductOption::getId, o -> o));
 
+
         // 2. Xử lý update + insert
         for (ProductOptionDtoUpdate dto : optionDtos) {
+            // Nếu dto null hoặc name rỗng → bỏ qua
+            if (dto == null || dto.getName() == null || dto.getName().isBlank()) continue;
 
             ProductOption option = dto.getId() != null
                     ? optionMap.remove(dto.getId())
@@ -148,7 +158,6 @@ public class ProductServiceImpl implements ProductService<Product> {
 
             option.setProduct(product);
             option.setName(dto.getName());
-
             productOptionRepository.save(option);
 
             updateOptionValues(option, dto.getValues());
@@ -158,13 +167,17 @@ public class ProductServiceImpl implements ProductService<Product> {
         optionMap.values().forEach(productOptionRepository::delete);
     }
 
-    private void updateOptionValues(ProductOption option, List<ProductOptionValueDtoUpdate> valueDtos) {
+    private void updateOptionValues(ProductOption option, List<ProductOptionValueDto> valueDtos) {
+        if (valueDtos == null) return;
+
         List<ProductOptionValue> existingValues = productOptionValueRepository.findByProductOptionId(option.getId());
 
         Map<Long, ProductOptionValue> valueMap = existingValues.stream()
                 .collect(Collectors.toMap(ProductOptionValue::getId, v -> v));
 
-        for (ProductOptionValueDtoUpdate dto : valueDtos) {
+        for (ProductOptionValueDto dto : valueDtos) {
+            // Bỏ qua null hoặc rỗng
+            if (dto == null || dto.getValue() == null || dto.getValue().isBlank()) continue;
 
             ProductOptionValue value = dto.getId() != null
                     ? valueMap.remove(dto.getId())
@@ -209,6 +222,7 @@ public class ProductServiceImpl implements ProductService<Product> {
         }
     }
 
+
     @Override
     public List<ProductImage> getImagesByProductId(Long id) {
         return productImageRepository.findByProductId(id);
@@ -219,4 +233,35 @@ public class ProductServiceImpl implements ProductService<Product> {
         List<ProductOptionValue> values = productOptionValueRepository.findProductOptionValueByProductId(id);
         return values;
     }
+
+    @Override
+    public Page<Product> getProductBySoldDesc(Pageable pageable) {
+        return productRepository.findProductsByIsActiveTrue(pageable);
+    }
+
+    @Override
+    public Page<Product> getProductByCreatedAt(Pageable pageable) {
+        return productRepository.findProductsByIsActiveTrue(pageable);
+    }
+
+    @Override
+    public Page<Product> getProductByCategoryName(String categoryName, Pageable pageable) {
+        Category root = categoryRepository.findByName(categoryName);
+        List<Long> categoryIds = getAllCategoryIds(root);
+        return productRepository.findProductsByCategoryIdInAndIsActiveTrue(categoryIds, pageable);
+    }
+
+    public List<Long> getAllCategoryIds(Category root) {
+        List<Long> ids = new ArrayList<>();
+        ids.add(root.getId()); // luôn include root
+
+        if (root.getChildren() != null) {
+            for (Category child : root.getChildren()) {
+                ids.addAll(getAllCategoryIds(child));
+            }
+        }
+        return ids;
+    }
+
+
 }

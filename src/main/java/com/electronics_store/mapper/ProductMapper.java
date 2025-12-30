@@ -1,10 +1,8 @@
 package com.electronics_store.mapper;
 
 import com.electronics_store.dto.product.*;
-import com.electronics_store.model.Category;
-import com.electronics_store.model.Product;
-import com.electronics_store.model.ProductOption;
-import com.electronics_store.model.ProductOptionValue;
+import com.electronics_store.model.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -13,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class ProductMapper {
 
@@ -79,7 +78,7 @@ public class ProductMapper {
 
             // add value dto
             optionDto.getValues().add(
-                    new ProductOptionValueDtoUpdate(
+                    new ProductOptionValueDto(
                             pov.getId(),
                             pov.getValue()
                     )
@@ -87,5 +86,56 @@ public class ProductMapper {
         }
 
         return new ArrayList<>(optionMap.values());
+    }
+
+    public List<ProductClientDto> toClientDtoList(List<Product> products) {
+        return products.stream()
+                .map(this::toClientDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductOptionClientDto> toProductOptionClientDtoList(List<ProductOption> products) {
+        return products.stream()
+                .map(this::toProductOptionDtoClient)
+                .collect(Collectors.toList());
+    }
+
+    public ProductClientDto toClientDto(Product product) {
+        List<String> imageUrls = product.getImages()
+                .stream()
+                .map(ProductImage::getImageUrl)
+                .toList();
+
+        return ProductClientDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .basePrice(product.getBasePrice())
+                .salePrice(product.getBasePrice())
+                .images(imageUrls)
+                .imageMain(imageUrls.get(0))
+                .ratingAvg(product.getRatingAvg())
+                .ratingCount(product.getRatingCount())
+                .categoryName(
+                        product.getCategory() != null
+                                ? product.getCategory().getName()
+                                : null
+                )
+                .build();
+    }
+
+    public ProductOptionClientDto toProductOptionDtoClient(ProductOption productOption) {
+        return ProductOptionClientDto.builder()
+                .id(productOption.getId())
+                .name(productOption.getName())
+                .values(productOption.getValues().stream().map(this::toProductOptionValueClientDto).toList())
+                .build();
+    }
+
+    public ProductOptionValueDto toProductOptionValueClientDto(ProductOptionValue productOptionValue) {
+        return ProductOptionValueDto.builder()
+                .id(productOptionValue.getId())
+                .value(productOptionValue.getValue())
+                .build();
     }
 }
