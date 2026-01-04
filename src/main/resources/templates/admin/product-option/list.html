@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <title>Admin - Product Option Manage</title>
+    <th:block th:replace="~{layout/layout-admin :: css}"></th:block>
+</head>
+<body>
+<div th:replace="~{layout/layout-admin :: preloader}"></div>
+<div id="main-wrapper">
+    <div class="nav-header" th:replace="~{layout/layout-admin :: nav-header}"></div>
+
+    <div class="header" th:replace="~{layout/layout-admin :: header}"></div>
+
+    <div th:replace="~{layout/layout-admin :: nk-sidebar}"></div>
+
+    <div class="content-body">
+        <div class="row page-titles mx-0">
+            <div class="col-sm-6 p-md-0">
+                <div class="breadcrumb-range-picker">
+                    <span><i class="icon-folder-alt"></i></span>
+                    <span class="ml-1">Product Option Management</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 id="form-title">Create Product Option</h5>
+                            <form id="optionForm" class="row align-items-end">
+                                <input type="hidden" id="optionId">
+                                <div class="form-group col-md-5 mb-0">
+                                    <label>Option Name</label>
+                                    <input type="text" class="form-control" id="optionName"
+                                           placeholder="e.g. Color, Size" required>
+                                </div>
+                                <div class="form-group col-md-4 mb-0">
+                                    <button type="submit" id="btnSubmitForm" class="btn btn-primary">Create Option
+                                    </button>
+                                    <button type="button" class="btn btn-secondary d-none" onclick="resetForm()">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-5 col-lg-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Product Options</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="table-option" class="table table-responsive-sm mb-0"
+                                       style="min-width: 27rem !important;">
+                                    <thead>
+                                    <tr>
+                                        <th>#ID</th>
+                                        <th>Name</th>
+                                        <th class="text-right">Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="option : ${options}"
+                                        style="cursor: pointer"
+                                        onclick="loadOptionValues(this)"
+                                        th:data-id="${option.id}"
+                                        th:data-name="${option.name}">
+                                        <td th:text="${option.id}">Id</td>
+                                        <td th:text="${option.name}">Name</td>
+                                        <td class="text-right">
+                                            <a class="text-danger" href="javascript:void(0)"><i class="icon-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-7 col-lg-7">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between">
+                            <h4 class="card-title">Values for:
+                                <span id="selected-option-name" class="text-primary">None</span>
+                            </h4>
+                            <button class="btn btn-xs btn-outline-primary" id="btnAddValue" disabled>
+                                + Add Value
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="option-value-table" class="table table-responsive-sm">
+                                    <thead>
+                                    <tr>
+                                        <th>#ID</th>
+                                        <th>Value</th>
+                                        <th class="text-right">Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="option-values-body">
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">Select an option to see values
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{layout/layout-admin :: script}"></th:block>
+<script>
+    document.getElementById('optionForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const id = document.getElementById('optionId').value;
+        const name = document.getElementById('optionName').value;
+        const btnSubmit = document.getElementById('btnSubmitForm');
+
+        // Dữ liệu gửi đi
+        const optionData = {name: name};
+        if (id) optionData.id = id;
+
+        // Xác định Method và URL dựa trên việc có ID hay không
+        // Nếu có ID -> PUT (Update), nếu không -> POST (Create)
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/admin/options/${id}` : '/api/admin/options';
+
+        try {
+            // Lấy CSRF Token (nếu có dùng Spring Security/Laravel...)
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+            const headers = {'Content-Type': 'application/json'};
+            if (csrfHeader && csrfToken) headers[csrfHeader] = csrfToken;
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: headers,
+                body: JSON.stringify(optionData)
+            });
+
+            if (response.ok) {
+                showNotification('success', 'Saved.', 'Option saved successfully.')
+                resetForm();
+                refreshOptionTable();
+            } else {
+                const errorText = await response.text();
+                showNotification('error', 'Failed.', 'Failed to save option. Error: ' + errorText)
+            }
+        } catch (error) {
+            console.log(error)
+            showNotification('error', 'Failed.', 'Failed to save option. Error: ' + error.message)
+        } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Save Option';
+        }
+    });
+
+    document.getElementById('btnAddValue').addEventListener('click', function() {
+        // RESET các dòng khác trước khi thêm dòng mới
+        resetAllRows();
+
+        const tbody = document.getElementById('option-values-body');
+        const optionId = this.getAttribute('data-option-id');
+
+        const emptyRow = tbody.querySelector('td.text-muted');
+        if (emptyRow) tbody.innerHTML = '';
+
+        const tempId = 'new_' + Date.now();
+        const newRowHtml = `
+        <tr id="row-${tempId}">
+            <td><span class="badge badge-secondary">New</span></td>
+            <td>
+                <input type="text" id="input-val-${tempId}" class="form-control form-control-sm"
+                       placeholder="Enter value..." onkeydown="if(event.key === 'Enter') saveOption('${tempId}', ${optionId})">
+            </td>
+            <td class="text-right">
+                <div id="group-save-${tempId}">
+                    <button class="btn btn-xs btn-success mr-2" onclick="saveOption('${tempId}', ${optionId})">
+                        <i class="icon-check"></i> Save
+                    </button>
+                    <button class="btn btn-xs btn-secondary" onclick="this.closest('tr').remove()">
+                        <i class="icon-close"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+
+        tbody.insertAdjacentHTML('beforeend', newRowHtml);
+        document.getElementById(`input-val-${tempId}`).focus();
+    });
+
+    async function saveOption(tempId, optionId) {
+        const input = document.getElementById(`input-val-${tempId}`);
+        const newValue = input.value.trim();
+        const btnSave = document.querySelector(`#group-save-${tempId} .btn-success`);
+
+        if (!newValue) {
+            showNotification('error', 'Error', 'Please enter a value!');
+            return;
+        }
+
+        try {
+            // Hiệu ứng chờ
+            btnSave.disabled = true;
+            btnSave.innerHTML = `<i class="fa fa-spinner fa-spin"></i>`;
+
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+            const response = await fetch(`/api/admin/option-values`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify({ optionId: optionId, value: newValue })
+            });
+
+            if (response.ok) {
+                const savedItem = await response.json();
+
+                replaceTempRowWithReal(tempId, savedItem);
+            } else {
+                alert("Error saving value");
+                btnSave.disabled = false;
+                btnSave.innerHTML = `<i class="icon-check"></i> Save`;
+            }
+        } catch (error) {
+            console.error("Save error:", error);
+            btnSave.disabled = false;
+        }
+    }
+
+    function replaceTempRowWithReal(tempId, savedItem) {
+        const tempRow = document.getElementById(`row-${tempId}`);
+        if (!tempRow) return;
+
+        // Tạo HTML của dòng mới dựa trên cấu trúc hàm renderOptionValuesTable của bạn
+        const newRowHtml = `
+        <td>${savedItem.id}</td>
+        <td>
+            <span id="text-val-${savedItem.id}" class="badge badge-primary" style="font-size: 14px">${savedItem.value}</span>
+            <input type="text"
+                   id="input-val-${savedItem.id}"
+                   class="form-control form-control-sm d-none"
+                   value="${savedItem.value}"
+                   onkeydown="if(event.key === 'Enter') saveOptionValue(${savedItem.id})">
+        </td>
+        <td class="text-right">
+            <div id="group-action-${savedItem.id}">
+                <button class="btn btn-xs btn-outline-warning mr-2" onclick="enableEditMode(${savedItem.id})">
+                    <i class="icon-pencil"></i>
+                    </button>
+                <button class="btn btn-xs btn-outline-danger" onclick="deleteValue(${savedItem.id})">
+                    <i class="icon-trash"></i>
+                </button>
+            </div>
+
+            <div id="group-save-${savedItem.id}" class="d-none">
+                <button class="btn btn-xs btn-success mr-2" onclick="saveOptionValue(${savedItem.id})">
+                    <i class="icon-check"></i> Save
+                </button>
+                <button class="btn btn-xs btn-secondary" onclick="cancelEditMode(${savedItem.id}, '${savedItem.value}')">
+                    <i class="icon-close"></i>
+                </button>
+            </div>
+        </td>
+    `;
+
+        // Cập nhật lại ID của dòng và nội dung
+        tempRow.id = `row-${savedItem.id}`;
+        tempRow.innerHTML = newRowHtml;
+
+        // Thêm hiệu ứng flash nhẹ để thông báo cho người dùng biết dòng đã được lưu
+        tempRow.classList.add('table-info');
+        setTimeout(() => tempRow.classList.remove('table-info'), 1000);
+    }
+
+    function resetForm() {
+        document.getElementById('optionForm').reset();
+        document.getElementById('optionId').value = "";
+
+        // reset option value table
+        const tbody = document.getElementById('option-values-body');
+        tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">Select an option to see values</td></tr>`;
+        document.getElementById('selected-option-name').innerText = 'None';
+
+
+        // Trả lại tiêu đề và màu nút ban đầu
+        document.getElementById('form-title').innerText = "Create Product Option";
+        const btnSubmit = document.getElementById('btnSubmitForm');
+        btnSubmit.classList.remove('btn-warning');
+        btnSubmit.classList.add('btn-primary');
+        btnSubmit.innerHTML = 'Create Option';
+
+        // reset row highlight
+        const allRows = document.querySelectorAll('#table-option tbody tr, .table tbody tr');
+        allRows.forEach(r => r.classList.remove('table-primary', 'font-weight-bold'));
+        // remove btn cancel
+        const btnAddUpate = document.querySelector('.btn-secondary');
+        btnAddUpate.classList.add('d-none');
+    }
+
+    function loadOptionValues(row) {
+        // 1. Highlight dòng được chọn
+        const allRows = document.querySelectorAll('#table-option tbody tr, .table tbody tr'); // Selector tùy chỉnh theo table của bạn
+        allRows.forEach(r => r.classList.remove('table-primary', 'font-weight-bold'));
+        row.classList.add('table-primary', 'font-weight-bold');
+
+        // 2. Lấy ID và Name từ attributes của dòng đó
+        const optionId = row.getAttribute('data-id');
+        const optionName = row.getAttribute('data-name');
+
+        // Điền vào form
+        document.getElementById('optionId').value = optionId;
+        document.getElementById('optionName').value = optionName;
+
+        // Thay đổi giao diện option
+        document.getElementById('form-title').innerText = "Edit Option: " + optionName;
+        const btnSubmit = document.getElementById('btnSubmitForm');
+        btnSubmit.classList.replace('btn-primary', 'btn-warning');
+        btnSubmit.innerHTML = 'Save Option';
+        document.querySelector('.btn-secondary').classList.remove('d-none');
+
+        // Cuộn lên form nếu cần
+        window.scrollTo({top: 0, behavior: 'smooth'});
+
+        // Cập nhật UI tiêu đề bên phải
+        document.getElementById('selected-option-name').innerText = optionName;
+
+        // Enable nút Add Value và gán ID option vào nút đó (để dùng khi tạo mới)
+        const btnAdd = document.getElementById('btnAddValue');
+        btnAdd.disabled = false;
+        btnAdd.setAttribute('data-option-id', optionId);
+
+        // 4. Hiển thị trạng thái Loading
+        const tbody = document.getElementById('option-values-body');
+        tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading...</td></tr>`;
+
+        // 5. Gọi API lấy dữ liệu
+        fetch(`/api/admin/option-values/by-option-id/${optionId}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                renderOptionValuesTable(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center text-danger">Error loading data.</td></tr>`;
+            });
+    }
+
+    function renderOptionValuesTable(data) {
+        const tbody = document.getElementById('option-values-body');
+        tbody.innerHTML = '';
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No values found.</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        data.forEach(item => {
+            html += `
+            <tr id="row-${item.id}">
+                <td>${item.id}</td>
+                <td>
+                    <span id="text-val-${item.id}" class="badge badge-primary" style="font-size: 14px">${item.value}</span>
+
+                    <input type="text"
+                           id="input-val-${item.id}"
+                           class="form-control form-control-sm d-none"
+                           value="${item.value}"
+                           onkeydown="if(event.key === 'Enter') saveOptionValue(${item.id})">
+                </td>
+
+                <td class="text-right">
+                    <div id="group-action-${item.id}">
+                        <button class="btn btn-xs btn-outline-warning mr-2" onclick="enableEditMode(${item.id})">
+                            <i class="icon-pencil"></i>
+                        </button>
+                        <button class="btn btn-xs btn-outline-danger" onclick="deleteValue(${item.id})">
+                            <i class="icon-trash"></i>
+                        </button>
+                    </div>
+
+                    <div id="group-save-${item.id}" class="d-none">
+                        <button class="btn btn-xs btn-success mr-2" onclick="saveOptionValue(${item.id})">
+                            <i class="icon-check"></i> Save
+                        </button>
+                        <button class="btn btn-xs btn-secondary" onclick="cancelEditMode(${item.id}, '${item.value}')">
+                            <i class="icon-close"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function enableEditMode(id) {
+        // RESET các dòng khác trước khi edit dòng này
+        resetAllRows();
+
+        // Ẩn Text, Hiện Input
+        document.getElementById(`text-val-${id}`).classList.add('d-none');
+        const input = document.getElementById(`input-val-${id}`);
+        input.classList.remove('d-none');
+        input.focus();
+
+        // Ẩn nút Edit, Hiện nút Save
+        document.getElementById(`group-action-${id}`).classList.add('d-none');
+        document.getElementById(`group-save-${id}`).classList.remove('d-none');
+    }
+
+    function resetAllRows() {
+        // 1. Xóa tất cả các dòng "New" (dòng tạm thời chưa lưu)
+        const tempRows = document.querySelectorAll('tr[id^="row-new_"]');
+        tempRows.forEach(row => row.remove());
+
+        // 2. Tìm các dòng đang ở chế độ Edit (có input không bị ẩn)
+        const editingInputs = document.querySelectorAll('#option-values-body input:not(.d-none)');
+        editingInputs.forEach(input => {
+            // Lấy ID từ id của input (ví dụ: input-val-123 -> 123)
+            const id = input.id.replace('input-val-', '');
+
+            // Nếu là ID số (dòng cũ đang edit) thì cancel mode
+            if (!isNaN(id)) {
+                const originalValue = document.getElementById(`text-val-${id}`).innerText;
+                cancelEditMode(id, originalValue);
+            }
+        });
+    }
+
+    function cancelEditMode(id, originalValue) {
+        // Reset lại giá trị cũ trong ô input (trường hợp người dùng đã gõ sai)
+        document.getElementById(`input-val-${id}`).value = originalValue;
+
+        // Hiện Text, Ẩn Input
+        document.getElementById(`text-val-${id}`).classList.remove('d-none');
+        document.getElementById(`input-val-${id}`).classList.add('d-none');
+
+        // Hiện nút Edit, Ẩn nút Save
+        document.getElementById(`group-action-${id}`).classList.remove('d-none');
+        document.getElementById(`group-save-${id}`).classList.add('d-none');
+    }
+
+    function saveOptionValue(id) {
+        const input = document.getElementById(`input-val-${id}`);
+        const newValue = input.value.trim();
+        const btnSave = document.querySelector(`#group-save-${id} button.btn-success`);
+
+        if (!newValue) {
+            alert("Value cannot be empty!");
+            return;
+        }
+
+        // Hiệu ứng loading nhẹ (đổi icon nút save)
+        const originalBtnContent = btnSave.innerHTML;
+        btnSave.innerHTML = `<i class="fa fa-spinner fa-spin"></i>`;
+        btnSave.disabled = true;
+
+        // Gọi API PUT
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        fetch(`/api/admin/option-values/values/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            body: JSON.stringify({value: newValue})
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Update failed');
+
+                // Cập nhật thành công:
+                // 1. Cập nhật text hiển thị mới
+                const textSpan = document.getElementById(`text-val-${id}`);
+                textSpan.innerText = newValue;
+
+                // 2. Cập nhật tham số cho hàm cancel (để nếu lần sau bấm cancel nó về giá trị mới này)
+                const btnCancel = document.querySelector(`#group-save-${id} .btn-secondary`);
+                btnCancel.setAttribute('onclick', `cancelEditMode(${id}, '${newValue}')`);
+
+                // 3. Quay về chế độ xem
+                cancelEditMode(id, newValue);
+
+                // Có thể thêm Toast thông báo thành công ở đây
+            })
+            .catch(error => {
+                alert("Error updating value: " + error);
+            })
+            .finally(() => {
+                // Trả lại trạng thái nút (nếu có lỗi thì vẫn phải click được)
+                btnSave.innerHTML = originalBtnContent;
+                btnSave.disabled = false;
+            });
+    }
+
+    function refreshOptionTable() {
+        const tbody = document.querySelector('#table-option tbody');
+        // 1. Hiệu ứng loading (tùy chọn)
+        tbody.style.opacity = '0.5';
+
+        // 2. Gọi API lấy danh sách mới nhất
+        fetch('/api/admin/options') // Thay bằng URL lấy danh sách của bạn
+            .then(response => response.json())
+            .then(data => {
+                let html = '';
+                data.forEach(item => {
+                    html += `
+                <tr style="cursor: pointer"
+                      onclick="loadOptionValues(this)"
+                      data-id="${item.id}"
+                      data-name="${item.name}">
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td class="text-right">
+                           <a class="text-danger" href="javascript:void(0)"><i class="icon-trash"></i></a>
+                    </td>
+                </tr>`;
+                });
+
+                // 3. Cập nhật vào DOM
+                tbody.innerHTML = html;
+                tbody.style.opacity = '1';
+            })
+            .catch(error => {
+                console.error('Error refreshing table:', error);
+                tbody.style.opacity = '1';
+            });
+    }
+</script>
+</body>
+</html>

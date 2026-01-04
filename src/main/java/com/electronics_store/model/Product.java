@@ -2,6 +2,7 @@ package com.electronics_store.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class Product {
     // 15 số cả phần thập phân, 2 số thập phân sau dấu chấm
     private BigDecimal basePrice;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
@@ -68,6 +69,7 @@ public class Product {
     private java.util.Date updatedAt;
 
     /* ---------- IMAGES ---------- */
+    @BatchSize(size = 20)
     @OneToMany(
             mappedBy = "product",
             fetch = FetchType.LAZY
@@ -80,6 +82,10 @@ public class Product {
             fetch = FetchType.LAZY
     )
     private List<ProductVariant> variants = new ArrayList<>();
+
+    @BatchSize(size = 20)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductOption> productOptions = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

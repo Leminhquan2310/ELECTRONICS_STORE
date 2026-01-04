@@ -93,9 +93,9 @@
                                 <th class="li-product-remove">Remove</th>
                                 <th class="li-product-thumbnail">Images</th>
                                 <th class="cart-product-name">Product</th>
-                                <th class="li-product-price">Unit Price</th>
-                                <th class="li-product-quantity">Quantity</th>
-                                <th class="li-product-subtotal">Total</th>
+                                <th class="li-product-price" style="width: 120px">Unit Price</th>
+                                <th class="li-product-quantity" style="width: 150px">Quantity</th>
+                                <th class="li-product-subtotal" style="width: 120px">Total</th>
                             </tr>
                             </thead>
 
@@ -172,7 +172,7 @@
                                     <li>Total <span
                                             th:text="${#numbers.formatCurrency(cart.subTotal)}">$130.00</span></li>
                                 </ul>
-                                <a href="#">Proceed to checkout</a>
+                                <a th:href="@{/user/checkout}" th:class="${cart.items.size() > 0 ? '' : 'disable'}">Proceed to checkout</a>
                             </div>
                         </div>
                     </div>

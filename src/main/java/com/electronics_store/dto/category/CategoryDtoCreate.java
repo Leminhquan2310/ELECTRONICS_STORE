@@ -2,15 +2,13 @@ package com.electronics_store.dto.category;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Data
+@Setter
+@Getter
 public class CategoryDtoCreate {
     @Size(min = 5, max = 150, message = "Name must be between 5 and 150")
     private String name;

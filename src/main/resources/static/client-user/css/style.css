@@ -85,6 +85,12 @@ a {
     transition: 0.3s ease-in-out;
 }
 
+a.disabled {
+    pointer-events: none;   /* không cho click */
+    opacity: 0.5;           /* mờ đi */
+    cursor: not-allowed;    /* con trỏ cấm */
+}
+
 a:hover {
     color: #fed700;
 }
@@ -1242,13 +1248,20 @@ textarea:focus {
     margin-right: 10px;
 }
 
+.product-details-images .lg-image img {
+    height: 350px;
+    object-fit: contain;
+}
+
 .product-details-images .lg-image img,
 .product-details-thumbs .sm-image img {
     width: 100%;
+
 }
 
 .product-details-thumbs .sm-image {
     cursor: pointer;
+    padding: 10px;
 }
 
 .product-details-view-content .product-info h2 {
@@ -1286,17 +1299,17 @@ textarea:focus {
     justify-content: center;
 }
 
-.product-variants .produt-variants-size {
+.product-variants .product-variants-size {
     margin-right: 30px;
 }
 
-.product-variants .produt-variants-size label {
+.product-variants .product-variants-size label {
     display: block;
     font-size: 14px;
     font-weight: 400;
 }
 
-.product-variants .produt-variants-size .form-control-select {
+.product-variants .product-variants-size .form-control-select {
     width: 60px;
     border-radius: 0px;
     border: 1px solid #ddd;
@@ -1340,7 +1353,6 @@ textarea:focus {
 }
 
 .cart-quantity {
-    margin-top: 25px;
     overflow: hidden;
     float: left;
     width: 100%;
@@ -1435,7 +1447,7 @@ textarea:focus {
     height: 30px;
     line-height: 30px;
     text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     border-radius: 50%;
     z-index: 5;
     visibility: hidden;
@@ -1444,6 +1456,16 @@ textarea:focus {
     -webkit-transition: 0.3s ease-in-out;
     transition: 0.3s ease-in-out;
     cursor: pointer;
+}
+
+.product-details-thumbs .slick-track {
+    display: flex;
+    align-items: center;
+}
+
+.product-details-thumbs .slick-track img {
+    height: 100%;
+    object-fit: fill;
 }
 
 .tab-style-right .slick-arrow, .tab-style-left .slick-arrow {
@@ -1896,7 +1918,6 @@ textarea:focus {
 }
 
 .minicart .minicart-product-list li .minicart-product-image span.quantity {
-    background: -webkit-gradient(linear, left top, left bottom, from(#626262), to(#2f2f2f));
     background: -webkit-linear-gradient(#626262, #2f2f2f);
     background: -o-linear-gradient(#626262, #2f2f2f);
     background: linear-gradient(#626262, #2f2f2f);
@@ -2579,7 +2600,7 @@ textarea:focus {
 
 .rating > li {
     display: inline-block;
-    margin: 0;
+    margin: 2px;
 }
 
 .review-item {
@@ -3564,8 +3585,8 @@ textarea:focus {
 }
 
 .category-heading > h2 > i {
-    float: ;
-    text-align: ;
+    float: left;
+    text-align: center;
     float: right;
     padding-right: 20px;
     font-size: 12px;
@@ -3725,7 +3746,7 @@ li.rx-parent a.rx-show::after {
 }
 
 .cat-mega-menu {
-    min-width: 1 50px;
+    min-width: 150px;
     display: flex;
     flex-direction: column;
     padding: 4px 0 10px 0;
@@ -4266,9 +4287,10 @@ li.right-menu .cat-mega-menu-2 > li {
 }
 
 .coupon-info p.form-row input[type="submit"]:hover,
-p.checkout-coupon input[type="submit"]:hover {
+p.checkout-coupon input[type="button"]:hover {
     background: #fed700;
 }
+
 
 .form-row > label {
     margin-top: 7px;
@@ -4307,7 +4329,7 @@ p.checkout-coupon input[type="text"] {
     width: 170px;
 }
 
-p.checkout-coupon input[type="submit"] {
+p.checkout-coupon input[type="button"] {
     background: #333 none repeat scroll 0 0;
     border: medium none;
     border-radius: 0;
@@ -4322,7 +4344,7 @@ p.checkout-coupon input[type="submit"] {
 }
 
 .coupon-info p.form-row input[type="submit"]:hover,
-p.checkout-coupon input[type="submit"]:hover {
+p.checkout-coupon input[type="button"]:hover {
     background: #fed700;
 }
 
@@ -5673,10 +5695,6 @@ span.required {
     padding: 0 0 10px;
     position: relative;
     text-transform: uppercase;
-}
-
-.price-checkbox li, .size-checkbox li, .color-categoriy ul li, .categori-checkbox ul li {
-    margin: 8px 0;
 }
 
 .price-checkbox li a, .size-checkbox li a, .color-categoriy ul li a, .categori-checkbox ul li a {

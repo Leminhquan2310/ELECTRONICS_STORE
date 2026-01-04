@@ -262,42 +262,15 @@
 
                                                 <!-- Product Option -->
                                                 <div class="col-lg-12 mb-4">
-                                                    <div id="option-container"></div>
+                                                    <label class="text-label font-weight-bold">Product Options*</label>
+                                                    <div id="option-container">
+                                                    </div>
 
                                                     <div class="btn-add-option-wrapper">
-                                                        <button type="button"
-                                                                class="btn btn-sm btn-primary"
-                                                                onclick="addOption()">
+                                                        <button type="button" class="btn btn-sm btn-primary" onclick="addOptionRow()">
                                                             + Add Option
                                                         </button>
                                                     </div>
-
-                                                    <!-- Product Option Value -->
-                                                    <template id="option-template">
-                                                        <div class="card mb-3 option-item">
-                                                            <div class="card-body">
-
-                                                                <!-- Option name -->
-                                                                <div class="mb-2">
-                                                                    <input type="text" class="form-control"
-                                                                           placeholder="Option name (e.g. Color)">
-                                                                </div>
-
-                                                                <!-- Values -->
-                                                                <div class="value-container"></div>
-
-                                                                <button type="button"
-                                                                        class="btn btn-sm btn-secondary"
-                                                                        onclick="addValue(this)">+ Add Value
-                                                                </button>
-
-                                                                <button type="button"
-                                                                        class="btn btn-sm btn-danger float-end"
-                                                                        onclick="removeOption(this)">Remove
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </template>
                                                 </div>
                                             </div>
 
@@ -341,66 +314,8 @@
         imageItem.remove();
     }
 
-
-    function addOption() {
-        const container = document.getElementById('option-container');
-        const template = document.getElementById('option-template');
-
-        const clone = template.content.cloneNode(true);
-        const optionItem = clone.querySelector('.option-item');
-
-        // set option name input
-        const optionNameInput = optionItem.querySelector('input');
-        optionNameInput.name = `options[${optionIndex}].name`;
-
-        // init value container
-        const valueContainer = optionItem.querySelector('.value-container');
-        valueContainer.dataset.optionIndex = optionIndex;
-
-        // add first value by default
-        addValue(optionItem.querySelector('.btn-secondary'));
-
-        container.appendChild(clone);
-        optionIndex++;
-    }
-
-    function addValue(btn) {
-        const optionItem = btn.closest('.option-item');
-        const valueContainer = optionItem.querySelector('.value-container');
-        const optionIdx = valueContainer.dataset.optionIndex;
-
-        const valueIndex = valueContainer.children.length;
-
-        const row = document.createElement('div');
-        row.className = 'value-row';
-
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'form-control';
-        input.placeholder = 'Value (e.g. Red)';
-        input.name = `options[${optionIdx}].values[${valueIndex}].value`;
-
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'btn-remove-value';
-        removeBtn.innerHTML = '&times;';
-        removeBtn.onclick = function () {
-            row.remove();
-        };
-
-        row.appendChild(input);
-        row.appendChild(removeBtn);
-
-        valueContainer.appendChild(row);
-    }
-
-    function removeOption(btn) {
-        btn.closest('.option-item').remove();
-    }
-
     function initOptionContainer() {
         const productOptions = /*[[${productOptions}]]*/ [];
-        console.log(productOptions)
         productOptions.forEach((option, index) => {
             console.log(option, index)
             const container = document.getElementById('option-container');
@@ -459,6 +374,112 @@
             optionIndex++;
         })
     }
+
+
+        /* Lấy dữ liệu từ Controller */
+        const ALL_OPTIONS = /*[[${allOptions}]]*/ []; // Danh sách tất cả Option & Values có trong hệ thống
+        const CURRENT_PRODUCT_OPTIONS = /*[[${currentOptions}]]*/ []; // Những gì SP này đang có
+
+        let optionRowIndex = 0;
+
+        // 1. Hàm khởi tạo dữ liệu khi Load trang Update
+        function initUpdateForm() {
+        if (CURRENT_PRODUCT_OPTIONS && CURRENT_PRODUCT_OPTIONS.length > 0) {
+        CURRENT_PRODUCT_OPTIONS.forEach(opt => {
+        addOptionRow(opt); // Truyền object hiện tại vào để điền dữ liệu
+    });
+    }
+    }
+
+        // 2. Hàm thêm một dòng Option mới (hoặc dòng đã có dữ liệu)
+        function addOptionRow(existingData = null) {
+        const container = document.getElementById('option-container');
+        const index = optionRowIndex;
+
+        // Tạo HTML cho Option Type (Select 1)
+        let typeOptionsHtml = '<option value="">-- Select Option --</option>';
+        ALL_OPTIONS.forEach(opt => {
+        const selected = (existingData && existingData.id === opt.id) ? 'selected' : '';
+        typeOptionsHtml += `<option value="${opt.id}" ${selected}>${opt.name}</option>`;
+    });
+
+        const rowHtml = `
+            <div class="card mb-3 option-item" id="option-row-${index}">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="small">Option Name</label>
+                            <select class="form-control selectpicker option-type-select"
+                                    name="options[${index}].optionId"
+                                    data-style="btn-outline-secondary"
+                                    data-index="${index}">
+                                ${typeOptionsHtml}
+                            </select>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="small">Option Values</label>
+                            <select class="form-control selectpicker option-value-select"
+                                    name="options[${index}].valueIds"
+                                    multiple
+                                    data-live-search="true"
+                                    data-style="btn-outline-primary"
+                                    id="value-select-${index}"
+                                    ${existingData ? '' : 'disabled'}>
+                            </select>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger btn-sm mb-1" onclick="removeOptionRow(${index})">
+                                &times;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        $(container).append(rowHtml);
+
+        // Nếu là dòng có dữ liệu cũ, fill các values và chọn chúng
+        if (existingData) {
+        updateValueSelect(index, existingData.id, existingData.values.map(v => v.id));
+    }
+
+        $('.selectpicker').selectpicker('render');
+        optionRowIndex++;
+    }
+
+        // 3. Hàm cập nhật Select Value dựa trên Option được chọn
+        function updateValueSelect(rowIndex, optionId, selectedValueIds = []) {
+        const valueSelect = $(`#value-select-${rowIndex}`);
+        const optionData = ALL_OPTIONS.find(opt => opt.id == optionId);
+
+        valueSelect.empty();
+        if (optionData && optionData.values) {
+        optionData.values.forEach(v => {
+        const isSelected = selectedValueIds.includes(v.id) ? 'selected' : '';
+        valueSelect.append(`<option value="${v.id}" ${isSelected}>${v.value}</option>`);
+    });
+        valueSelect.prop('disabled', false);
+    } else {
+        valueSelect.prop('disabled', true);
+    }
+        valueSelect.selectpicker('refresh');
+    }
+
+        // 4. Sự kiện khi thay đổi Option Name
+        $(document).on('change', '.option-type-select', function() {
+        const index = $(this).data('index');
+        const optionId = $(this).val();
+        updateValueSelect(index, optionId);
+    });
+
+        function removeOptionRow(index) {
+        $(`#option-row-${index}`).remove();
+    }
+
+        // Chạy init khi page load
+        $(document).ready(function() {
+        initUpdateForm();
+    });
 
     initOptionContainer();
 </script>

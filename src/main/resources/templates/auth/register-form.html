@@ -35,9 +35,9 @@
                                 <div class="col-md-6 col-12 mb-20">
                                     <label for="fullname">Full Name*</label>
                                     <input class="mb-0" type="text" id="fullname" placeholder="Full Name"
-                                           th:field="*{fullname}" required/>
-                                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('fullname')}"
-                                         th:errors="*{fullname}">
+                                           th:field="*{fullName}" required/>
+                                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('fullName')}"
+                                         th:errors="*{fullName}">
                                     </div>
                                 </div>
                                 <div class="col-md-6 col-12 mb-20">
@@ -46,6 +46,14 @@
                                            required>
                                     <div class="text-danger mt-1" th:if="${#fields.hasErrors('username')}"
                                          th:errors="*{username}">
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mb-20">
+                                    <label>Email*</label>
+                                    <input class="mb-0" type="email" placeholder="Email" th:field="*{email}"
+                                           required>
+                                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('email')}"
+                                         th:errors="*{email}">
                                     </div>
                                 </div>
                                 <div class="col-md-12 mb-20">

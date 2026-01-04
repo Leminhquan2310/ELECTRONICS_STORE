@@ -1,11 +1,11 @@
 package com.electronics_store.service.impl;
 
 import com.electronics_store.dto.cart.*;
+import com.electronics_store.dto.product.ProductClientDto;
 import com.electronics_store.mapper.ProductMapper;
 import com.electronics_store.model.*;
 import com.electronics_store.repository.CartItemRepository;
 import com.electronics_store.repository.CartRepository;
-import com.electronics_store.repository.ProductRepository;
 import com.electronics_store.repository.ProductVariantRepository;
 import com.electronics_store.service.CartService;
 import com.electronics_store.service.UserService;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -29,8 +30,6 @@ public class CartServiceImpl implements CartService {
     private ProductVariantRepository productVariantRepository;
     @Autowired
     private UserService userService;
-    @Autowired
-    private ProductMapper productMapper;
 
 
     @Override
@@ -53,52 +52,47 @@ public class CartServiceImpl implements CartService {
             throw new RuntimeException("Số lượng không hợp lệ");
         }
 
-        // 1. Lấy cart active (login only)
         Cart cart = getActiveCart();
 
-        // 2. Resolve variant từ optionValueIds
+        // 1. Tìm biến thể phù hợp dựa trên danh sách Option IDs
+        // Phải truyền size của list để đảm bảo tìm đúng biến thể có ĐỦ các thuộc tính đó
         ProductVariant variant = productVariantRepository
                 .findVariantByOptionValues(
                         request.getProductId(),
                         request.getOptionValueIds(),
-                        request.getOptionValueIds().size()
+                        (long) request.getOptionValueIds().size()
                 )
-                .orElseThrow(() ->
-                        new RuntimeException("Không tìm thấy biến thể phù hợp"));
+                .orElseThrow(() -> new RuntimeException("Vui lòng chọn đầy đủ các tùy chọn (Màu sắc, kích thước...)"));
 
-        // 3. Delegate xử lý chi tiết
         addToCartInternal(cart, variant, request.getQuantity());
     }
 
     private void addToCartInternal(Cart cart, ProductVariant variant, int quantity) {
+        if (variant.getStockQuantity() < quantity) {
+            throw new RuntimeException("Sản phẩm hiện chỉ còn " + variant.getStockQuantity() + " món.");
+        }
 
-        // 1. Tồn kho
-        int stock = variant.getStock_quantity();
-
-        // 2. Kiểm tra item đã tồn tại chưa
         CartItem item = cartItemRepository.findByCartAndVariant(cart, variant)
                 .orElse(null);
 
-        int newQuantity = (item == null)
-                ? quantity
-                : item.getQuantity() + quantity;
-
-        if (newQuantity > stock) {
-            throw new RuntimeException("Vượt quá tồn kho");
-        }
-
         if (item == null) {
-            // 3. Tạo mới
             item = new CartItem();
             item.setCart(cart);
             item.setVariant(variant);
-            item.setQuantity(quantity);
             item.setProduct(variant.getProduct());
-            // snapshot giá tại thời điểm add
-            item.setPriceAtTime(variant.getPriceAdjustment());
+            item.setQuantity(quantity);
+
+            // 2. Tính giá snapshot: Base Price của Product + Price Adjustment của Variant
+            BigDecimal basePrice = variant.getProduct().getBasePrice();
+            item.setPriceAtTime(basePrice);
+
         } else {
-            // 4. Cộng dồn
-            item.setQuantity(newQuantity);
+            // 3. Cộng dồn số lượng
+            int totalNewQuantity = item.getQuantity() + quantity;
+            if (totalNewQuantity > variant.getStockQuantity()) {
+                throw new RuntimeException("Tổng số lượng vượt quá tồn kho cho phép.");
+            }
+            item.setQuantity(totalNewQuantity);
         }
 
         cartItemRepository.save(item);
@@ -113,7 +107,7 @@ public class CartServiceImpl implements CartService {
         CartItem item = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new RuntimeException("Item không tồn tại"));
 
-        int stock = item.getVariant() != null ? item.getVariant().getStock_quantity() : 0;
+        int stock = item.getVariant() != null ? item.getVariant().getStockQuantity() : 0;
 
         if (quantity > stock) {
             throw new RuntimeException("Vượt quá tồn kho");
@@ -144,7 +138,7 @@ public class CartServiceImpl implements CartService {
         List<CartItemDto> items = cart.getItems().stream().map(item -> {
             CartItemDto dto = new CartItemDto();
             dto.setId(item.getId());
-            dto.setProduct(productMapper.toClientDto(item.getProduct()));
+            dto.setProduct(mapToProductClientDto(item.getProduct()));
             dto.setVariantSku(
                     item.getVariant() != null
                             ? item.getVariant().getSku()
@@ -168,6 +162,49 @@ public class CartServiceImpl implements CartService {
         summary.setSubTotal(subTotal);
 
         return summary;
+    }
+
+    @Override
+    public List<CartItem> getCartItems(User user) {
+        Cart cart = cartRepository.findByUser(user);
+        if (cart == null) {
+            return new ArrayList<>();
+        }
+        return cart.getItems();
+    }
+
+    @Transactional
+    @Override
+    public void clearCart(User user) {
+        Cart cart = cartRepository.findByUser(user);
+        if (cart != null) {
+             cart.getItems().clear();
+             cartRepository.save(cart);
+        }
+    }
+
+    private ProductClientDto mapToProductClientDto(Product product) {
+        List<String> imageUrls = product.getImages()
+                .stream()
+                .map(ProductImage::getImageUrl)
+                .toList();
+
+        return ProductClientDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .basePrice(product.getBasePrice())
+                .salePrice(product.getBasePrice())
+                .images(imageUrls)
+                .imageMain(imageUrls.get(0))
+                .ratingAvg(product.getRatingAvg())
+                .ratingCount(product.getRatingCount())
+                .categoryName(
+                        product.getCategory() != null
+                                ? product.getCategory().getName()
+                                : null
+                )
+                .build();
     }
 
     @Override

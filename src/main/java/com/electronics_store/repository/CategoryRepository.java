@@ -30,6 +30,10 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByIsActiveTrueAndLevel(int level);
 
     Category findByName(String name);
+
+    boolean existsByParentId(Long id);
+
+    List<Category> findByParentId(Long parentId);
 }
 
 

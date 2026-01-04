@@ -2,7 +2,12 @@ package com.electronics_store.controller.advice;
 
 import com.electronics_store.controller.auth.AuthController;
 import com.electronics_store.dto.cart.CartSummaryDto;
+import com.electronics_store.dto.wishlist.WishlistDto;
+import com.electronics_store.model.User;
+import com.electronics_store.repository.UserRepository;
 import com.electronics_store.service.CartService;
+import com.electronics_store.service.WishlistService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -10,6 +15,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import java.security.Principal;
+
+@Slf4j
 @ControllerAdvice(basePackages = {"com.electronics_store.controller.client",
         "com.electronics_store.controller.user",
         "com.electronics_store.controller.auth"})
@@ -17,6 +25,10 @@ public class UserGlobalModelAdvice {
 
     @Autowired
     private CartService cartService;
+    @Autowired
+    private WishlistService wishlistService;
+    @Autowired
+    private UserRepository userRepository;
 
     @ModelAttribute("cart")
     public CartSummaryDto cart() {
@@ -30,5 +42,16 @@ public class UserGlobalModelAdvice {
         }
 
         return cartService.getCartSummary();
+    }
+
+    @ModelAttribute("wishlist")
+    public Long wishlist(Principal principal) {
+        // Nếu chưa đăng nhập, principal sẽ là null
+        if (principal == null) {
+            return 0L;
+        }
+
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow(() -> new RuntimeException("Error: User is not found."));
+        return wishlistService.getWishlistCount(user.getId());
     }
 }

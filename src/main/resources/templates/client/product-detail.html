@@ -49,8 +49,8 @@
                         <div class="product-info">
                             <form th:action="@{/user/cart/add}" method="post" th:object="${add}" class="cart-quantity">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                <h2>Today is a good day Framed poster</h2>
-                                <span class="product-details-ref">Reference: demo_15</span>
+                                <h2 th:text="${product.name}"></h2>
+                                <span class="product-details-ref" th:text="'Cateory: ' + ${product.categoryName}"> </span>
                                 <div class="rating-box pt-20">
                                     <ul class="rating rating-with-review-item">
                                         <li th:each="i : ${#numbers.sequence(1, 5)}"
@@ -70,7 +70,7 @@
                                     </p>
                                 </div>
                                 <div class="product-variants d-flex">
-                                    <div class="produt-variants-size" th:each="option : ${productOptions}">
+                                    <div class="product-variants-size" th:each="option : ${options}">
                                         <label th:text="${option.name}"></label>
                                         <select class="nice-select" name="optionValueIds">
                                             <th:block th:each="optionValue : ${option.values}">
@@ -83,7 +83,7 @@
                                 </div>
                                 <div class="single-add-to-cart">
                                     <input type="hidden" name="productId" th:value="${product.id}">
-                                    <div class="quantity">
+                                    <div class="quantity mt-20">
                                         <label>Quantity</label>
                                         <div class="cart-plus-minus">
                                             <input class="cart-plus-minus-box" name="quantity" value="1" type="text"/>

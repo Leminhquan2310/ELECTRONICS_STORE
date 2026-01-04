@@ -178,57 +178,33 @@
                                                             <label class="text-label">Category*</label>
                                                             <select class="selectpicker form-control"
                                                                     th:field="*{categoryId}"
-                                                                    data-style="btn-outline-primary">
+                                                                    data-style="btn-outline-primary"
+                                                                    data-live-search="true">
                                                                 <th:block th:each="cat : ${categories}">
                                                                     <option th:value="${cat.id}"
-                                                                            th:text="${cat.name}">
-                                                                    </option>
+                                                                            th:text="${cat.name}"></option>
                                                                 </th:block>
                                                             </select>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Product Option -->
                                                     <div class="col-lg-12 mb-4">
+                                                        <label class="text-label font-weight-bold">Product
+                                                            Options</label>
                                                         <div id="option-container">
-
                                                         </div>
 
-                                                        <div class="btn-add-option-wrapper">
-                                                            <button type="button"
-                                                                    class="btn btn-sm btn-primary"
-                                                                    onclick="addOption()">
-                                                                + Add Option
-                                                            </button>
-                                                        </div>
-
-                                                        <!-- Product Option Value -->
-                                                        <template id="option-template">
-                                                            <div class="card mb-3 option-item">
-                                                                <div class="card-body">
-
-                                                                    <!-- Option name -->
-                                                                    <div class="mb-2">
-                                                                        <input type="text" class="form-control"
-                                                                               placeholder="Option name (e.g. Color)">
-                                                                    </div>
-
-                                                                    <!-- Values -->
-                                                                    <div class="value-container"></div>
-
-                                                                    <button type="button"
-                                                                            class="btn btn-sm btn-secondary"
-                                                                            onclick="addValue(this)">+ Add Value
-                                                                    </button>
-
-                                                                    <button type="button"
-                                                                            class="btn btn-sm btn-danger float-end"
-                                                                            onclick="removeOption(this)">Remove
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </template>
+                                                        <button type="button" class="btn btn-sm btn-info mt-2"
+                                                                id="btnAddOption">
+                                                            <i class="fa fa-plus"></i> Add Another Option
+                                                        </button>
                                                     </div>
+
+                                                    <script th:inline="javascript">
+                                                        /*<![CDATA[*/
+                                                        const ALL_OPTIONS = /*[[${allOptions}]]*/ [];
+                                                        /*]]>*/
+                                                    </script>
                                                 </div>
                                             </div>
 
@@ -273,49 +249,101 @@
             });
     });
 
-    let optionIndex = 0;
+    $(document).ready(function () {
+        // Biến đếm để tạo index name="options[0]...", name="options[1]..."
+        // Giúp Spring Boot binding dữ liệu List dễ dàng
+        let optionIndex = 0;
 
-    function addOption() {
-        const container = document.getElementById('option-container');
-        const template = document.getElementById('option-template');
+        // Hàm tạo dòng HTML mới
+        function createOptionRow(index) {
+            let optionsHtml = '<option value="">Select Option Type</option>';
 
-        const clone = template.content.cloneNode(true);
-        const optionItem = clone.querySelector('.option-item');
+            // Tạo danh sách Option cha
+            ALL_OPTIONS.forEach(opt => {
+                optionsHtml += `<option value="${opt.id}">${opt.name}</option>`;
+            });
 
-        // set option name input
-        const optionNameInput = optionItem.querySelector('input');
-        optionNameInput.name = `options[${optionIndex}].name`;
+            return `
+            <div class="card mb-3 option-row" id="row-${index}">
+                <div class="card-body p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <label>Option Name</label>
+                            <select class="form-control selectpicker option-type-select"
+                                    data-live-search="true"
+                                    data-style="btn-outline-secondary"
+                                    name="options[${index}].optionId"
+                                    data-index="${index}">
+                                ${optionsHtml}
+                            </select>
+                        </div>
 
-        // init value container
-        const valueContainer = optionItem.querySelector('.value-container');
-        valueContainer.dataset.optionIndex = optionIndex;
+                        <div class="col-md-7">
+                            <label>Option Values</label>
+                            <select class="form-control selectpicker option-value-select"
+                                    multiple
+                                    data-live-search="true"
+                                    data-selected-text-format="count > 3"
+                                    data-style="btn-outline-primary"
+                                    title="Choose values..."
+                                    name="options[${index}].valueIds"
+                                    id="val-select-${index}" disabled>
+                                    </select>
+                        </div>
 
-        // add first value by default
-        addValue(optionItem.querySelector('.btn-secondary'));
+                        <div class="col-md-1 text-right mt-4">
+                            <button type="button" class="btn btn-danger btn-sm btn-remove-row" data-id="${index}">
+                                &times;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
 
-        container.appendChild(clone);
-        optionIndex++;
-    }
+        // Sự kiện click nút Add Option
+        $('#btnAddOption').click(function () {
+            const html = createOptionRow(optionIndex);
+            $('#option-container').append(html);
 
-    function addValue(btn) {
-        const optionItem = btn.closest('.option-item');
-        const valueContainer = optionItem.querySelector('.value-container');
-        const optionIdx = valueContainer.dataset.optionIndex;
+            // Refresh lại selectpicker cho các element mới sinh ra
+            $('.selectpicker').selectpicker('render');
 
-        const valueIndex = valueContainer.children.length;
+            optionIndex++;
+        });
 
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'form-control mb-2';
-        input.placeholder = 'Value (e.g. Red)';
-        input.name = `options[${optionIdx}].values[${valueIndex}]`;
+        // Sự kiện khi thay đổi Option Type (dùng delegate event vì element sinh ra động)
+        $(document).on('change', '.option-type-select', function () {
+            const selectedOptionId = $(this).val();
+            const currentIndex = $(this).data('index');
+            const valueSelect = $(`#val-select-${currentIndex}`);
 
-        valueContainer.appendChild(input);
-    }
+            // Tìm data của option đã chọn trong mảng global
+            const optionData = ALL_OPTIONS.find(opt => opt.id == selectedOptionId);
 
-    function removeOption(btn) {
-        btn.closest('.option-item').remove();
-    }
+            // Reset và enable select values
+            valueSelect.empty().prop('disabled', false);
+
+            if (optionData && optionData.values) {
+                let valuesHtml = '';
+                optionData.values.forEach(val => {
+                    valuesHtml += `<option value="${val.id}">${val.value}</option>`;
+                });
+                valueSelect.append(valuesHtml);
+            } else {
+                valueSelect.prop('disabled', true);
+            }
+
+            // Cực kỳ quan trọng: Refresh lại UI của bootstrap-select
+            valueSelect.selectpicker('refresh');
+        });
+
+        // Sự kiện xóa dòng
+        $(document).on('click', '.btn-remove-row', function () {
+            const id = $(this).data('id');
+            $(`#row-${id}`).remove();
+        });
+    });
 </script>
 </body>
 </html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Wishlish - Electronic Store</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <th:block th:replace="~{layout/layout :: css}"></th:block>
+</head>
+<body>
+<div class="body-wrapper">
+    <header th:replace="~{layout/layout :: header}"></header>
+
+    <!--Wishlist Area Strat-->
+    <div class="wishlist-area pt-60 pb-60">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div th:if="${not #lists.isEmpty(wishlistItems)}" class="table-content table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th class="li-product-remove">Remove</th>
+                                <th class="li-product-thumbnail">Images</th>
+                                <th class="cart-product-name">Product</th>
+                                <th class="li-product-price">Unit Price</th>
+                                <th class="li-product-add-cart">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="wishlishItem : ${wishlistItems}">
+                                <td class="li-product-remove">
+                                    <form th:action="@{/user/wishlist/remove}" method="post">
+                                        <input type="hidden" name="productId" th:value="${wishlishItem.productId}">
+                                        <a onclick="this.closest('form').submit()" href="javascript:void(0)">
+                                            <i class="fa fa-times"></i>
+                                        </a>
+                                    </form>
+                                </td>
+                                <td class="li-product-thumbnail">
+                                    <img th:src="${wishlishItem.productImage}" th:alt="${wishlishItem.productName}"
+                                         width="110px" height="fit-content">
+                                </td>
+                                <td class="li-product-name">
+                                    <a href="javascript:void(0)" th:text="${wishlishItem.productName}">Giro
+                                        Civilia</a>
+                                </td>
+                                <td class="li-product-price">
+                                    <span class="amount" th:text="${wishlishItem.basePrice}">$23.39</span>
+                                </td>
+                                <td class="li-product-add-cart">
+                                    <a href="#">add to cart</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(wishlistItems)}" class="wishlist-empty-content text-center pt-50 pb-50"
+                         style="background: #f9f9f9; border-radius: 10px; border: 1px dashed #ddd;">
+
+                        <div class="wishlist-empty-icon mb-30">
+                            <i class="fa fa-heart-o" style="font-size: 100px; color: #fed700; opacity: 0.5;"></i>
+                        </div>
+
+                        <div class="wishlist-empty-text">
+                            <h2 style="font-weight: 600; color: #242424; margin-bottom: 15px;">Your wishlist is currently empty!</h2>
+                            <p style="font-size: 16px; color: #7a7a7a; margin-bottom: 30px;">
+                                It looks like you haven't added any products to your wishlist yet. <br>
+                                Explore our latest tech products and find something you love.
+                            </p>
+                        </div>
+
+                        <div class="wishlist-empty-button">
+                            <a th:href="@{/shop}" class="li-btn-2"
+                               style="background: #242424; color: #fff; padding: 15px 40px; border-radius: 30px; display: inline-block; text-transform: uppercase; font-weight: 600; transition: 0.3s;">
+                                Continue Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Wishlist Area End-->
+
+    <footer th:replace="~{layout/layout :: footer}"></footer>
+</div>
+
+
+<div th:replace="~{layout/layout :: script}"></div>
+
+</body>
+</html>

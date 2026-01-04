@@ -1,20 +1,12 @@
 package com.electronics_store.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(
-        name = "product_options",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_product_option_product_name",
-                        columnNames = {"product_id", "name"}
-                )
-        })
+@Table(name = "product_options")
 @Entity
 @Getter
 @Setter
@@ -26,14 +18,16 @@ public class ProductOption {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(nullable = false, length = 100)
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "option_id", nullable = false)
+    private Option option;
 
-    @OneToMany(mappedBy = "productOption", fetch = FetchType.LAZY)
-    private java.util.List<ProductOptionValue> values;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "option_value_id")
+    private OptionValue optionValue;
 
 }

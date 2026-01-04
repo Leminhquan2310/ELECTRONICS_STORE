@@ -6,6 +6,79 @@
     <meta name="_csrf" th:content="${_csrf.token}">
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <th:block th:replace="~{layout/layout :: css}"></th:block>
+    <style>
+        /* Style cho danh sách thanh toán */
+        .payment-accordion .card {
+            border: 1px solid #e5e5e5;
+            margin-bottom: 10px;
+            border-radius: 0; /* Limupa thường dùng border vuông */
+            transition: all 0.3s ease;
+        }
+
+        /* Khi phương thức được chọn */
+        .payment-accordion .card.selected-payment {
+            border-color: #fed700; /* Màu vàng đặc trưng Limupa */
+        }
+
+        .payment-accordion .card-header {
+            background: #f9f9f9;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-accordion .card.selected-payment .card-header {
+            background: #fffdf0;
+        }
+
+        /* Tạo biểu tượng radio giả */
+        .payment-accordion .panel-title a {
+            display: block;
+            position: relative;
+            padding-left: 30px;
+            color: #444;
+            font-size: 15px;
+            text-transform: capitalize;
+            font-weight: 500;
+        }
+
+        .payment-accordion .panel-title a::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .payment-accordion .card.selected-payment .panel-title a::before {
+            border-color: #fed700;
+        }
+
+        .payment-accordion .card.selected-payment .panel-title a::after {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: #fed700;
+            border-radius: 50%;
+        }
+
+        .payment-accordion .card-body {
+            padding: 15px 30px;
+            color: #666;
+            line-height: 24px;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+    </style>
 </head>
 <body>
 <div class="body-wrapper">
@@ -23,11 +96,469 @@
         </div>
     </div>
 
+    <div class="checkout-area pt-60 pb-30">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="coupon-accordion">
+                        <!--Accordion Start-->
+                        <h3>Have a coupon? <span id="showcoupon">Click here to enter your code</span></h3>
+                        <div id="checkout_coupon" class="coupon-checkout-content">
+                            <div class="coupon-info">
+                                <p class="checkout-coupon">
+                                    <input id="coupon_code_input" placeholder="Coupon code" type="text">
+                                    <input id="apply_coupon_btn" value="Apply Coupon" type="button">
+                                </p>
+                            </div>
+                        </div>
+                        <!--Accordion End-->
+                    </div>
+                </div>
+            </div>
+            <form id="checkoutForm" action="#">
+                <div class="row">
+                    <div class="col-lg-6 col-12">
+                        <div class="checkbox-form">
+                            <h3>Billing Details</h3>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="country-select clearfix">
+                                        <label>Country <span class="required">*</span></label>
+                                        <select id="billing_country" class="nice-select wide">
+                                            <option value="Vietnam">Vietnam</option>
+                                            <option value="UK">London</option>
+                                            <option value="USA">USA</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="checkout-form-list">
+                                        <label>First Name <span class="required">*</span></label>
+                                        <input id="billing_first_name" type="text" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="checkout-form-list">
+                                        <label>Last Name <span class="required">*</span></label>
+                                        <input id="billing_last_name" placeholder="" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="checkout-form-list">
+                                        <label>Company Name</label>
+                                        <input id="billing_company" placeholder="" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="checkout-form-list">
+                                        <label>Address <span class="required">*</span></label>
+                                        <input id="billing_address" placeholder="Street address" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="checkout-form-list">
+                                        <input id="billing_apartment"
+                                               placeholder="Apartment, suite, unit etc. (optional)" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="checkout-form-list">
+                                        <label>Town / City <span class="required">*</span></label>
+                                        <input id="billing_city" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="checkout-form-list">
+                                        <label>State / County <span class="required">*</span></label>
+                                        <input id="billing_state" placeholder="" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="checkout-form-list">
+                                        <label>Postcode / Zip <span class="required">*</span></label>
+                                        <input id="billing_zip" placeholder="" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="checkout-form-list">
+                                        <label>Email Address <span class="required">*</span></label>
+                                        <input id="billing_email" placeholder="" type="email">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="checkout-form-list">
+                                        <label>Phone <span class="required">*</span></label>
+                                        <input id="billing_phone" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="different-address">
+                                <div class="ship-different-title">
+                                    <h3>
+                                        <label>Ship to a different address?</label>
+                                        <input id="ship-box" type="checkbox">
+                                    </h3>
+                                </div>
+                                <div id="ship-box-info" class="row">
+                                    <div class="col-md-12">
+                                        <div class="country-select clearfix">
+                                            <label>Country <span class="required">*</span></label>
+                                            <select id="shipping_country" class="nice-select wide">
+                                                <option value="Vietnam">Vietnam</option>
+                                                <option value="UK">UK</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="checkout-form-list">
+                                            <label>First Name <span class="required">*</span></label>
+                                            <input id="shipping_first_name" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="checkout-form-list">
+                                            <label>Last Name <span class="required">*</span></label>
+                                            <input id="shipping_last_name" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="checkout-form-list">
+                                            <label>Company Name</label>
+                                            <input id="shipping_company" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="checkout-form-list">
+                                            <label>Address <span class="required">*</span></label>
+                                            <input id="shipping_address" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="checkout-form-list">
+                                            <input id="shipping_apartment" placeholder="Apartment..." type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="checkout-form-list">
+                                            <label>Town / City <span class="required">*</span></label>
+                                            <input id="shipping_city" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="checkout-form-list">
+                                            <label>State / County <span class="required">*</span></label>
+                                            <input id="shipping_state" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="checkout-form-list">
+                                            <label>Postcode / Zip <span class="required">*</span></label>
+                                            <input id="shipping_zip" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="checkout-form-list">
+                                            <label>Email Address <span class="required">*</span></label>
+                                            <input id="shipping_email" type="email">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="checkout-form-list">
+                                            <label>Phone <span class="required">*</span></label>
+                                            <input id="shipping_phone" type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="order-notes">
+                                    <div class="checkout-form-list">
+                                        <label>Order Notes</label>
+                                        <textarea id="order_notes" cols="30" rows="10"
+                                                  placeholder="Notes about your order..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-12">
+                        <div class="your-order">
+                            <h3>Your order</h3>
+                            <div class="your-order-table table-responsive">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th class="cart-product-name">Product</th>
+                                        <th class="cart-product-total">Total</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="checkout-cart-items">
+                                    <tr class="cart_item" th:each="item : ${cart.items}">
+                                        <td class="cart-product-name">
+                                            <span th:text="${item.product.name}">Product Name</span>
+                                            <small th:if="${item.variantSku != null}"
+                                                   th:text="${'[' + item.variantSku + ']'}"
+                                                   class="text-muted"></small>
+                                            <strong class="product-quantity" th:text="${' × ' + item.quantity}"> ×
+                                                1</strong>
+                                        </td>
+                                        <td class="cart-product-total">
+                                            <span class="amount"
+                                                  th:text="${'$' + #numbers.formatDecimal(item.total, 1, 'COMMA', 2, 'POINT')}">
+                                                $165.00
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(cart.items)}">
+                                        <td colspan="2" class="text-center">Your cart is empty</td>
+                                    </tr>
+                                    </tbody>
+                                    <tfoot>
+                                    <tr class="cart-subtotal">
+                                        <th>Cart Subtotal</th>
+                                        <td>
+                                            <span class="amount" id="subtotal-val"
+                                                  th:text="${'$' + #numbers.formatDecimal(cart.subTotal, 1, 'COMMA', 2, 'POINT')}">$215.00</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="order-total">
+                                        <th>Order Total</th>
+                                        <td>
+                                            <strong>
+                                                <span class="amount" id="total-val"
+                                                      th:text="${'$' + #numbers.formatDecimal(cart.subTotal, 1, 'COMMA', 2, 'POINT')}">$215.00</span>
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="payment-method">
+                                <div class="payment-accordion">
+                                    <div id="accordion">
+                                        <div class="card selected-payment" id="card-COD">
+                                            <div class="card-header">
+                                                <h5 class="panel-title">
+                                                    <a data-toggle="collapse" data-target="#collapseCOD"
+                                                       aria-expanded="true" onclick="setPaymentMethod('COD')">
+                                                        Cash on Delivery (COD)
+                                                    </a>
+                                                </h5>
+                                            </div>
+                                            <div id="collapseCOD" class="collapse show" data-parent="#accordion">
+                                                <div class="card-body">
+                                                    <p>Payment is made in cash upon delivery. Please check the goods
+                                                        before paying the delivery person.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="card" id="card-BANK">
+                                            <div class="card-header">
+                                                <h5 class="panel-title">
+                                                    <a class="collapsed" data-toggle="collapse"
+                                                       data-target="#collapseOne" aria-expanded="false"
+                                                       onclick="setPaymentMethod('DIRECT_BANK_TRANSFER')">
+                                                        Direct Bank Transfer
+                                                    </a>
+                                                </h5>
+                                            </div>
+                                            <div id="collapseOne" class="collapse" data-parent="#accordion">
+                                                <div class="card-body">
+                                                    <p>Transfer the payment directly to our bank account. Your order
+                                                        will be processed once the funds are credited to our
+                                                        account.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="card" id="card-PAYPAL">
+                                            <div class="card-header">
+                                                <h5 class="panel-title">
+                                                    <a class="collapsed" data-toggle="collapse"
+                                                       data-target="#collapseThree" aria-expanded="false"
+                                                       onclick="setPaymentMethod('PAYPAL')">
+                                                        PayPal
+                                                    </a>
+                                                </h5>
+                                            </div>
+                                            <div id="collapseThree" class="collapse" data-parent="#accordion">
+                                                <div class="card-body">
+                                                    <p>Pay securely via PayPal using international cards (Visa,
+                                                        Mastercard).</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="order-button-payment">
+                                        <input value="Place order" type="submit" id="placeOrderBtn">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer th:replace="~{layout/layout :: footer}"></footer>
 </div>
 
-<footer th:replace="~{layout/layout :: footer}"></footer>
 
 <div th:replace="~{layout/layout :: script}"></div>
+<script>
+    let selectedPaymentMethod = "COD";
 
+    function setPaymentMethod(method) {
+        selectedPaymentMethod = method;
+
+        // 1. Xóa class active ở tất cả các thẻ card
+        const allCards = document.querySelectorAll('.payment-accordion .card');
+        allCards.forEach(card => card.classList.remove('selected-payment'));
+
+        // 2. Tìm thẻ card chứa link vừa được click và thêm class active
+        // Tìm dựa trên nội dung onclick của thẻ <a>
+        const clickedLink = document.querySelector(`.panel-title a[onclick*="${method}"]`);
+        if (clickedLink) {
+            clickedLink.closest('.card').classList.add('selected-payment');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const orderBtn = document.getElementById('placeOrderBtn');
+
+        if (orderBtn) {
+            orderBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Lấy CSRF Token (Quan trọng cho Spring Security)
+                const csrfToken = document.querySelector("meta[name='_csrf']").getAttribute("content");
+                const csrfHeader = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
+                // 2. Thu thập dữ liệu
+                const checkoutData = {
+                    billingCountry: document.getElementById('billing_country')?.value,
+                    billingFirstName: document.getElementById('billing_first_name')?.value,
+                    billingLastName: document.getElementById('billing_last_name')?.value,
+                    billingCompany: document.getElementById('billing_company')?.value,
+                    billingAddress: document.getElementById('billing_address')?.value,
+                    billingApartment: document.getElementById('billing_apartment')?.value,
+                    billingCity: document.getElementById('billing_city')?.value,
+                    billingState: document.getElementById('billing_state')?.value,
+                    billingZip: document.getElementById('billing_zip')?.value,
+                    billingEmail: document.getElementById('billing_email')?.value,
+                    billingPhone: document.getElementById('billing_phone')?.value,
+
+                    shipToDifferentAddress: document.getElementById('ship-box').checked,
+                    shippingCountry: document.getElementById('shipping_country')?.value,
+                    shippingFirstName: document.getElementById('shipping_first_name')?.value,
+                    shippingLastName: document.getElementById('shipping_last_name')?.value,
+                    shippingAddress: document.getElementById('shipping_address')?.value,
+                    shippingCity: document.getElementById('shipping_city')?.value,
+                    shippingZip: document.getElementById('shipping_zip')?.value,
+
+                    orderNotes: document.getElementById('order_notes')?.value,
+                    couponCode: document.getElementById('coupon_code_input')?.value, // Đã sửa ID coupon
+                    paymentMethod: selectedPaymentMethod
+                };
+
+                if (!checkoutData.billingFirstName || !checkoutData.billingEmail || !checkoutData.billingAddress) {
+                    alert("Please fill in all required fields (*)");
+                    return;
+                }
+
+                fetch('/user/checkout/place-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken // Gửi kèm CSRF
+                    },
+                    body: JSON.stringify(checkoutData)
+                })
+                    .then(async response => {
+                        if (response.status === 401) {
+                            alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+                            window.location.href = "/login";
+                            return;
+                        }
+                        const result = await response.text();
+                        if (response.ok) {
+                            alert("Order placed successfully!");
+                            window.location.href = "/order-success";
+                        } else {
+                            throw new Error(result);
+                        }
+                    })
+                    .catch(error => alert("Error: " + error.message));
+            });
+        }
+
+        // Logic Apply Coupon
+        const applyCouponBtn = document.getElementById('apply_coupon_btn');
+        if (applyCouponBtn) {
+            applyCouponBtn.addEventListener('click', function () {
+                const code = document.getElementById('coupon_code_input').value.trim();
+                const subTotalText = document.getElementById('subtotal-val').innerText;
+                const subTotal = parseFloat(subTotalText.replace(/[^0-9.]/g, ''));
+
+                if (!code) return showNotification("warning", "Warning","Please enter a code" )
+
+                fetch(`/api/coupons/apply?code=${code}&subTotal=${subTotal}`)
+                    .then(res => res.ok ? res.json() : Promise.reject(res.text()))
+                    .then(data => {
+                        showNotification("success", "Coupon " + data.code, "Applied successfully!")
+                        document.getElementById('coupon_code_input').value = "";
+
+                        const totalElement = document.getElementById('total-val');
+                        totalElement.innerText = `$${data.newTotal.toFixed(2)}`;
+
+                        // 2. Xử lý hiển thị dòng mã giảm giá
+                        let discountRow = document.getElementById('discount-row');
+
+                        // Nếu dòng này chưa tồn tại trong bảng, chúng ta sẽ tạo mới nó
+                        if (!discountRow) {
+                            const totalRow = document.querySelector('.order-total');
+                            const newRowHtml = `
+                                    <tr class="cart-subtotal" id="discount-row">
+                                        <th>
+                                            Coupon: <span class="coupon-code-display" style="color: #fed700; font-weight: bold;">${data.code}</span>
+                                            <button type="button" onclick="removeCoupon()" style="border: none; background: none; color: #e80000; cursor: pointer; font-size: 10px; margin-left: 5px;">[Remove]</button>
+                                        </th>
+                                        <td>
+                                            <span class="amount" id="discount-amount-val" style="color: #e80000;">
+                                                -$${data.discountAmount.toFixed(2)}
+                                            </span>
+                                        </td>
+                                    </tr>`;
+
+                            // Chèn dòng mới vào ngay phía trên dòng Order Total
+                            totalRow.insertAdjacentHTML('beforebegin', newRowHtml);
+                        } else {
+                            // Nếu đã có dòng giảm giá rồi (user đổi mã khác), chỉ cần cập nhật text
+                            discountRow.querySelector('.coupon-code-display').innerText = data.code;
+                            document.getElementById('discount-amount-val').innerText = `-$${data.discountAmount.toFixed(2)}`;
+                        }
+                    })
+                    .catch(err => showNotification("error", "Coupon Failed", err));
+            });
+        }
+
+    });
+
+    function removeCoupon() {
+        const subtotal = parseFloat(document.getElementById('subtotal-val').innerText.replace(/[$,]/g, ''));
+
+        // Reset lại Total bằng Subtotal
+        document.getElementById('total-val').innerText = `$${subtotal.toFixed(2)}`;
+
+        // Xóa dòng giảm giá trên UI
+        const discountRow = document.getElementById('discount-row');
+        if (discountRow) discountRow.remove();
+
+        // Xóa trắng input nhập mã
+        document.getElementById('coupon_code_input').value = '';
+        showNotification("success", "Coupon removed", "Success for remove coupon")
+
+    }
+</script>
 </body>
 </html>

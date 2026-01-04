@@ -6,7 +6,6 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(
@@ -22,11 +21,12 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Builder
 public class ProductVariant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", columnDefinition = "BIGINT UNSIGNED")
     private Long id;
 
     // Variant thuộc 1 product
@@ -41,7 +41,7 @@ public class ProductVariant {
     private BigDecimal priceAdjustment;
 
     @Column(name = "stock_quantity", nullable = false)
-    private Integer stock_quantity;
+    private Integer stockQuantity;
 
     @Column(name = "is_active")
     private Boolean active = true;
@@ -65,16 +65,18 @@ public class ProductVariant {
         updatedAt = new java.util.Date();
     }
 
+
     // Liên kết option values
     @OneToMany(
             mappedBy = "variant",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private List<ProductVariantValue> variantValues = new ArrayList<>();
+    private List<ProductVariantOptionValue> variantValues = new ArrayList<>();
 
-    public void addOptionValue(ProductOptionValue value) {
-        ProductVariantValue vv = new ProductVariantValue();
+
+    public void addOptionValue(OptionValue value) {
+        ProductVariantOptionValue vv = new ProductVariantOptionValue();
         vv.setVariant(this);
         vv.setOptionValue(value);
         this.variantValues.add(vv);

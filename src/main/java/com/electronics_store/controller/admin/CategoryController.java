@@ -4,8 +4,6 @@ package com.electronics_store.controller.admin;
 
 import com.electronics_store.dto.category.CategoryDtoCreate;
 import com.electronics_store.dto.category.CategoryDtoUpdate;
-import com.electronics_store.mapper.CategoryMapper;
-import com.electronics_store.model.Category;
 import com.electronics_store.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +23,6 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @Autowired
-    private CategoryMapper categoryMapper;
 
     @Value("${app.base-url}")
     private String baseUrl;
@@ -50,9 +46,8 @@ public class CategoryController {
     @GetMapping("/update/{id}")
     public ModelAndView showUpdateCategory(@PathVariable Long id) {
         ModelAndView mav = new ModelAndView("admin/category/update");
-        CategoryDtoUpdate categoryDtoUpdate = categoryMapper.toDtoUpdate(categoryService.getById(id));
         mav.addObject("categories", categoryService.getAll());
-        mav.addObject("categoryDtoUpdate", categoryDtoUpdate);
+        mav.addObject("categoryDtoUpdate", categoryService.getByIdForUpdate(id));
         return mav;
     }
 
@@ -83,8 +78,7 @@ public class CategoryController {
         if (bindingResult.hasErrors()) {
             return mav;
         }
-        Category category = categoryService.update(categoryDtoUpdate);
-        mav.addObject("categoryDtoUpdate", categoryMapper.toDtoUpdate(category));
+        boolean isSuccess = categoryService.update(categoryDtoUpdate);
         mav.addObject("status", "success");
         mav.addObject("message", "Update category successfully!");
         return mav;

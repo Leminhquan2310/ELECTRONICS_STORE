@@ -88,6 +88,96 @@
                 align-items: flex-start;
             }
         }
+
+        /* Sidebar Filter Styling */
+        .filter-sub-area:last-child {
+            border-bottom: none !important;
+        }
+
+        .form-check-input.filter-checkbox:checked {
+            background-color: #fed700; /* Màu vàng đặc trưng của Limupa */
+            border-color: #fed700;
+        }
+
+        .form-check-label:hover {
+            color: #fed700 !important;
+            transition: 0.2s;
+        }
+
+        /* Hiệu ứng mờ cho danh sách khi đang load (nếu cần dùng JS submit) */
+        .filter-loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Container quản lý khung ảnh */
+        .img-container {
+            aspect-ratio: 1 / 1; /* Ép mọi ảnh thành khung vuông tuyệt đối */
+            background-color: #f8f9fa; /* Màu nền nhẹ cho ảnh trong suốt */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Nhãn HOT Sticker */
+        .sticker-hot {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b); /* Gradient màu đỏ rực cháy */
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 50px; /* Bo tròn kiểu viên thuốc */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4); /* Đổ bóng màu đỏ nhạt */
+            animation: pulse-hot 2s infinite; /* Hiệu ứng đập nhẹ */
+        }
+
+        /* Hiệu ứng đập nhẹ để thu hút sự chú ý */
+        @keyframes pulse-hot {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
+            }
+            50% {
+                transform: scale(1.08);
+                box-shadow: 0 6px 20px rgba(255, 75, 43, 0.6);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
+            }
+        }
+
+        /* Tối ưu ảnh bên trong */
+        .product-img-main {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Quan trọng: Ảnh lấp đầy khung mà không bị méo */
+            transition: transform 0.5s ease; /* Hiệu ứng mượt khi zoom */
+        }
+
+        /* Hiệu ứng khi di chuột vào sản phẩm */
+        .single-product-wrap:hover .product-img-main {
+            transform: scale(1.1); /* Phóng to nhẹ ảnh */
+        }
+
+        .product-img-link {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Responsive cho mobile: nếu màn hình nhỏ quá có thể chỉnh lại tỉ lệ */
+        @media (max-width: 576px) {
+            .img-container {
+                aspect-ratio: 4 / 5; /* Chuyển sang khung hơi chữ nhật đứng trên mobile nếu cần */
+            }
+        }
     </style>
 </head>
 <body>
@@ -99,24 +189,24 @@
             <div class="row">
                 <div class="col-lg-9 order-1 order-lg-2">
 
-                    <div class="search-result-header">
+                    <div class="search-result-header" th:if="${keyword != null}">
                         <div class="search-keyword-container">
                             <div class="search-info">
                                 <div class="keyword-display">
-                                    <i class="icon-magnifier search-icon"></i>
                                     <div style="flex: 1;">
                                         <div>
-                                            <span class="keyword-label">Kết quả tìm kiếm cho:</span>
-                                            <span class="keyword-text">"Laptop Gaming"</span>
+                                            <span class="keyword-label">Result search for:</span>
+                                            "<span class="keyword-text" th:text="${keyword}"></span>"
                                         </div>
                                         <div class="result-count">
                                             <i class="icon-check" style="color: #28a745;"></i>
-                                            <span>Tìm thấy <strong>48 sản phẩm</strong></span>
+                                            <span>Found <strong
+                                                    th:text="${productPage.totalElements} + ' products'"></strong></span>
                                         </div>
                                     </div>
-                                    <a href="#" class="clear-search">
+                                    <a th:href="@{/shop}" class="clear-search">
                                         <i class="icon-close"></i>
-                                        Xóa tìm kiếm
+                                        Remove search
                                     </a>
                                 </div>
                             </div>
@@ -147,27 +237,27 @@
                                 <!-- shop-item-filter-list end -->
                             </div>
                             <div class="toolbar-amount">
-                                <span th:if="${page.totalElements > 0}"
+                                <span th:if="${productPage.totalElements > 0}"
                                       th:text="|Showing
-          ${page.number * page.size + 1}
-          to
-          ${page.number * page.size + page.numberOfElements}
-          of
-          ${page.totalElements}|"></span>
+                                          ${productPage.number * productPage.size + 1}
+                                          to
+                                          ${productPage.number * productPage.size + productPage.numberOfElements}
+                                          of
+                                          ${productPage.totalElements}|">
+                                </span>
                             </div>
                         </div>
                         <!-- product-select-box start -->
                         <div class="product-select-box">
                             <div class="product-short">
                                 <p>Sort By:</p>
-                                <select class="nice-select">
-                                    <option value="trending">Relevance</option>
-                                    <option value="sales">Name (A - Z)</option>
-                                    <option value="sales">Name (Z - A)</option>
-                                    <option value="rating">Price (Low &gt; High)</option>
-                                    <option value="date">Rating (Lowest)</option>
-                                    <option value="price-asc">Model (A - Z)</option>
-                                    <option value="price-asc">Model (Z - A)</option>
+                                <select class="nice-select" id="sort-by-select">
+                                    <option value="trending" th:selected="${sortBy == 'trending'}">Relevance (Newest)</option>
+                                    <option value="name-asc" th:selected="${sortBy == 'name-asc'}">Name (A - Z)</option>
+                                    <option value="name-desc" th:selected="${sortBy == 'name-desc'}">Name (Z - A)</option>
+                                    <option value="price-asc" th:selected="${sortBy == 'price-asc'}">Price (Low > High)</option>
+                                    <option value="price-desc" th:selected="${sortBy == 'price-desc'}">Price (High > Low)</option>
+                                    <option value="rating-desc" th:selected="${sortBy == 'rating-desc'}">Rating (Highest)</option>
                                 </select>
                             </div>
                         </div>
@@ -181,14 +271,15 @@
                                 <div class="product-area shop-product-area">
                                     <div class="row">
                                         <div class="col-lg-4 col-md-4 col-sm-6 mt-40"
-                                             th:each="product : ${page.getContent()}">
+                                             th:each="product : ${productPage.getContent()}">
                                             <!-- single-product-wrap start -->
                                             <div class="single-product-wrap">
-                                                <div class="product-image">
-                                                    <a th:href="@{/product-detail/{id}(id=${product.id})}">
-                                                        <img th:src="${product.imageMain}"
-                                                             alt="Li's Product Image">
+                                                <div class="img-container position-relative overflow-hidden rounded shadow-sm">
+                                                    <a th:href="@{/product-detail/{id}(id=${product.id})}" class="d-block product-img-link">
+                                                        <img th:src="${product.imageMain}" class="img-fluid product-img-main" alt="Product Image">
                                                     </a>
+
+                                                    <span th:if="${product.ratingAvg >= 4.5}" class="sticker-hot">HOT</span>
                                                 </div>
                                                 <div class="product_desc">
                                                     <div class="product_desc_info">
@@ -200,7 +291,7 @@
                                                                 <ul class="rating">
                                                                     <li th:each="i : ${#numbers.sequence(1, 5)}"
                                                                         th:classappend="${i <= product.ratingAvg ? '' : 'no-star' }">
-                                                                        <i class="fa fa-star-o"></i></li>
+                                                                        <i class="fa" th:classappend="${i <= product.ratingAvg ? 'fa-star text-warning' : 'fa-star-o text-muted' }"></i>
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -215,16 +306,28 @@
                                                     </div>
                                                     <div class="add-actions">
                                                         <ul class="add-actions-link">
-                                                            <li class="add-cart active"><a href="shopping-cart.html">Add
-                                                                to cart</a></li>
+                                                            <li class="add-cart active">
+                                                                <a href="javascript:void(0)"
+                                                                   class="quick-view-btn"
+                                                                   data-toggle="modal"
+                                                                   th:data-id="${product.id}"
+                                                                   data-target="#modalQuickView">Add to cart</a></li>
                                                             <li><a href="javascript:void(0)" title="quick view"
                                                                    class="quick-view-btn"
                                                                    data-toggle="modal"
                                                                    data-target="#modalQuickView"
                                                                    th:data-id="${product.id}"><i
                                                                     class="fa fa-eye"></i></a></li>
-                                                            <li><a class="links-details" href="wishlist.html"><i
-                                                                    class="fa fa-heart-o"></i></a></li>
+                                                            <li>
+                                                                <form th:action="@{/user/wishlist/add}" method="post">
+                                                                    <input type="hidden" name="productId"
+                                                                           th:value="${product.id}">
+                                                                    <a class="links-details" href="javascript:void(0)"
+                                                                       onclick="this.closest('form').submit()">
+                                                                        <i class="fa fa-heart-o"></i>
+                                                                    </a>
+                                                                </form>
+                                                            </li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -237,47 +340,71 @@
                             <div id="list-view" class="tab-pane fade product-list-view active show" role="tabpanel">
                                 <div class="row">
                                     <div class="col">
-                                        <div class="row product-layout-list" th:each="product : ${page.getContent()}">
+                                        <div class="row product-layout-list"
+                                             th:each="product : ${productPage.getContent()}">
                                             <div class="col-lg-3 col-md-5 ">
-                                                <div class="product-image">
-                                                    <a th:href="@{/product-detail/{id}(id=${product.id})}">
-                                                        <img th:src="${product.imageMain}"
-                                                             alt="Li's Product Image">
+                                                <div class="img-container position-relative overflow-hidden rounded shadow-sm">
+                                                    <a th:href="@{/product-detail/{id}(id=${product.id})}" class="d-block product-img-link">
+                                                        <img th:src="${product.imageMain}" class="img-fluid product-img-main" alt="Product Image">
                                                     </a>
+
+                                                    <span th:if="${product.ratingAvg >= 4.5}" class="sticker-hot">HOT</span>
                                                 </div>
                                             </div>
                                             <div class="col-lg-5 col-md-7">
-                                                <div class="product_desc">
+                                                <div class="product_desc py-2">
                                                     <div class="product_desc_info">
-                                                        <div class="product-review">
-                                                            <h5 class="manufacturer">
-                                                                <a th:text="${product.categoryName}">Graphic Corner</a>
-                                                            </h5>
+                                                        <div class="product-review mb-2 d-flex align-items-center justify-content-between">
+                                                            <h5 class="manufacturer m-0">Graphic Corner </h5>
                                                             <div class="rating-box">
-                                                                <ul class="rating">
+                                                                <ul class="rating d-flex list-unstyled m-0">
                                                                     <li th:each="i : ${#numbers.sequence(1, 5)}"
                                                                         th:classappend="${i <= product.ratingAvg ? '' : 'no-star' }">
-                                                                        <i class="fa fa-star-o"></i></li>
+                                                                        <i class="fa"
+                                                                           th:classappend="${i <= product.ratingAvg ? 'fa-star text-warning' : 'fa-star-o text-secondary' }"></i>
+                                                                    </li>
                                                                 </ul>
                                                             </div>
                                                         </div>
-                                                        <h4><a class="product_name"
+
+                                                        <h4 class="mb-2">
+                                                            <a class="product_name text-dark fw-bold text-decoration-none"
                                                                th:href="@{/product-detail/{id}(id=${product.id})}"
-                                                               th:text="${product.name}"></a></h4>
-                                                        <div class="price-box">
-                                                            <span class="new-price"
-                                                                  th:text="${#numbers.formatCurrency(product.basePrice)}"></span>
+                                                               th:text="${product.name}"
+                                                               style="font-size: 1.25rem; transition: 0.3s;">Product
+                                                                Name</a>
+                                                        </h4>
+
+                                                        <div class="price-box mb-3">
+                                                            <span class="new-price text-danger fs-5 fw-bold"
+                                                                  th:text="${#numbers.formatDecimal(product.basePrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                                            </span>
                                                         </div>
-                                                        <p th:text="${product.description}"></p>
+                                                        <p class="text-muted small mb-0 text-truncate-3"
+                                                           th:text="${product.description}"
+                                                           style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-lg-4">
                                                 <div class="shop-add-action mb-xs-30">
                                                     <ul class="add-actions-link">
-                                                        <li class="add-cart"><a href="#">Add to cart</a></li>
-                                                        <li class="wishlist"><a href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i>Add to wishlist</a></li>
+                                                        <li class="add-cart active">
+                                                            <a href="javascript:void(0)"
+                                                               class="quick-view-btn"
+                                                               data-toggle="modal"
+                                                               th:data-id="${product.id}"
+                                                               data-target="#modalQuickView">Add to cart</a></li>
+                                                        <li class="wishlist">
+                                                            <form th:action="@{/user/wishlist/add}" method="post">
+                                                                <input type="hidden" name="productId"
+                                                                       th:value="${product.id}">
+                                                                <a href="javascript:void(0)"
+                                                                   onclick="this.closest('form').submit()">
+                                                                    <i class="fa fa-heart-o"></i>Add to wishlist</a>
+                                                            </form>
+                                                        </li>
                                                         <li><a class="quick-view" data-toggle="modal"
                                                                data-target="#modalQuickView" href="javascript:void(0)"
                                                                th:data-id="${product.id}"><i
@@ -292,29 +419,29 @@
                             <div class="paginatoin-area">
                                 <div class="row">
                                     <div class="col-lg-6 col-md-6">
-                                        <p th:if="${page.totalElements > 0}"
+                                        <p th:if="${productPage.totalElements > 0}"
                                            th:text="|Showing
-                                                          ${page.number * page.size + 1}-${page.number * page.size + page.numberOfElements}
+                                                          ${productPage.number * productPage.size + 1}-${productPage.number * productPage.size + productPage.numberOfElements}
                                                           of
-                                                          ${page.totalElements} items|"
+                                                          ${productPage.totalElements} items|"
                                         >Showing 1-12 of 13 item(s)</p>
                                     </div>
                                     <div class="col-lg-6 col-md-6">
                                         <ul class="pagination-box">
-                                            <li th:if="${!page.first}">
-                                                <a th:href="@{/shop(page=${page.number - 1})}" class="Previous">
+                                            <li th:if="${!productPage.first}">
+                                                <a th:href="@{/shop(page=${productPage.number - 1})}" class="Previous">
                                                     <i class="fa fa-chevron-left"></i> Previous
                                                 </a>
                                             </li>
                                             <li class="page-item"
-                                                th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
-                                                th:classappend="${i == page.number} ? 'active'">
+                                                th:each="i : ${#numbers.sequence(0, productPage.totalPages - 1)}"
+                                                th:classappend="${i == productPage.number} ? 'active'">
                                                 <a th:href="@{/shop(page=${i})}"
                                                    th:text="${i + 1}">
                                                 </a>
                                             </li>
-                                            <li th:if="${!page.last}">
-                                                <a th:href="@{/shop(page=${page.number + 1})}" class="Next">
+                                            <li th:if="${!productPage.last}">
+                                                <a th:href="@{/shop(page=${productPage.number + 1})}" class="Next">
                                                     Next <i class="fa fa-chevron-right"></i>
                                                 </a>
                                             </li>
@@ -328,154 +455,68 @@
                 </div>
                 <div class="col-lg-3 order-2 order-lg-1">
                     <!--sidebar-categores-box start  -->
-                    <div class="sidebar-categores-box mt-sm-30 mt-xs-30">
-                        <div class="sidebar-title">
-                            <h2>Laptop</h2>
-                        </div>
-                        <!-- category-sub-menu start -->
-                        <div class="category-sub-menu">
-                            <ul>
-                                <li class="has-sub"><a href="# ">Prime Video</a>
-                                    <ul>
-                                        <li><a href="#">All Videos</a></li>
-                                        <li><a href="#">Blouses</a></li>
-                                        <li><a href="#">Evening Dresses</a></li>
-                                        <li><a href="#">Summer Dresses</a></li>
-                                        <li><a href="#">T-Rent or Buy</a></li>
-                                        <li><a href="#">Your Watchlist</a></li>
-                                        <li><a href="#">Watch Anywhere</a></li>
-                                        <li><a href="#">Getting Started</a></li>
-                                    </ul>
-                                </li>
-                                <li class="has-sub"><a href="#">Computer</a>
-                                    <ul>
-                                        <li><a href="#">TV & Video</a></li>
-                                        <li><a href="#">Audio & Theater</a></li>
-                                        <li><a href="#">Camera, Photo</a></li>
-                                        <li><a href="#">Cell Phones</a></li>
-                                        <li><a href="#">Headphones</a></li>
-                                        <li><a href="#">Video Games</a></li>
-                                        <li><a href="#">Wireless Speakers</a></li>
-                                    </ul>
-                                </li>
-                                <li class="has-sub"><a href="#">Electronics</a>
-                                    <ul>
-                                        <li><a href="#">Amazon Home</a></li>
-                                        <li><a href="#">Kitchen & Dining</a></li>
-                                        <li><a href="#">Bed & Bath</a></li>
-                                        <li><a href="#">Appliances</a></li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </div>
-                        <!-- category-sub-menu end -->
-                    </div>
-                    <!--sidebar-categores-box end  -->
-                    <!--sidebar-categores-box start  -->
                     <div class="sidebar-categores-box">
                         <div class="sidebar-title">
                             <h2>Filter By</h2>
                         </div>
-                        <!-- btn-clear-all start -->
-                        <button class="btn-clear-all mb-sm-30 mb-xs-30">Clear all</button>
-                        <!-- btn-clear-all end -->
-                        <!-- filter-sub-area start -->
-                        <div class="filter-sub-area">
-                            <h5 class="filter-sub-titel">Brand</h5>
-                            <div class="categori-checkbox">
-                                <form action="#">
-                                    <ul>
-                                        <li><input type="checkbox" name="product-categori"><a href="#">Prime Video
-                                            (13)</a></li>
-                                        <li><input type="checkbox" name="product-categori"><a href="#">Computers
-                                            (12)</a></li>
-                                        <li><input type="checkbox" name="product-categori"><a href="#">Electronics
-                                            (11)</a></li>
-                                    </ul>
-                                </form>
-                            </div>
-                        </div>
-                        <!-- filter-sub-area end -->
-                        <!-- filter-sub-area start -->
-                        <div class="filter-sub-area pt-sm-10 pt-xs-10">
-                            <h5 class="filter-sub-titel">Categories</h5>
-                            <div class="categori-checkbox">
-                                <form action="#">
-                                    <ul>
-                                        <li><input type="checkbox" name="product-categori"><a href="#">Graphic Corner
-                                            (10)</a></li>
-                                        <li><input type="checkbox" name="product-categori"><a href="#"> Studio Design
-                                            (6)</a></li>
-                                    </ul>
-                                </form>
-                            </div>
-                        </div>
-                        <!-- filter-sub-area end -->
-                        <!-- filter-sub-area start -->
-                        <div class="filter-sub-area pt-sm-10 pt-xs-10">
-                            <h5 class="filter-sub-titel">Size</h5>
-                            <div class="size-checkbox">
-                                <form action="#">
-                                    <ul>
-                                        <li><input type="checkbox" name="product-size"><a href="#">S (3)</a></li>
-                                        <li><input type="checkbox" name="product-size"><a href="#">M (3)</a></li>
-                                        <li><input type="checkbox" name="product-size"><a href="#">L (3)</a></li>
-                                        <li><input type="checkbox" name="product-size"><a href="#">XL (3)</a></li>
-                                    </ul>
-                                </form>
-                            </div>
-                        </div>
-                        <!-- filter-sub-area end -->
-                        <!-- filter-sub-area start -->
-                        <div class="filter-sub-area pt-sm-10 pt-xs-10">
-                            <h5 class="filter-sub-titel">Color</h5>
-                            <div class="color-categoriy">
-                                <form action="#">
-                                    <ul>
-                                        <li><span class="white"></span><a href="#">White (1)</a></li>
-                                        <li><span class="black"></span><a href="#">Black (1)</a></li>
-                                        <li><span class="Orange"></span><a href="#">Orange (3) </a></li>
-                                        <li><span class="Blue"></span><a href="#">Blue (2) </a></li>
-                                    </ul>
-                                </form>
-                            </div>
-                        </div>
-                        <!-- filter-sub-area end -->
-                        <!-- filter-sub-area start -->
-                        <div class="filter-sub-area pt-sm-10 pb-sm-15 pb-xs-15">
-                            <h5 class="filter-sub-titel">Dimension</h5>
-                            <div class="categori-checkbox">
-                                <form action="#">
-                                    <ul>
-                                        <li><input type="checkbox" name="product-categori"><a href="#">40x60cm (6)</a>
-                                        </li>
-                                        <li><input type="checkbox" name="product-categori"><a href="#">60x90cm (6)</a>
-                                        </li>
-                                        <li><input type="checkbox" name="product-categori"><a href="#">80x120cm (6)</a>
+
+                        <a th:href="@{/shop}" class="btn-clear-all mb-sm-30 mb-xs-30">Clear all</a>
+
+                        <div id="filter-wrapper">
+
+                            <div class="filter-sub-area pt-sm-10 pt-xs-10">
+                                <h5 class="filter-sub-titel">Categories</h5>
+                                <div class="categori-checkbox">
+                                    <ul class="list-unstyled">
+                                        <li th:each="cate : ${categories}" class="py-1">
+                                            <div class="form-check d-flex align-items-center">
+                                                <input class="form-check-input mt-0 filter-checkbox"
+                                                       type="checkbox"
+                                                       name="categoryIds"
+                                                       th:value="${cate.id}"
+                                                       th:id="'cat-' + ${cate.id}"
+                                                       th:checked="${selectedCategories.contains(cate.id)}"
+                                                       style="cursor: pointer;">
+                                                <label class="form-check-label ml-2 text-dark"
+                                                       th:for="'cat-' + ${cate.id}"
+                                                       th:text="${cate.name}">
+                                                </label>
+                                            </div>
                                         </li>
                                     </ul>
-                                </form>
+                                </div>
                             </div>
+
+                            <div th:each="filter : ${filters}"
+                                 class="filter-sub-area pt-sm-10 pt-xs-10 border-bottom mb-3 pb-3">
+                                <h5 class="filter-sub-titel text-uppercase mb-3"
+                                    th:text="${filter.name}">Color</h5>
+
+                                <div class="categori-checkbox">
+                                    <ul class="list-unstyled">
+                                        <li th:each="val : ${filter.values}" class="mb-2">
+                                            <div class="custom-control custom-checkbox d-flex align-items-center">
+                                                <input type="checkbox"
+                                                       class="form-check-input filter-checkbox"
+                                                       name="optionValueIds"
+                                                       th:value="${val.id}"
+                                                       th:id="'opt-' + ${val.id}"
+                                                       th:checked="${selectedOptionValues.contains(val.id)}"
+                                                       style="width: 16px; height: 16px; cursor: pointer;">
+
+                                                <label class="form-check-label ml-2 w-100"
+                                                       th:for="'opt-' + ${val.id}"
+                                                       th:text="${val.value}"
+                                                       style="cursor: pointer; font-size: 14px; color: #555;">
+                                                    Red
+                                                </label>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
                         </div>
-                        <!-- filter-sub-area end -->
-                    </div>
-                    <!--sidebar-categores-box end  -->
-                    <!-- category-sub-menu start -->
-                    <div class="sidebar-categores-box mb-sm-0">
-                        <div class="sidebar-title">
-                            <h2>Laptop</h2>
-                        </div>
-                        <div class="category-tags">
-                            <ul>
-                                <li><a href="# ">Devita</a></li>
-                                <li><a href="# ">Cameras</a></li>
-                                <li><a href="# ">Sony</a></li>
-                                <li><a href="# ">Computer</a></li>
-                                <li><a href="# ">Big Sale</a></li>
-                                <li><a href="# ">Accessories</a></li>
-                            </ul>
-                        </div>
-                        <!-- category-sub-menu end -->
                     </div>
                 </div>
             </div>
@@ -486,12 +527,19 @@
 <!-- Modal Quick View-->
 <div class="modal fade modal-wrapper" id="modalQuickView">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
+        <div class="modal-content position-relative">
+            <div id="qv-spinner" class="position-absolute w-100 h-100 d-none justify-content-center align-items-center"
+                 style="z-index: 1051; background: rgba(255,255,255,0.7); top: 0; left: 0; border-radius: .3rem;">
+                <div class="spinner-border text-warning" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
             <div class="modal-body">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <div class="modal-inner-area row">
+                <div class="modal-inner-area row" id="qv-main-content">
                     <div class="col-lg-5 col-md-6 col-sm-6">
                         <!-- Product Details Left -->
                         <div class="product-details-left">
@@ -504,37 +552,27 @@
                     </div>
 
                     <div class="col-lg-7 col-md-6 col-sm-6">
-                        <div class="product-details-view-content pt-60">
+                        <div class="product-details-view-content pt-30">
                             <div class="product-info">
                                 <h2 id="qv-name">Today is a good day Framed poster</h2>
                                 <span class="product-details-ref" id="qv-category">Category: demo_15</span>
                                 <div class="rating-box pt-20">
                                     <ul class="rating rating-with-review-item">
-                                        <li><i class="fa fa-star-o"></i></li>
-                                        <li><i class="fa fa-star-o"></i></li>
-                                        <li><i class="fa fa-star-o"></i></li>
-                                        <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                        <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                        <li class="review-item"><a href="#">Read Review</a></li>
-                                        <li class="review-item"><a href="#">Write Review</a></li>
                                     </ul>
                                 </div>
                                 <div class="price-box pt-20">
                                     <span class="new-price new-price-2" id="qv-price">$57.98</span>
                                 </div>
                                 <div class="product-desc">
-                                    <p>
-                                                    <span id="qv-desc">100% cotton double printed dress. Black and white striped top and orange high waisted skater skirt bottom. Lorem ipsum dolor sit amet, consectetur adipisicing elit. quibusdam corporis, earum facilis et nostrum dolorum accusamus similique eveniet quia pariatur.
-                                                    </span>
-                                    </p>
+                                    <p><span id="qv-desc"></span></p>
                                 </div>
 
                                 <form th:action="@{/user/cart/add}" method="post" class="cart-quantity">
                                     <!-- CSRF Token -->
                                     <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                     <input type="hidden" name="productId" id="qv-id" value=""/>
-                                    <div class="product-variants d-flex">
-                                        <div class="produt-variants-size"></div>
+                                    <div class="product-variants d-flex flex-wrap gap-3 mb-3">
+                                        <div class="product-variants-size"></div>
                                     </div>
                                     <div class="single-add-to-cart">
                                         <div class="quantity">
@@ -579,6 +617,29 @@
 <div th:replace="~{layout/layout :: script}"></div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Onload for Filter
+        // Bắt sự kiện change trên tất cả checkbox có class 'filter-checkbox'
+        const checkboxes = document.querySelectorAll('.filter-checkbox');
+        checkboxes.forEach(box => {
+            box.addEventListener('change', () => submitFilter());
+        });
+
+        // Bắt sự kiện change trên Select box sort
+        const sortSelect = document.querySelector('.nice-select') || document.querySelector('.product-short select');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function () {
+                // Nếu dùng nice-select plugin, event có thể khác, đây là native select
+                submitFilter(this.value);
+            });
+
+            // Xử lý riêng cho plugin nice-select (nếu template có dùng)
+            $('.nice-select .option').on('click', function () {
+                let value = $(this).attr('data-value');
+                submitFilter(value);
+            });
+        }
+
+        // onLoad for Modal quick view
         let quickViewModal = $('#modalQuickView');
 
         // Reset modal content khi đóng modal
@@ -591,10 +652,20 @@
             document.getElementById('qv-thumbs').innerHTML = '';
         });
 
+        const spinner = document.getElementById('qv-spinner');
+        const content = document.getElementById('qv-main-content');
+
         document.querySelectorAll('.quick-view, .quick-view-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
+                const myModal = new bootstrap.Modal(document.getElementById('modalQuickView'));
+                myModal.show()
+
                 const productId = this.dataset.id;
+
+                // 1. Hiện Spinner và làm mờ nội dung
+                spinner.classList.replace('d-none', 'd-flex');
+                content.style.opacity = '0';
 
                 // Reset content
                 document.getElementById('qv-images').innerHTML = '';
@@ -607,10 +678,10 @@
 
                 // Clear previous options
                 const optionsContainer = document.querySelector('#modalQuickView .product-variants');
-                optionsContainer.innerHTML = '<div class="produt-variants-size">' +
+                optionsContainer.innerHTML = '<div class="product-variants-size">' +
                     '<label>Dimension</label><select class="nice-select"></select></div>';
 
-                fetch('/product-detail/api/' + productId)
+                fetch('/api/product-details/' + productId)
                     .then(res => {
                         if (!res.ok) throw new Error('Fetch error');
                         return res.json();
@@ -621,7 +692,11 @@
                         document.getElementById('qv-category').textContent = 'Category: ' + (data.product.categoryName || 'N/A');
                         // Price
                         const price = data.product.salePrice || data.product.basePrice;
-                        document.getElementById('qv-price').textContent = '$' + (price || '0.00');
+                        const formattedPrice = new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD'
+                        }).format(price);
+                        document.getElementById('qv-price').innerText = formattedPrice;
                         // Description
                         document.getElementById('qv-desc').textContent = data.product.description || 'No description available';
                         document.getElementById('qv-id').value = data.product.id;
@@ -631,7 +706,7 @@
                         updateRatingStars(data.product.ratingAvg || 0);
 
                         // Update product options
-                        updateProductOptions(data.productOptions || []);
+                        updateOption(data.options || []);
 
                         // Create images
                         const imagesContainer = document.getElementById('qv-images');
@@ -683,14 +758,17 @@
                             console.log("false")
                             initQuickViewSlick();
                         }
-
-                        // Show modal
-                        quickViewModal.modal('show');
                     })
                     .catch((reason) => {
-                        console.log("Error")
                         console.log(reason);
                         alert('Không tải được sản phẩm');
+                    })
+                    .finally(() => {
+                        // 5. Ẩn Spinner và hiện nội dung (delay nhẹ 300ms cho mượt)
+                        setTimeout(() => {
+                            spinner.classList.replace('d-flex', 'd-none');
+                            content.style.opacity = '1';
+                        }, 300);
                     });
             });
         });
@@ -717,6 +795,46 @@
         });
     });
 
+    document.querySelector('#sort-by-select').addEventListener('change', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('sortBy', this.value);
+        urlParams.set('page', '0'); // Reset về trang đầu khi đổi kiểu sắp xếp
+        window.location.search = urlParams.toString();
+    });
+
+    function submitFilter(sortOverride) {
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(url.search);
+
+        // 1. Keyword
+        // (Nếu bạn có input search, lấy value ở đây, nếu không giữ nguyên param cũ)
+
+        // 2. Categories
+        params.delete('categoryIds');
+        document.querySelectorAll('input[name="categoryIds"]:checked').forEach(cb => {
+            params.append('categoryIds', cb.value);
+        });
+
+        // 3. Option Values
+        params.delete('optionValueIds');
+        document.querySelectorAll('input[name="optionValueIds"]:checked').forEach(cb => {
+            params.append('optionValueIds', cb.value);
+        });
+
+        // 4. Sort
+        if (sortOverride) {
+            params.set('sortBy', sortOverride);
+        } else {
+            // Cố gắng lấy giá trị sort hiện tại từ UI hoặc giữ nguyên từ URL
+            let currentSort = document.querySelector('.product-short select')?.value;
+            if (currentSort) params.set('sortBy', currentSort);
+        }
+
+        // 5. Reset về trang 0
+        params.set('page', 0);
+
+        window.location.href = url.pathname + '?' + params.toString();
+    }
 
     // Function to update rating stars
     function updateRatingStars(ratingAvg) {
@@ -753,17 +871,17 @@
     }
 
     // Function to update product options
-    function updateProductOptions(productOptions) {
+    function updateOption(options) {
         const optionsContainer = document.querySelector('#modalQuickView .product-variants');
         if (!optionsContainer) return;
 
         // Clear existing options
         optionsContainer.innerHTML = '';
 
-        if (productOptions && productOptions.length > 0) {
-            productOptions.forEach(option => {
+        if (options && options.length > 0) {
+            options.forEach(option => {
                 const optionDiv = document.createElement('div');
-                optionDiv.className = 'produt-variants-size';
+                optionDiv.className = 'product-variants-size';
 
                 // Create label
                 const label = document.createElement('label');
@@ -798,7 +916,7 @@
         } else {
             // Default option if no product options
             const defaultOptionDiv = document.createElement('div');
-            defaultOptionDiv.className = 'produt-variants-size';
+            defaultOptionDiv.className = 'product-variants-size';
             defaultOptionDiv.innerHTML = `
             <label>Options</label>
             <select class="nice-select pr-15">

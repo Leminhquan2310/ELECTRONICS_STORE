@@ -61,7 +61,7 @@ public class WishlistController {
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("pageSize", size);
 
-        return "client-user/wishlist";
+        return "client/wishlist";
     }
 
     /**
@@ -79,9 +79,11 @@ public class WishlistController {
         boolean success = wishlistService.addToWishlist(userId, productId);
 
         if (success) {
-            redirectAttributes.addFlashAttribute("success", "Đã thêm sản phẩm vào danh sách yêu thích!");
+            redirectAttributes.addFlashAttribute("status", "success");
+            redirectAttributes.addFlashAttribute("message", "Product is added to wishlist successfully!");
         } else {
-            redirectAttributes.addFlashAttribute("error", "Sản phẩm đã có trong danh sách yêu thích!");
+            redirectAttributes.addFlashAttribute("status", "warning");
+            redirectAttributes.addFlashAttribute("error", "Product is already in wishlist!");
         }
 
         return "redirect:" + (referer != null ? referer : "/user/wishlist");
@@ -102,9 +104,10 @@ public class WishlistController {
         boolean success = wishlistService.removeFromWishlist(userId, productId);
 
         if (success) {
-            redirectAttributes.addFlashAttribute("success", "Đã xóa sản phẩm khỏi danh sách yêu thích!");
+            redirectAttributes.addFlashAttribute("status", "success");
+            redirectAttributes.addFlashAttribute("message", "Product is removed to wishlist successfully!");
         } else {
-            redirectAttributes.addFlashAttribute("error", "Sản phẩm không có trong danh sách yêu thích!");
+            redirectAttributes.addFlashAttribute("error", "Product is not in wishlist!");
         }
 
         return "redirect:" + (referer != null ? referer : "/user/wishlist");
@@ -121,7 +124,7 @@ public class WishlistController {
         Long userId = userDetails.getUser().getId();
 
         wishlistService.clearWishlist(userId);
-        redirectAttributes.addFlashAttribute("success", "Đã xóa tất cả sản phẩm khỏi danh sách yêu thích!");
+        redirectAttributes.addFlashAttribute("success", "Removed all products from wishlist successfully!");
 
         return "redirect:/user/wishlist";
     }

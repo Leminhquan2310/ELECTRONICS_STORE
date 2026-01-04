@@ -1,5 +1,6 @@
 package com.electronics_store.dto.product;
 
+import com.electronics_store.dto.option.OptionInputDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -7,6 +8,7 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -25,7 +27,7 @@ public class ProductDtoCreate {
     private Long categoryId;
 
     @Size(min = 0)
-    private List<ProductOptionDtoCreate> options;
+    private List<OptionInputDto> options = new ArrayList<>();
 
     @Size(min = 0)
     List<MultipartFile> images; // URL hoặc path sau upload

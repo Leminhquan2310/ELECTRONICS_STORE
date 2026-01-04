@@ -9,7 +9,7 @@ import lombok.*;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_variant_option_value",
-                        columnNames = {"variant_id", "option_value_id"}
+                        columnNames = {"product_variant_id", "option_value_id"}
                 )
         }
 )
@@ -17,7 +17,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductVariantValue {
+public class ProductVariantOptionValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,11 +25,11 @@ public class ProductVariantValue {
 
     // Variant
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "variant_id", nullable = false)
+    @JoinColumn(name = "product_variant_id", nullable = false)
     private ProductVariant variant;
 
     // Option value (Color=Black, Size=M)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "option_value_id", nullable = false)
-    private ProductOptionValue optionValue;
+    private OptionValue optionValue;
 }

@@ -32,7 +32,7 @@ public class AdminUserInitializer {
             if (userRepository.findByUsername("admin123").isEmpty()) {
                 User admin = new User();
                 admin.setUsername("admin123");
-                admin.setFullname("admin123");
+                admin.setFullName("admin123");
                 admin.setPassword(passwordEncoder.encode("12345678"));
                 Role role = roleRepository.findByName("ROLE_ADMIN").orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                 admin.setRoles(Collections.singleton(role));

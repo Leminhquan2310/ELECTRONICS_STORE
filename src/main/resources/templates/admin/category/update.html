@@ -146,7 +146,7 @@
                                             <div class="col-lg-6 mb-4">
                                                 <div class="form-group">
                                                     <label class="text-label">Parent Category*</label>
-                                                    <select class="selectpicker form-control" th:field="*{parent}"
+                                                    <select th:disabled="${!categoryDtoUpdate.leaf}" class="selectpicker form-control" th:field="*{parent}"
                                                             data-style="btn-outline-primary" >
                                                         <option value="">Root</option>
                                                         <th:block th:each="cat : ${categories}">

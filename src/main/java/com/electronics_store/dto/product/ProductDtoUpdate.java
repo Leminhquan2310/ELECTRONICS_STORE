@@ -1,5 +1,6 @@
 package com.electronics_store.dto.product;
 
+import com.electronics_store.dto.option.OptionInputDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,7 +29,7 @@ public class ProductDtoUpdate {
     private Long categoryId;
 
     @Size(min = 0)
-    private List<ProductOptionDtoUpdate> options;
+    private List<OptionInputDto> options;
 
     @Size(min = 0)
     List<MultipartFile> images;

@@ -12,4 +12,6 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     Optional<Cart> findByUserAndActiveTrue(User user);
 
     Optional<Cart> findByUserIdAndActiveTrue(Long userId);
+
+    Cart findByUser(User user);
 }

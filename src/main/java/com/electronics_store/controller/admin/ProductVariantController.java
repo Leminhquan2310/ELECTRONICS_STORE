@@ -2,7 +2,6 @@ package com.electronics_store.controller.admin;
 
 import com.electronics_store.dto.product_variant.ProductVariantAdminDto;
 import com.electronics_store.dto.product_variant.ProductVariantDtoUpdate;
-import com.electronics_store.mapper.ProductVariantMapper;
 import com.electronics_store.service.ProductVariantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,14 +21,11 @@ public class ProductVariantController {
     private String baseUrl;
     @Autowired
     private ProductVariantService productVariantService;
-    @Autowired
-    private ProductVariantMapper productVariantMapper;
 
     @GetMapping("")
     public ModelAndView showListProductVariant(){
         ModelAndView mav = new ModelAndView("admin/product-variant/list");
-        List<ProductVariantAdminDto> productVariantAdminDto = productVariantMapper.listProductVariantToAdminDto(productVariantService.getAll());
-        mav.addObject("productVariantAdminDto", productVariantAdminDto);
+        mav.addObject("productVariantAdminDto", productVariantService.getAll());
         mav.addObject("BASE_URL", baseUrl);
         mav.addObject("productVariantDtoUpdate", new ProductVariantDtoUpdate());
         return mav;

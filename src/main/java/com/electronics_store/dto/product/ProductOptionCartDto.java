@@ -1,6 +1,5 @@
 package com.electronics_store.dto.product;
 
-import com.electronics_store.model.ProductOptionValue;
 import lombok.*;
 
 import java.util.List;

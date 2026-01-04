@@ -1,15 +1,18 @@
 package com.electronics_store.service;
 
+import com.electronics_store.dto.product_variant.ProductVariantAdminDto;
 import com.electronics_store.model.Product;
 import com.electronics_store.model.ProductVariant;
-import com.electronics_store.model.ProductVariantValue;
 
 import java.util.List;
 
-public interface ProductVariantService extends IGenerateService<ProductVariant> {
+public interface ProductVariantService {
     void generateVariants(Product product);
 
-    String generateSku(Product product, List<ProductVariantValue> variantValues);
+    //    String generateSku(Product product, List<ProductVariantValue> variantValues);
+    List<ProductVariantAdminDto> getAll();
+
+    ProductVariant update(Object productVariantDtoUpdate);
 
     void syncVariants(Product product);
 }

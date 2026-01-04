@@ -1,8 +1,8 @@
 package com.electronics_store.controller.auth;
 
 import com.electronics_store.dto.user.UserDtoRegister;
-import com.electronics_store.mapper.UserMapper;
 import com.electronics_store.service.impl.CustomUserDetailsService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -10,12 +10,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+@Slf4j
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
-
-    @Autowired
-    private UserMapper userMapper;
 
     @Autowired
     CustomUserDetailsService userDetailsService;

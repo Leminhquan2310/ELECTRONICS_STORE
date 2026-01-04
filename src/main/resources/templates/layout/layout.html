@@ -21,6 +21,10 @@
         <link rel="stylesheet" th:href="@{/client-user/css/magnific-popup.css}">
         <link rel="stylesheet" th:href="@{/client-user/css/bootstrap.min.css}">
         <link rel="stylesheet" th:href="@{/client-user/css/helper.css}">
+
+        <!-- Simple Notify-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-notify/dist/simple-notify.css"/>
+
         <link rel="stylesheet" th:href="@{/client-user/css/style.css}">
         <link rel="stylesheet" th:href="@{/client-user/css/responsive.css}">
     </th:block>
@@ -100,10 +104,10 @@
                     <div class="col-lg-9 pl-0 ml-sm-15 ml-xs-15">
                         <!-- Begin Header Middle Searchbox Area -->
                         <form th:action="@{/shop}" method="get" class="hm-searchbox">
-                            <select name="type" class="nice-select select-search-category">
-                                <option value="PRODUCT">Product</option>
-                                <option value="CATEGORY">Category</option>
-                            </select>
+                            <!--                            <select name="type" class="nice-select select-search-category">-->
+                            <!--                                <option value="PRODUCT">Product</option>-->
+                            <!--                                <option value="CATEGORY">Category</option>-->
+                            <!--                            </select>-->
                             <input type="text"
                                    name="keyword"
                                    placeholder="Enter your search key ..."
@@ -116,8 +120,8 @@
                             <ul class="hm-menu">
                                 <!-- Begin Header Middle Wishlist Area -->
                                 <li class="hm-wishlist">
-                                    <a th:href="wishlist.html">
-                                        <span class="cart-item-count wishlist-item-count">0</span>
+                                    <a th:href="@{/user/wishlist}">
+                                        <span class="cart-item-count wishlist-item-count" th:text="${wishlist}"></span>
                                         <i class="fa fa-heart-o"></i>
                                     </a>
                                 </li>
@@ -157,7 +161,8 @@
                                         </ul>
                                         <p class="minicart-total" th:if="${cart.items.size() > 0}">SUBTOTAL: <span
                                                 th:text="${#numbers.formatCurrency(cart.subTotal)}"></span></p>
-                                        <p class="minicart-total d-flex justify-content-center align-items-center" th:if="${cart.items.size() == 0}">
+                                        <p class="minicart-total d-flex justify-content-center align-items-center"
+                                           th:if="${cart.items.size() == 0}">
                                             <span>Cart is empty</span>
                                         </p>
                                         <div class="minicart-button">
@@ -165,7 +170,9 @@
                                                class="li-button li-button-fullwidth li-button-dark">
                                                 <span>View Cart</span>
                                             </a>
-                                            <a th:href="@{/user/checkout}" class="li-button li-button-fullwidth">
+                                            <a th:href="@{/user/checkout}" class="li-button li-button-fullwidth"
+                                               th:classappend="${cart.items.size() == 0} ? 'disabled' : ''"
+                                            >
                                                 <span>Checkout</span>
                                             </a>
                                         </div>
@@ -510,27 +517,85 @@
     <script th:src="@{/client-user/js/jquery.nice-select.min.js}"></script>
     <!-- ScrollUp js -->
     <script th:src="@{/client-user/js/scrollUp.min.js}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/simple-notify/dist/simple-notify.min.js"></script>
+
     <!-- Main/Activator js -->
     <script th:src="@{/client-user/js/main.js}"></script>
+
+    <!-- JavaScript -->
+    <script>
+        function showNotification(status, title, message) {
+            new Notify({
+                status:  status,
+                title:title,
+                text: message,
+                effect: "fade",
+                speed: 300,
+                customClass: "",
+                customIcon: "",
+                showIcon: true,
+                showCloseButton: true,
+                autoclose: true,
+                autotimeout: 3000,
+                notificationsGap: null,
+                notificationsPadding: null,
+                type: "outline",
+                position: "right top",
+                customWrapper: "",
+            });
+        }
+    </script>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            /* Lấy dữ liệu từ RedirectAttributes của Spring Boot thông qua Thymeleaf */
+            const message = /*[[${message}]]*/ null;
+            const status = /*[[${status}]]*/ 'info'; // Mặc định là info nếu không có status
+
+            if (message) {
+                // Xác định tiêu đề dựa trên status
+                let title = 'Notification!';
+                if (status === 'success') title = 'Success';
+                else if (status === 'error' || status === 'danger') title = 'Error';
+                else if (status === 'warning') title = 'Warning';
+                new Notify({
+                    status: status,
+                    title: title,
+                    text: message,
+                    effect: "fade",
+                    speed: 300,
+                    customClass: "",
+                    customIcon: "",
+                    showIcon: true,
+                    showCloseButton: true,
+                    autoclose: true,
+                    autotimeout: 3000,
+                    notificationsGap: null,
+                    notificationsPadding: null,
+                    type: "outline",
+                    position: "right top",
+                    customWrapper: "",
+                });
+            }
+        });
+
+        function logout() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/logout';
+
+            // Thêm CSRF token
+            const csrfToken = /*[[${_csrf.token}]]*/ '';
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = /*[[${_csrf.parameterName}]]*/ '_csrf';
+            csrfInput.value = csrfToken;
+
+            form.appendChild(csrfInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
 </div>
-<!-- JavaScript -->
-<script th:inline="javascript">
-    function logout() {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/logout';
-
-        // Thêm CSRF token
-        const csrfToken = /*[[${_csrf.token}]]*/ '';
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = /*[[${_csrf.parameterName}]]*/ '_csrf';
-        csrfInput.value = csrfToken;
-
-        form.appendChild(csrfInput);
-        document.body.appendChild(form);
-        form.submit();
-    }
-</script>
 </body>
 </html>

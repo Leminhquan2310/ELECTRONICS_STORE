@@ -26,4 +26,6 @@ public class CategoryDtoUpdate {
 
     @Min(value = 0, message = "Parent must be greater than 0")
     private Long parent;
+
+    private boolean isLeaf;
 }

@@ -32,16 +32,11 @@ public class ClientController {
     public ModelAndView showHome(){
         ModelAndView mav = new ModelAndView("client/index");
         Pageable pageable = PageRequest.of(0, 4);
-        List<ProductClientDto> hotDealProducts = productMapper.toClientDtoList(productService.getProductBySoldDesc(pageable).getContent());
-        List<ProductClientDto> trendingProducts = productMapper.toClientDtoList(productService.getProductBySoldDesc(pageable).getContent());
-        List<ProductClientDto> laptopProducts = productMapper.toClientDtoList(productService.getProductByCategoryName("Laptop", pageable).getContent());
-        List<ProductClientDto> tabletProducts = productMapper.toClientDtoList(productService.getProductByCategoryName("Tablet", pageable).getContent());
-        List<ProductClientDto> smartphoneProducts = productMapper.toClientDtoList(productService.getProductByCategoryName("Smartphone", pageable).getContent());
-        mav.addObject("hotDealProducts", hotDealProducts);
-        mav.addObject("laptopProducts", laptopProducts);
-        mav.addObject("tabletProducts", tabletProducts);
-        mav.addObject("smartphoneProducts", smartphoneProducts);
-        mav.addObject("trendingProducts", trendingProducts);
+        mav.addObject("hotDealProducts", productService.getProductBySoldDesc(pageable).getContent());
+        mav.addObject("laptopProducts", productService.getProductByCategoryName("Laptop", pageable).getContent());
+        mav.addObject("tabletProducts", productService.getProductByCategoryName("Tablet", pageable).getContent());
+        mav.addObject("smartphoneProducts", productService.getProductByCategoryName("Smartphone", pageable).getContent());
+        mav.addObject("trendingProducts", productService.getProductBySoldDesc(pageable).getContent());
         mav.addObject("categoryRoots", categoryService.getListByLevelAndIsActiveTrue(1));
         return mav;
     }

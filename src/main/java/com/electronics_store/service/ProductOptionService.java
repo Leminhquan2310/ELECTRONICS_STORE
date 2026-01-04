@@ -1,9 +1,9 @@
 package com.electronics_store.service;
 
-import com.electronics_store.model.ProductOption;
+import com.electronics_store.dto.option.OptionDtoWithValues;
 
 import java.util.List;
 
-public interface ProductOptionService extends IGenerateService<ProductOption> {
-    List<ProductOption> getProductOptionsByProductId(Long productId);
+public interface ProductOptionService {
+    List<OptionDtoWithValues> getOptionsByProductId(Long productId);
 }
