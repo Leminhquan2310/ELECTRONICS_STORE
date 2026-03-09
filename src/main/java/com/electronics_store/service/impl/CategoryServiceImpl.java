@@ -3,6 +3,7 @@ package com.electronics_store.service.impl;
 import com.electronics_store.dto.category.CategoryDto;
 import com.electronics_store.dto.category.CategoryDtoCreate;
 import com.electronics_store.dto.category.CategoryDtoUpdate;
+import com.electronics_store.helper.CategoryUtil;
 import com.electronics_store.model.Category;
 import com.electronics_store.repository.CategoryRepository;
 import com.electronics_store.repository.ProductRepository;
@@ -201,20 +202,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<Category> getListByParentId(Long parentId) {
-        return categoryRepository.findByParentIdOrderBySortOrder(parentId);
-    }
-
-    @Override
-    public List<Category> getListByIsLeafTrue() {
-        return categoryRepository.findByIsActiveTrueAndIsLeafTrue();
-    }
-
-    @Override
-    public List<CategoryDto> getListByIsLeafTrueForClient() {
+    public List<CategoryDto> getListByIsLeafTrue() {
         List<Category> list = categoryRepository.findByIsActiveTrueAndIsLeafTrue();
-        return list.stream().map(this::mapToDto).toList();
+        return list.stream().filter(category -> category.getParent() != null).map(CategoryUtil::getCategoryFullName).toList();
     }
+
 
     @Override
     public List<CategoryDto> getListRootForClient() {

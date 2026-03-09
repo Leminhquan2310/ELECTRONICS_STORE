@@ -1,11 +1,16 @@
 package com.electronics_store.controller.user;
 
 import com.electronics_store.dto.cart.AddToCartDto;
+import com.electronics_store.model.User;
+import com.electronics_store.security.CustomUserDetails;
 import com.electronics_store.service.CartService;
+import com.electronics_store.service.WishlistService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,7 +24,10 @@ public class CartController {
     @Value("${app.base-url}")
     private String baseUrl;
 
-    private final CartService cartService;
+    @Autowired
+    private CartService cartService;
+    @Autowired
+    private WishlistService wishlistService;
 
     public CartController(CartService cartService) {
         this.cartService = cartService;
@@ -32,8 +40,10 @@ public class CartController {
     }
 
     @PostMapping("/add")
-    public String addToCart(@ModelAttribute AddToCartDto request) {
+    public String addToCart(@ModelAttribute AddToCartDto request, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getId();
         cartService.addToCart(request);
+        wishlistService.removeFromWishlist(userId, request.getProductId());
         return "redirect:/user/cart";
     }
 

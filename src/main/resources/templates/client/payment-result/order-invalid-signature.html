@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Congratulation Order</title>
+    <th:block th:replace="~{layout/layout :: css}"></th:block>
+    <style>
+        .warning-icon {
+            font-size: 80px;
+            color: #f39c12; /* Màu cam cảnh báo */
+            margin-bottom: 20px;
+        }
+
+        .order-details-box {
+            background: #fff8e5;
+            padding: 30px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border: 1px solid #ffeeba;
+        }
+    </style>
+</head>
+<body>
+<div class="body-wrapper">
+    <header th:replace="~{layout/layout :: header}"></header>
+    <div class="breadcrumb-area">
+        <div class="container">
+            <div class="breadcrumb-content">
+                <ul>
+                    <li><a th:href="@{/static}">Home</a></li>
+                    <li class="active">Security Warning</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="checkout-area pt-60 pb-30">
+        <div class="container">
+            <div class="text-center mb-50">
+                <i class="fa fa-exclamation-triangle warning-icon"></i>
+
+                <h2 class="mb-20">Giao dịch không hợp lệ</h2>
+                <p class="mb-30" style="font-size: 16px;">
+                    Hệ thống phát hiện dữ liệu thanh toán không hợp lệ hoặc đã bị chỉnh sửa.
+                    Để đảm bảo an toàn, giao dịch này đã bị từ chối.
+                </p>
+
+                <div class="cart-page-total">
+                    <a th:href="@{/}" class="li-btn-3">Về trang chủ</a>
+                    <a th:href="@{/contact}" class="li-btn-3"
+                       style="background-color: #333; color: #fff; margin-left: 10px;">
+                        Liên hệ hỗ trợ
+                    </a>
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="order-details-box">
+                        <h3 class="text-center mb-20">Thông báo hệ thống</h3>
+                        <p class="text-center">
+                            ❗ Không có đơn hàng nào được ghi nhận từ giao dịch này.<br>
+                            Vui lòng không thử lại bằng cách chỉnh sửa URL thanh toán.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout/layout :: script}"></div>
+</div>
+</body>
+</html>

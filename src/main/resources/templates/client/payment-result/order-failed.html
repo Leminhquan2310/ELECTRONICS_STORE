@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Congratulation Order</title>
+    <th:block th:replace="~{layout/layout :: css}"></th:block>
+    <style>
+        .fail-icon {
+            font-size: 80px;
+            color: #e74c3c; /* Màu đỏ */
+            margin-bottom: 20px;
+        }
+
+        .order-details-box {
+            background: #fdf2f2;
+            padding: 30px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+<div class="body-wrapper">
+    <header th:replace="~{layout/layout :: header}"></header>
+    <div class="breadcrumb-area">
+        <div class="container">
+            <div class="breadcrumb-content">
+                <ul>
+                    <li><a th:href="@{/static}">Home</a></li>
+                    <li class="active">Purchase Failed</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="checkout-area pt-60 pb-30">
+        <div class="container">
+            <div class="text-center mb-50">
+                <i class="fa fa-times-circle fail-icon"></i>
+
+                <h2 class="mb-20">Thanh toán không thành công</h2>
+                <p class="mb-30" style="font-size: 16px;">
+                    Giao dịch của bạn đã bị hủy hoặc không thể hoàn tất.
+                    Vui lòng thử lại hoặc chọn phương thức thanh toán khác.
+                </p>
+
+                <div class="cart-page-total">
+                    <a th:href="@{/checkout}" class="li-btn-3">Thanh toán lại</a>
+                    <a th:href="@{/static}" class="li-btn-3"
+                       style="background-color: #333; color: #fff; margin-left: 10px;">
+                        Về trang chủ
+                    </a>
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="order-details-box">
+                        <h3 class="text-center mb-20">Thông tin giao dịch</h3>
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td>Mã đơn hàng:</td>
+                                <td><strong th:text="${orderId}">#LMP12345</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Lý do:</td>
+                                <td>Thanh toán bị hủy hoặc thất bại</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <p class="text-center mt-3">
+                            <i>Nếu bạn đã bị trừ tiền, vui lòng liên hệ hỗ trợ để được hoàn tiền.</i>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{layout/layout :: script}"></div>
+</div>
+</body>
+</html>

@@ -70,17 +70,11 @@ public class Product {
 
     /* ---------- IMAGES ---------- */
     @BatchSize(size = 20)
-    @OneToMany(
-            mappedBy = "product",
-            fetch = FetchType.LAZY
-    )
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
 
     /* ---------- VARIANTS ---------- */
-    @OneToMany(
-            mappedBy = "product",
-            fetch = FetchType.LAZY
-    )
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> variants = new ArrayList<>();
 
     @BatchSize(size = 20)
@@ -96,5 +90,27 @@ public class Product {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = new java.util.Date();
+    }
+
+    // --- Helper Methods cho Variants ---
+    public void addVariant(ProductVariant variant) {
+        variants.add(variant);
+        variant.setProduct(this);
+    }
+
+    public void removeVariant(ProductVariant variant) {
+        variants.remove(variant);
+        variant.setProduct(null); // Ngắt quan hệ phía con
+    }
+
+    // --- Helper Methods cho Images (Sau khi đã thêm orphanRemoval=true) ---
+    public void addImage(ProductImage image) {
+        images.add(image);
+        image.setProduct(this);
+    }
+
+    public void removeImage(ProductImage image) {
+        images.remove(image);
+        image.setProduct(null);
     }
 }

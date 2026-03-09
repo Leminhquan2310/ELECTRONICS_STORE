@@ -11,6 +11,8 @@ import com.electronics_store.service.OptionService;
 import com.electronics_store.service.ProductOptionService;
 import com.electronics_store.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,12 +33,14 @@ public class ProductDetailController {
     private ProductService productService;
 
     @GetMapping("/{id}")
-    public ModelAndView showProductDetail(@PathVariable Long id){
+    public ModelAndView showProductDetail(@PathVariable Long id) {
         ModelAndView mav = new ModelAndView("client/product-detail");
-//        List<ProductOption> listProductOption = productOptionService.getProductOptionsByProductId(id);
+        ProductClientDto productClientDto = productService.getProductForClient(id);
+        Pageable pageable = PageRequest.of(0, 10);
+        mav.addObject("productSameCategory", productService.getProductByCategoryName(productClientDto.getCategoryName(), pageable).getContent());
         mav.addObject("BASE_URL", "http://localhost:8080/");
         mav.addObject("addToCartDto", new AddToCartDto());
-        mav.addObject("product", productService.getProductForClient(id));
+        mav.addObject("product", productClientDto);
         mav.addObject("options", productOptionService.getOptionsByProductId(id));
         return mav;
     }

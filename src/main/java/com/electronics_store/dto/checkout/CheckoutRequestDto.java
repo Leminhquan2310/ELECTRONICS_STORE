@@ -21,6 +21,9 @@ public class CheckoutRequestDto {
     private String billingEmail; // Có thể pre-fill từ user đã login nhưng vẫn cho phép sửa
     private String billingPhone;
 
+    // BankCode for VnPay
+    private String bankCode;
+
 
     // Ship to different address Checkbox
     private boolean shipToDifferentAddress;

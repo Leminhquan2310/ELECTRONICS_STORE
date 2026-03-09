@@ -2,6 +2,8 @@ package com.electronics_store.controller.admin;
 
 import com.electronics_store.dto.product.ProductDtoCreate;
 import com.electronics_store.dto.product.ProductDtoUpdate;
+import com.electronics_store.helper.CategoryUtil;
+import com.electronics_store.model.Category;
 import com.electronics_store.service.CategoryService;
 import com.electronics_store.service.OptionService;
 import com.electronics_store.service.ProductOptionService;
@@ -16,6 +18,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -66,7 +70,7 @@ public class ProductController {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ModelAndView createProduct(@ModelAttribute @Valid ProductDtoCreate productDtoCreate, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         ModelAndView mav = new ModelAndView("admin/product/create");
-        mav.addObject("categories", categoryService.getListByIsLeafTrue());
+//        mav.addObject("categories", categoryService.getListByIsLeafTrue());
         if (bindingResult.hasErrors()) {
             return mav;
         }

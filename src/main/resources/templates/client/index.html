@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <th:block  th:replace="~{layout/layout :: css}"></th:block>
+    <th:block th:replace="~{layout/layout :: css}"></th:block>
 </head>
 <body>
 <header th:replace="~{layout/layout :: header}"></header>
@@ -22,16 +22,14 @@
                         </div>
                         <div id="cate-toggle" class="category-menu-list">
                             <ul>
-                                <li th:classappend="${categoryStat.index > 7 ? 'rx-child' : ''}"
-                                    th:class="${category.children.size() > 0 ? 'right-menu' : ''}"
-                                    class="right-menu" th:each="category,categoryStat : ${categoryRoots}">
-                                    <a href="#" th:text="${category.name}"></a>
-                                    <ul class="cat-mega-menu" th:if="${category.children.size() > 0}">
-                                        <li class="right-menu cat-mega-title"
-                                            th:each="cateChilrend : ${category.children}">
-                                            <a href="#" th:text="${cateChilrend.name}"></a>
-                                        </li>
-                                    </ul>
+                                <li th:each="category,categoryStat : ${categoryRoots}">
+                                    <a th:href="@{/shop(categoryIds=${category.id})}" th:text="${category.name}"></a>
+                                    <!--                                    <ul class="cat-mega-menu" th:if="${category.children.size() > 0}">-->
+                                    <!--                                        <li class="right-menu cat-mega-title"-->
+                                    <!--                                            th:each="cateChilrend : ${category.children}">-->
+                                    <!--                                            <a href="#" th:text="${cateChilrend.name}"></a>-->
+                                    <!--                                        </li>-->
+                                    <!--                                    </ul>-->
                                 </li>
                                 <li class="rx-parent" th:if="${categoryRoots.size() > 7}">
                                     <a class="rx-default">More Categories</a>
@@ -55,7 +53,7 @@
                                     <h2>Chamcham Galaxy S9 | S9+</h2>
                                     <h3>Starting at <span>$589.00</span></h3>
                                     <div class="default-btn slide-btn">
-                                        <a class="links" href="shop-left-sidebar.html">Shopping Now</a>
+                                        <a class="links" th:href="@{/shop}">Shopping Now</a>
                                     </div>
                                 </div>
                             </div>
@@ -68,7 +66,7 @@
                                     <h2>Work Desk Surface Studio 2018</h2>
                                     <h3>Starting at <span>$1599.00</span></h3>
                                     <div class="default-btn slide-btn">
-                                        <a class="links" href="shop-left-sidebar.html">Shopping Now</a>
+                                        <a class="links" th:href="@{/shop}">Shopping Now</a>
                                     </div>
                                 </div>
                             </div>
@@ -81,7 +79,7 @@
                                     <h2>Phantom 4 Pro+ Obsidian</h2>
                                     <h3>Starting at <span>$809.00</span></h3>
                                     <div class="default-btn slide-btn">
-                                        <a class="links" href="shop-left-sidebar.html">Shopping Now</a>
+                                        <a class="links" th:href="@{/shop}">Shopping Now</a>
                                     </div>
                                 </div>
                             </div>
@@ -155,8 +153,7 @@
                                         <div class="product_desc_info">
                                             <div class="product-review">
                                                 <h5 class="manufacturer">
-                                                    <a href="shop-left-sidebar.html"
-                                                       th:text="${product.categoryName}"></a>
+                                                    <span th:text="${product.categoryName}"></span>
                                                 </h5>
                                                 <div class="rating-box">
                                                     <ul class="rating">
@@ -176,14 +173,24 @@
                                         </div>
                                         <div class="add-actions">
                                             <ul class="add-actions-link">
-                                                <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                <li>
-                                                    <a class="links-details" href="wishlist.html">
-                                                        <i class="fa fa-heart-o"></i>
-                                                    </a>
+                                                <li class="add-cart active">
+                                                    <a href="#" class="add-to-cart-btn"
+                                                       th:data-product-id="${product.id}"
+                                                       th:data-product-name="${product.name}">Add to cart</a>
                                                 </li>
                                                 <li>
-                                                    <a href="#" title="quick view" class="quick-view-btn"
+                                                    <form th:action="@{/user/wishlist/add}" method="post">
+                                                        <input type="hidden" name="productId"
+                                                               th:value="${product.id}">
+                                                        <a class="links-details" href="javascript:void(0)"
+                                                           onclick="this.closest('form').submit()">
+                                                            <i class="fa fa-heart-o"></i>
+                                                        </a>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void(0)" title="quick view"
+                                                       class="quick-view-btn" th:data-id="${product.id}"
                                                        data-toggle="modal" data-target="#exampleModalCenter">
                                                         <i class="fa fa-eye"></i>
                                                     </a>
@@ -249,8 +256,7 @@
                                         <div class="product_desc_info">
                                             <div class="product-review">
                                                 <h5 class="manufacturer">
-                                                    <a href="shop-left-sidebar.html"
-                                                       th:text="${product.categoryName}"></a>
+                                                    <span th:text="${product.categoryName}"></span>
                                                 </h5>
                                                 <div class="rating-box">
                                                     <ul class="rating">
@@ -270,14 +276,24 @@
                                         </div>
                                         <div class="add-actions">
                                             <ul class="add-actions-link">
-                                                <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                <li>
-                                                    <a class="links-details" href="wishlist.html">
-                                                        <i class="fa fa-heart-o"></i>
-                                                    </a>
+                                                <li class="add-cart active">
+                                                    <a href="#" class="add-to-cart-btn"
+                                                       th:data-product-id="${product.id}"
+                                                       th:data-product-name="${product.name}">Add to cart</a>
                                                 </li>
                                                 <li>
-                                                    <a href="#" title="quick view" class="quick-view-btn"
+                                                    <form th:action="@{/user/wishlist/add}" method="post">
+                                                        <input type="hidden" name="productId"
+                                                               th:value="${product.id}">
+                                                        <a class="links-details" href="javascript:void(0)"
+                                                           onclick="this.closest('form').submit()">
+                                                            <i class="fa fa-heart-o"></i>
+                                                        </a>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void(0)" title="quick view"
+                                                       class="quick-view-btn" th:data-id="${product.id}"
                                                        data-toggle="modal" data-target="#exampleModalCenter">
                                                         <i class="fa fa-eye"></i>
                                                     </a>
@@ -343,8 +359,7 @@
                                         <div class="product_desc_info">
                                             <div class="product-review">
                                                 <h5 class="manufacturer">
-                                                    <a href="shop-left-sidebar.html"
-                                                       th:text="${product.categoryName}"></a>
+                                                    <span th:text="${product.categoryName}"></span>
                                                 </h5>
                                                 <div class="rating-box">
                                                     <ul class="rating">
@@ -364,14 +379,24 @@
                                         </div>
                                         <div class="add-actions">
                                             <ul class="add-actions-link">
-                                                <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                <li>
-                                                    <a class="links-details" href="wishlist.html">
-                                                        <i class="fa fa-heart-o"></i>
-                                                    </a>
+                                                <li class="add-cart active">
+                                                    <a href="#" class="add-to-cart-btn"
+                                                       th:data-product-id="${product.id}"
+                                                       th:data-product-name="${product.name}">Add to cart</a>
                                                 </li>
                                                 <li>
-                                                    <a href="#" title="quick view" class="quick-view-btn"
+                                                    <form th:action="@{/user/wishlist/add}" method="post">
+                                                        <input type="hidden" name="productId"
+                                                               th:value="${product.id}">
+                                                        <a class="links-details" href="javascript:void(0)"
+                                                           onclick="this.closest('form').submit()">
+                                                            <i class="fa fa-heart-o"></i>
+                                                        </a>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void(0)" title="quick view"
+                                                       class="quick-view-btn" th:data-id="${product.id}"
                                                        data-toggle="modal" data-target="#exampleModalCenter">
                                                         <i class="fa fa-eye"></i>
                                                     </a>
@@ -437,8 +462,7 @@
                                         <div class="product_desc_info">
                                             <div class="product-review">
                                                 <h5 class="manufacturer">
-                                                    <a href="shop-left-sidebar.html"
-                                                       th:text="${product.categoryName}"></a>
+                                                    <span th:text="${product.categoryName}"></span>
                                                 </h5>
                                                 <div class="rating-box">
                                                     <ul class="rating">
@@ -458,14 +482,24 @@
                                         </div>
                                         <div class="add-actions">
                                             <ul class="add-actions-link">
-                                                <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                <li>
-                                                    <a class="links-details" href="wishlist.html">
-                                                        <i class="fa fa-heart-o"></i>
-                                                    </a>
+                                                <li class="add-cart active">
+                                                    <a href="#" class="add-to-cart-btn"
+                                                       th:data-product-id="${product.id}"
+                                                       th:data-product-name="${product.name}">Add to cart</a>
                                                 </li>
                                                 <li>
-                                                    <a href="#" title="quick view" class="quick-view-btn"
+                                                    <form th:action="@{/user/wishlist/add}" method="post">
+                                                        <input type="hidden" name="productId"
+                                                               th:value="${product.id}">
+                                                        <a class="links-details" href="javascript:void(0)"
+                                                           onclick="this.closest('form').submit()">
+                                                            <i class="fa fa-heart-o"></i>
+                                                        </a>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void(0)" title="quick view"
+                                                       class="quick-view-btn" th:data-id="${product.id}"
                                                        data-toggle="modal" data-target="#exampleModalCenter">
                                                         <i class="fa fa-eye"></i>
                                                     </a>
@@ -501,7 +535,7 @@
                             <span> $1209.00</span>
                         </p>
                         <div class="default-btn">
-                            <a href="shop-left-sidebar.html" class="links">Shopping Now</a>
+                            <a th:href="@{/shop}" class="links">Shopping Now</a>
                         </div>
                     </div>
                     <!-- Li's Static Home Content Area End Here -->
@@ -520,11 +554,6 @@
                         <h2>
                             <span>Trendding Products</span>
                         </h2>
-                        <ul class="nav li-product-menu li-trending-product-menu">
-                            <li><a class="active" data-toggle="tab" href="#home1"><span>Meito</span></a></li>
-                            <li><a data-toggle="tab" href="#home2"><span>Camera Accessories</span></a></li>
-                            <li><a data-toggle="tab" href="#home3"><span>XailStation</span></a></li>
-                        </ul>
                     </div>
                     <!-- Begin Li's Tab Menu Content Area -->
                     <div class="tab-content li-tab-content li-trending-product-content">
@@ -544,7 +573,7 @@
                                                 <div class="product_desc_info">
                                                     <div class="product-review">
                                                         <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html"
+                                                            <a th:href="@{/shop}"
                                                                th:text="${product.categoryName}"></a>
                                                         </h5>
                                                         <div class="rating-box">
@@ -565,14 +594,24 @@
                                                 </div>
                                                 <div class="add-actions">
                                                     <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li>
-                                                            <a class="links-details" href="wishlist.html">
-                                                                <i class="fa fa-heart-o"></i>
-                                                            </a>
+                                                        <li class="add-cart active">
+                                                            <a href="#" class="add-to-cart-btn"
+                                                               th:data-product-id="${product.id}"
+                                                               th:data-product-name="${product.name}">Add to cart</a>
                                                         </li>
                                                         <li>
-                                                            <a href="#" title="quick view" class="quick-view-btn"
+                                                            <form th:action="@{/user/wishlist/add}" method="post">
+                                                                <input type="hidden" name="productId"
+                                                                       th:value="${product.id}">
+                                                                <a class="links-details" href="javascript:void(0)"
+                                                                   onclick="this.closest('form').submit()">
+                                                                    <i class="fa fa-heart-o"></i>
+                                                                </a>
+                                                            </form>
+                                                        </li>
+                                                        <li>
+                                                            <a href="javascript:void(0)" title="quick view"
+                                                               class="quick-view-btn" th:data-id="${product.id}"
                                                                data-toggle="modal" data-target="#exampleModalCenter">
                                                                 <i class="fa fa-eye"></i>
                                                             </a>
@@ -585,576 +624,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="home2" class="tab-pane fade">
-                            <div class="row">
-                                <div class="product-active owl-carousel">
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/11.jpg"
-                                                         alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Graphic Corner</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Accusantium
-                                                        dolorem1</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price">$46.80</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/7.jpg" alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Studio Design</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Mug Today is
-                                                        a good day</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price new-price-2">$71.80</span>
-                                                        <span class="old-price">$77.22</span>
-                                                        <span class="discount-percentage">-7%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/9.jpg" alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Graphic Corner</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Accusantium
-                                                        dolorem1</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price">$46.80</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/5.jpg" alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Studio Design</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Mug Today is
-                                                        a good day</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price new-price-2">$71.80</span>
-                                                        <span class="old-price">$77.22</span>
-                                                        <span class="discount-percentage">-7%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/7.jpg" alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Graphic Corner</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Accusantium
-                                                        dolorem1</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price">$46.80</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/5.jpg" alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Studio Design</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Mug Today is
-                                                        a good day</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price new-price-2">$71.80</span>
-                                                        <span class="old-price">$77.22</span>
-                                                        <span class="discount-percentage">-7%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="home3" class="tab-pane fade">
-                            <div class="row">
-                                <div class="product-active owl-carousel">
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/3.jpg" alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Graphic Corner</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Accusantium
-                                                        dolorem1</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price">$46.80</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/7.jpg" alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Studio Design</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Mug Today is
-                                                        a good day</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price new-price-2">$71.80</span>
-                                                        <span class="old-price">$77.22</span>
-                                                        <span class="discount-percentage">-7%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/9.jpg" alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Graphic Corner</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Accusantium
-                                                        dolorem1</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price">$46.80</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/1.jpg" alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Studio Design</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Mug Today is
-                                                        a good day</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price new-price-2">$71.80</span>
-                                                        <span class="old-price">$77.22</span>
-                                                        <span class="discount-percentage">-7%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/11.jpg"
-                                                         alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Graphic Corner</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Accusantium
-                                                        dolorem1</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price">$46.80</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <!-- single-product-wrap start -->
-                                        <div class="single-product-wrap">
-                                            <div class="product-image">
-                                                <a href="single-product.html">
-                                                    <img src="images/product/large-size/9.jpg" alt="Li's Product Image">
-                                                </a>
-                                                <span class="sticker">New</span>
-                                            </div>
-                                            <div class="product_desc">
-                                                <div class="product_desc_info">
-                                                    <div class="product-review">
-                                                        <h5 class="manufacturer">
-                                                            <a href="shop-left-sidebar.html">Studio Design</a>
-                                                        </h5>
-                                                        <div class="rating-box">
-                                                            <ul class="rating">
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                                <li class="no-star"><i class="fa fa-star-o"></i></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4><a class="product_name" href="single-product.html">Mug Today is
-                                                        a good day</a></h4>
-                                                    <div class="price-box">
-                                                        <span class="new-price new-price-2">$71.80</span>
-                                                        <span class="old-price">$77.22</span>
-                                                        <span class="discount-percentage">-7%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="add-actions">
-                                                    <ul class="add-actions-link">
-                                                        <li class="add-cart active"><a href="#">Add to cart</a></li>
-                                                        <li><a class="links-details" href="wishlist.html"><i
-                                                                class="fa fa-heart-o"></i></a></li>
-                                                        <li><a href="#" title="quick view" class="quick-view-btn"
-                                                               data-toggle="modal" data-target="#exampleModalCenter"><i
-                                                                class="fa fa-eye"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- single-product-wrap end -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                    <!-- Tab Menu Content Area End Here -->
                 </div>
-                <!-- Tab Menu Area End Here -->
             </div>
         </div>
     </section>
@@ -1162,6 +633,786 @@
 
 <footer th:replace="~{layout/layout :: footer}"></footer>
 
+<!--  Modal product-->
+
+<!-- Modal Quick View-->
+<div class="modal fade modal-wrapper" id="modalQuickView">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content position-relative">
+            <div id="qv-spinner" class="position-absolute w-100 h-100 d-none justify-content-center align-items-center"
+                 style="z-index: 1051; background: rgba(255,255,255,0.7); top: 0; left: 0; border-radius: .3rem;">
+                <div class="spinner-border text-warning" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="modal-inner-area row" id="qv-main-content">
+                    <div class="col-lg-5 col-md-6 col-sm-6">
+                        <!-- Product Details Left -->
+                        <div class="product-details-left">
+                            <div class="product-details-images slider-navigation-1" id="qv-images">
+                            </div>
+                            <div class="product-details-thumbs slider-thumbs-1" id="qv-thumbs">
+                            </div>
+                        </div>
+                        <!--// Product Details Left -->
+                    </div>
+
+                    <div class="col-lg-7 col-md-6 col-sm-6">
+                        <div class="product-details-view-content pt-30">
+                            <div class="product-info">
+                                <h2 id="qv-name">Today is a good day Framed poster</h2>
+                                <span class="product-details-ref" id="qv-category">Category: demo_15</span>
+                                <div class="rating-box pt-20">
+                                    <ul class="rating rating-with-review-item">
+                                    </ul>
+                                </div>
+                                <div class="price-box pt-20">
+                                    <span class="new-price new-price-2" id="qv-price">$57.98</span>
+                                </div>
+                                <div class="product-desc">
+                                    <p><span id="qv-desc"></span></p>
+                                </div>
+
+                                <form th:action="@{/user/cart/add}" method="post" class="cart-quantity">
+                                    <!-- CSRF Token -->
+                                    <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <input type="hidden" name="productId" id="qv-id" value=""/>
+                                    <div class="product-variants d-flex flex-wrap gap-3 mb-3">
+                                        <div class="product-variants-size"></div>
+                                    </div>
+                                    <div class="product-variants-stock d-flex">
+                                        <label>Stock:</label>
+                                        <span id="product-variant-stock"></span>
+                                    </div>
+                                    <div class="single-add-to-cart">
+                                        <div class="quantity">
+                                            <label>Quantity</label>
+                                            <div class="cart-plus-minus">
+                                                <input class="cart-plus-minus-box" value="1" type="text"
+                                                       name="quantity">
+                                                <div class="dec qtybutton"><i class="fa fa-angle-down"></i></div>
+                                                <div class="inc qtybutton"><i class="fa fa-angle-up"></i></div>
+                                            </div>
+                                        </div>
+                                        <button class="add-to-cart" type="submit">Add to cart</button>
+                                    </div>
+                                </form>
+                                <div class="product-additional-info pt-25">
+                                    <form th:action="@{/user/wishlist/add}" method="post">
+                                        <input type="hidden" name="productId" id="productIdModal" value="">
+                                        <a href="javascript:void(0)"
+                                           onclick="this.closest('form').submit()">
+                                            <i class="fa fa-heart-o"></i> Add to wishlist</a>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add to Cart Confirmation Modal -->
+<div class="modal fade" id="addToCartModal" tabindex="-1" role="dialog" aria-labelledby="addToCartModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addToCartModalLabel">Add to Cart</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <i class="fa fa-shopping-cart fa-3x text-success mb-3"></i>
+                </div>
+                <h6 class="mb-3">Are you sure you want to add this product to your cart?</h6>
+                <div class="product-info">
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <img id="modal-product-image" src="" alt="Product Image"
+                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" class="me-3">
+                        <div class="text-start">
+                            <h6 id="modal-product-name" class="mb-1"></h6>
+                            <p id="modal-product-price" class="mb-0 text-muted"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Options Section -->
+                <div class="product-options mb-3" id="modal-product-options">
+                    <!-- Options will be dynamically loaded here -->
+                </div>
+
+                <!-- Stock Information -->
+                <div class="stock-info mb-3">
+                    <label class="form-label">Stock:</label>
+                    <span id="modal-product-stock" class="stock-status">Loading...</span>
+                </div>
+
+                <div class="quantity-selector mb-3">
+                    <label for="modal-quantity" class="form-label">Quantity:</label>
+                    <div class="input-group justify-content-center" style="max-width: 150px; margin: 0 auto;">
+                        <button class="btn btn-outline-secondary" type="button" id="decrease-qty">-</button>
+                        <input type="number" class="form-control text-center" id="modal-quantity" value="1" min="1">
+                        <button class="btn btn-outline-secondary" type="button" id="increase-qty">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirm-add-to-cart">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{layout/layout :: script}"></div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentProductId = null;
+
+        // Handle Add to Cart buttons
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('add-to-cart-btn')) {
+                e.preventDefault();
+
+                const productId = e.target.getAttribute('data-product-id');
+                const productName = e.target.getAttribute('data-product-name');
+                currentProductId = productId;
+
+                // Set product info in modal
+                document.getElementById('modal-product-name').textContent = productName;
+                document.getElementById('modal-quantity').value = 1;
+
+                // Get product image from the product card
+                const productCard = e.target.closest('.single-product-wrap');
+                const productImage = productCard.querySelector('.product-image img').src;
+                const productPrice = productCard.querySelector('.new-price').textContent;
+
+                document.getElementById('modal-product-image').src = productImage;
+                document.getElementById('modal-product-price').textContent = productPrice;
+
+                // Store product ID for later use
+                document.getElementById('confirm-add-to-cart').setAttribute('data-product-id', productId);
+
+                // Load product options and stock
+                loadProductOptionsForModal(productId);
+
+                // Show modal
+                $('#addToCartModal').modal('show');
+            }
+        });
+
+        // Function to load product options for modal
+        function loadProductOptionsForModal(productId) {
+            const optionsContainer = document.getElementById('modal-product-options');
+            const stockSpan = document.getElementById('modal-product-stock');
+            const addToCartBtn = document.getElementById('confirm-add-to-cart');
+
+            // Reset options and stock
+            optionsContainer.innerHTML = '<div class="text-muted">Loading options...</div>';
+            stockSpan.textContent = 'Loading...';
+            stockSpan.className = 'stock-status';
+
+            fetch('/api/product-details/' + productId)
+                .then(res => {
+                    if (!res.ok) throw new Error('Fetch error');
+                    return res.json();
+                })
+                .then(data => {
+                    // Update product options
+                    updateModalOptions(data.options || []);
+                    // Load initial stock
+                    getModalStockByOptionValue();
+                })
+                .catch(error => {
+                    console.error('Error loading product options:', error);
+                    optionsContainer.innerHTML = '<div class="text-danger">Error loading options</div>';
+                    stockSpan.textContent = 'N/A';
+                    addToCartBtn.disabled = true;
+                });
+        }
+
+        // Function to update product options in modal
+        function updateModalOptions(options) {
+            const optionsContainer = document.getElementById('modal-product-options');
+
+            // Clear existing options
+            optionsContainer.innerHTML = '';
+
+            if (options && options.length > 0) {
+                options.forEach(option => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'product-option-group mb-2';
+
+                    // Create label
+                    const label = document.createElement('label');
+                    label.className = 'form-label';
+                    label.textContent = option.name || 'Option';
+                    optionDiv.appendChild(label);
+
+                    // Create select
+                    const select = document.createElement('select');
+                    select.className = 'form-select';
+                    select.name = 'modalOptionValueIds';
+                    select.onchange = getModalStockByOptionValue;
+
+                    // Add options
+                    if (option.values && option.values.length > 0) {
+                        option.values.forEach(optionValue => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = optionValue.id || '';
+                            optionElement.textContent = optionValue.value || '';
+                            select.appendChild(optionElement);
+                        });
+                    } else {
+                        // Default option if no values
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = '';
+                        defaultOption.textContent = 'Select option';
+                        select.appendChild(defaultOption);
+                    }
+
+                    optionDiv.appendChild(select);
+                    optionsContainer.appendChild(optionDiv);
+                });
+            } else {
+                // No options available
+                const noOptionsDiv = document.createElement('div');
+                noOptionsDiv.className = 'text-muted';
+                noOptionsDiv.textContent = 'No options available';
+                optionsContainer.appendChild(noOptionsDiv);
+            }
+        }
+
+        // Function to get stock by option values for modal
+        function getModalStockByOptionValue() {
+            if (!currentProductId) return;
+
+            const allSelects = document.querySelectorAll("select[name='modalOptionValueIds']");
+            const values = Array.from(allSelects).map(select => select.value);
+
+            const stockSpan = document.getElementById('modal-product-stock');
+            const addToCartBtn = document.getElementById('confirm-add-to-cart');
+            const qtyInput = document.getElementById('modal-quantity');
+
+            fetch(`/api/product-details/get-stock?productId=${currentProductId}&optionValueIds=${values.join(',')}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    stockSpan.className = "stock-status";
+
+                    const stock = data?.stock ?? 0;
+
+                    if (data && stock > 0) {
+                        stockSpan.textContent = `${stock} available`;
+                        stockSpan.classList.add("stock-status-in");
+                        addToCartBtn.disabled = false;
+
+                        // Update quantity max
+                        qtyInput.max = stock;
+                        qtyInput.disabled = false;
+
+                        // If current quantity exceeds stock, adjust it
+                        if (parseInt(qtyInput.value) > stock) {
+                            qtyInput.value = stock;
+                        }
+                    } else {
+                        stockSpan.textContent = 'Out of stock';
+                        stockSpan.classList.add("stock-status-out");
+                        addToCartBtn.disabled = true;
+
+                        // Disable quantity input
+                        qtyInput.max = 0;
+                        qtyInput.disabled = true;
+                        qtyInput.value = 1;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading stock:', error);
+                    stockSpan.textContent = 'Error loading stock';
+                    stockSpan.className = 'stock-status stock-status-out';
+                    addToCartBtn.disabled = true;
+                });
+        }
+
+        // Handle quantity buttons in modal
+        document.getElementById('decrease-qty').addEventListener('click', function () {
+            const qtyInput = document.getElementById('modal-quantity');
+            const currentQty = parseInt(qtyInput.value);
+            if (currentQty > 1) {
+                qtyInput.value = currentQty - 1;
+            }
+        });
+
+        document.getElementById('increase-qty').addEventListener('click', function () {
+            const qtyInput = document.getElementById('modal-quantity');
+            const maxQty = parseInt(qtyInput.max) || 999;
+            const currentQty = parseInt(qtyInput.value);
+            if (currentQty < maxQty) {
+                qtyInput.value = currentQty + 1;
+            }
+        });
+
+        // Handle confirm add to cart
+        document.getElementById('confirm-add-to-cart').addEventListener('click', function () {
+            const productId = this.getAttribute('data-product-id');
+            const quantity = document.getElementById('modal-quantity').value;
+
+            // Get selected option values
+            const optionSelects = document.querySelectorAll("select[name='modalOptionValueIds']");
+            const optionValueIds = Array.from(optionSelects).map(select => select.value).filter(val => val);
+
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/user/cart/add';
+
+            // Add CSRF token
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') ||
+                document.querySelector('input[name="_csrf"]')?.value;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') ||
+                document.querySelector('input[name="_csrf"]')?.getAttribute('name');
+
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = csrfHeader || '_csrf';
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+            }
+
+            // Add product ID
+            const productIdInput = document.createElement('input');
+            productIdInput.type = 'hidden';
+            productIdInput.name = 'productId';
+            productIdInput.value = productId;
+            form.appendChild(productIdInput);
+
+            // Add quantity
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'hidden';
+            quantityInput.name = 'quantity';
+            quantityInput.value = quantity;
+            form.appendChild(quantityInput);
+
+            // Add option value IDs
+            optionValueIds.forEach(optionValueId => {
+                const optionInput = document.createElement('input');
+                optionInput.type = 'hidden';
+                optionInput.name = 'optionValueIds';
+                optionInput.value = optionValueId;
+                form.appendChild(optionInput);
+            });
+
+            // Submit form
+            document.body.appendChild(form);
+            form.submit();
+        });
+
+        // Existing Quick View functionality
+        document.querySelectorAll('.quick-view, .quick-view-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const quickViewModal = document.getElementById('modalQuickView');
+                const spinner = document.getElementById('qv-spinner');
+                const content = document.getElementById('qv-main-content');
+                const myModal = new bootstrap.Modal(document.getElementById('modalQuickView'));
+                myModal.show()
+
+                const productId = this.dataset.id;
+
+                // 1. Hiện Spinner và làm mờ nội dung
+                spinner.classList.replace('d-none', 'd-flex');
+                content.style.opacity = '0';
+
+                // Reset content
+                document.getElementById('qv-images').innerHTML = '';
+                document.getElementById('qv-thumbs').innerHTML = '';
+                document.getElementById('qv-name').textContent = 'Loading...';
+                document.getElementById('qv-id').textContent = '';
+                document.getElementById('qv-category').textContent = 'Loading...';
+                document.getElementById('qv-price').textContent = '$0.00';
+                document.getElementById('qv-desc').textContent = 'Loading...';
+
+                // Clear previous options
+                const optionsContainer = document.querySelector('#modalQuickView .product-variants');
+                optionsContainer.innerHTML = '<div class="product-variants-size">' +
+                    '<label>Dimension</label><select class="nice-select"></select></div>';
+
+                fetch('/api/product-details/' + productId)
+                    .then(res => {
+                        if (!res.ok) throw new Error('Fetch error');
+                        return res.json();
+                    })
+                    .then(data => {
+                        // Update text content
+                        document.getElementById('qv-name').textContent = data.product.name || 'Product Name';
+                        document.getElementById('qv-category').textContent = 'Category: ' + (data.product.categoryName || 'N/A');
+                        // Price
+                        const price = data.product.salePrice || data.product.basePrice;
+                        const formattedPrice = new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD'
+                        }).format(price);
+                        document.getElementById('qv-price').innerText = formattedPrice;
+                        // Description
+                        document.getElementById('qv-desc').textContent = data.product.description || 'No description available';
+                        document.getElementById('qv-id').value = data.product.id;
+
+
+                        // Update rating stars
+                        updateRatingStars(data.product.ratingAvg || 0);
+
+                        // Update product options
+                        updateOption(data.options || []);
+
+                        getStockByOptionValue();
+
+                        // Create images
+                        const imagesContainer = document.getElementById('qv-images');
+                        const thumbsContainer = document.getElementById('qv-thumbs');
+
+                        if (data.product.images && data.product.images.length > 0) {
+                            data.product.images.forEach((img, index) => {
+                                // Large images
+                                const lg = document.createElement('div');
+                                lg.className = 'lg-image';
+                                const lgImg = document.createElement('img');
+                                lgImg.src = img;
+                                lgImg.alt = 'product image';
+                                lg.appendChild(lgImg);
+                                imagesContainer.appendChild(lg);
+
+                                // Thumbnail images
+                                const sm = document.createElement('div');
+                                sm.className = 'sm-image';
+                                const smImg = document.createElement('img');
+                                smImg.src = img;
+                                smImg.alt = 'product thumbnail';
+                                sm.appendChild(smImg);
+                                thumbsContainer.appendChild(sm);
+                            });
+
+                            // Đảm bảo ảnh đã load xong trước khi init Slick
+                            const images = document.querySelectorAll('#qv-images img, #qv-thumbs img');
+                            let loadedImages = 0;
+                            const totalImages = images.length;
+
+                            images.forEach(img => {
+                                if (img.complete) {
+                                    loadedImages++;
+                                } else {
+                                    img.addEventListener('load', function () {
+                                        loadedImages++;
+                                        if (loadedImages === totalImages) {
+                                            initQuickViewSlick();
+                                        }
+                                    });
+                                }
+                            });
+
+                            if (loadedImages === totalImages) {
+                                initQuickViewSlick();
+                            }
+
+                            // add product id for add wishlist
+                            quickViewModal.querySelector('#productIdModal').value = productId;
+                        } else {
+                            console.log("false")
+                            initQuickViewSlick();
+                        }
+                    })
+                    .catch((reason) => {
+                        console.log(reason);
+                        alert('Không tải được sản phẩm');
+                    })
+                    .finally(() => {
+                        // 5. Ẩn Spinner và hiện nội dung (delay nhẹ 300ms cho mượt)
+                        setTimeout(() => {
+                            spinner.classList.replace('d-flex', 'd-none');
+                            content.style.opacity = '1';
+                        }, 300);
+                    });
+            });
+        });
+    })
+
+    // Function to update rating stars
+    function updateRatingStars(ratingAvg) {
+        const ratingContainer = document.querySelector('#modalQuickView .rating');
+        if (!ratingContainer) return;
+
+        // Clear existing stars
+        ratingContainer.innerHTML = '';
+
+        // Create 5 stars
+        for (let i = 1; i <= 5; i++) {
+            const li = document.createElement('li');
+            if (i <= Math.floor(ratingAvg)) {
+                // Full star
+                li.innerHTML = '<i class="fa fa-star-o"></i>';
+            } else {
+                // Empty star
+                li.className = 'no-star';
+                li.innerHTML = '<i class="fa fa-star-o"></i>';
+            }
+            ratingContainer.appendChild(li);
+        }
+
+        // Add review links
+        const readReview = document.createElement('li');
+        readReview.className = 'review-item';
+        readReview.innerHTML = '<a href="#">Read Review</a>';
+        ratingContainer.appendChild(readReview);
+
+        const writeReview = document.createElement('li');
+        writeReview.className = 'review-item';
+        writeReview.innerHTML = '<a href="#">Write Review</a>';
+        ratingContainer.appendChild(writeReview);
+    }
+
+    // Function to update product options
+    function updateOption(options) {
+        const optionsContainer = document.querySelector('#modalQuickView .product-variants');
+        if (!optionsContainer) return;
+
+        // Clear existing options
+        optionsContainer.innerHTML = '';
+
+        if (options && options.length > 0) {
+            options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'product-variants-size';
+
+                // Create label
+                const label = document.createElement('label');
+                label.textContent = option.name || 'Option';
+                optionDiv.appendChild(label);
+
+                // Create select
+                const select = document.createElement('select');
+                select.className = 'nice-select  pr-15';
+                select.name = 'optionValueIds';
+                select.onchange = getStockByOptionValue;
+
+                // Add options
+                if (option.values && option.values.length > 0) {
+                    option.values.forEach(optionValue => {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = optionValue.id || '';
+                        optionElement.title = optionValue.value || '';
+                        optionElement.textContent = optionValue.value || '';
+                        select.appendChild(optionElement);
+                    });
+                } else {
+                    // Default option if no values
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Select option';
+                    select.appendChild(defaultOption);
+                }
+
+                optionDiv.appendChild(select);
+                optionsContainer.appendChild(optionDiv);
+            });
+        } else {
+            // Default option if no product options
+            const defaultOptionDiv = document.createElement('div');
+            defaultOptionDiv.className = 'product-variants-size';
+            defaultOptionDiv.innerHTML = `
+            <label>Options</label>
+            <select class="nice-select pr-15">
+                <option value="" selected>No options available</option>
+            </select>
+        `;
+            optionsContainer.appendChild(defaultOptionDiv);
+        }
+    }
+
+    function initQuickViewSlick() {
+        // Đợi một chút để modal hoàn toàn hiển thị
+        setTimeout(() => {
+            // Destroy trước nếu đã được init
+            destroySlick('#qv-images');
+            destroySlick('#qv-thumbs');
+
+            // Init main slider
+            $('#qv-images').slick({
+                slidesToShow: 1,
+                slidesToScroll: 1,
+                arrows: false,
+                fade: true,
+                asNavFor: '#qv-thumbs',
+                infinite: true,
+                adaptiveHeight: true
+            });
+
+            // Init thumbnail slider
+            $('#qv-thumbs').slick({
+                slidesToShow: 4,
+                slidesToScroll: 1,
+                asNavFor: '#qv-images',
+                dots: false,
+                arrows: true,
+                centerMode: false,
+                focusOnSelect: true,
+                infinite: true,
+                prevArrow: '<button type="button" class="slick-prev"><i class="fa fa-angle-left"></i></button>',
+                nextArrow: '<button type="button" class="slick-next"><i class="fa fa-angle-right"></i></button>',
+                responsive: [
+                    {
+                        breakpoint: 768,
+                        settings: {
+                            slidesToShow: 3
+                        }
+                    },
+                    {
+                        breakpoint: 480,
+                        settings: {
+                            slidesToShow: 2
+                        }
+                    }
+                ]
+            });
+
+            // Trigger resize event để Slick tính toán lại kích thước
+            $(window).trigger('resize');
+        }, 100);
+    }
+
+    function destroySlick(selector) {
+        const el = document.querySelector(selector);
+        if (!el) return;
+
+        if (typeof $ !== 'undefined' && $(el).hasClass('slick-initialized')) {
+            $(el).slick('unslick');
+        }
+    }
+
+    function getStockByOptionValue() {
+        const allSelects = document.querySelectorAll("select[name='optionValueIds']");
+        const values = Array.from(allSelects).map(select => select.value);
+        const productId = document.getElementById('qv-id').value;
+
+        const stockSpan = document.getElementById("product-variant-stock");
+        const addToCartBtn = document.querySelector(".add-to-cart");
+
+        fetch(`/api/product-details/get-stock?productId=${productId}&optionValueIds=${values.join(',')}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                stockSpan.className = "";
+
+                const stock = data?.stock ?? 0;
+
+                if (data && stock > 0) {
+                    stockSpan.innerText = stock;
+                    stockSpan.classList.add("stock-status-in");
+                    addToCartBtn.disabled = false;
+                } else {
+                    stockSpan.innerText = stock
+                    stockSpan.classList.add("stock-status-out");
+                    addToCartBtn.disabled = true;
+                }
+
+                updateQuantityMaxByStock(stock);
+            }).catch(error => {
+            console.log(error)
+            document.getElementById("product-variant-stock").innerText = 0;
+            addToCartBtn.disabled = true;
+            updateQuantityMaxByStock(0);
+        });
+    }
+
+    function updateQuantityMaxByStock(stock) {
+        const qtyInput = document.querySelector(".cart-plus-minus-box");
+        const incBtn = document.querySelector(".inc.qtybutton");
+
+        if (!qtyInput) return;
+
+        if (stock <= 0) {
+            qtyInput.value = 1;
+            qtyInput.max = 0;
+            qtyInput.disabled = true;
+            if (incBtn) incBtn.classList.add("disabled");
+        } else {
+            qtyInput.max = stock;
+            qtyInput.disabled = false;
+            if (incBtn) incBtn.classList.remove("disabled");
+
+            const current = parseInt(qtyInput.value, 10) || 1;
+            if (current > stock) {
+                qtyInput.value = stock;
+            }
+        }
+    }
+</script>
+
+<style>
+    .product-option-group {
+        text-align: left;
+        margin-bottom: 15px;
+    }
+
+    .product-option-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    .product-option-group select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+    }
+
+    .stock-status {
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .stock-status-in {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .stock-status-out {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f1b0b7;
+    }
+
+    .stock-info {
+        text-align: left;
+        padding: 0 20px;
+    }
+
+    .stock-info label {
+        font-weight: 500;
+        margin-right: 10px;
+    }
+</style>
 </body>
 </html>

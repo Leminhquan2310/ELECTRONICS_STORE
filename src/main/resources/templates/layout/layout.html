@@ -41,7 +41,7 @@
                     <div class="col-lg-3 col-md-4">
                         <div class="header-top-left">
                             <ul class="phone-wrap">
-                                <li><span>Telephone Enquiry:</span><a th:href="@{#}">(+123) 123 321 345</a></li>
+                                <li><span>Telephone Enquiry: 0339469995</span></li>
                             </ul>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                                         <ul class="ht-setting-list">
                                             <li><a th:href="@{/user/my-accounts}">My Account</a></li>
                                             <li sec:authorize="hasRole('USER')">
-                                                <a th:href="@{/user/orders}">Đơn hàng</a>
+                                                <a th:href="@{/user/my-accounts(tab=order)}">Your orders</a>
                                             </li>
                                             <li>
                                                 <a href="#" onclick="logout(); return false;">Logout </a>
@@ -94,7 +94,7 @@
                     <!-- Begin Header Logo Area -->
                     <div class="col-lg-3">
                         <div class="logo pb-sm-30 pb-xs-30">
-                            <a th:href="index.html">
+                            <a th:href="@{/}">
                                 <img th:src="@{/client-user/images/menu/logo/1.jpg}" alt="">
                             </a>
                         </div>
@@ -104,10 +104,6 @@
                     <div class="col-lg-9 pl-0 ml-sm-15 ml-xs-15">
                         <!-- Begin Header Middle Searchbox Area -->
                         <form th:action="@{/shop}" method="get" class="hm-searchbox">
-                            <!--                            <select name="type" class="nice-select select-search-category">-->
-                            <!--                                <option value="PRODUCT">Product</option>-->
-                            <!--                                <option value="CATEGORY">Category</option>-->
-                            <!--                            </select>-->
                             <input type="text"
                                    name="keyword"
                                    placeholder="Enter your search key ..."
@@ -212,9 +208,7 @@
                                     <li><a th:href="@{/}">Home</a></li>
                                     <li><a th:href="@{/shop}">Shop</a></li>
                                     <li><a th:href="@{/about}">About Us</a></li>
-                                    <li><a th:href="contact.html">Contact</a></li>
-                                    <li><a th:href="shop-left-sidebar.html">Smartwatch</a></li>
-                                    <li><a th:href="shop-left-sidebar.html">Accessories</a></li>
+                                    <li><a th:href="@{/contact}">Contact</a></li>
                                     <li><a th:href="blog-left-sidebar.html">Blog</a></li>
                                 </ul>
                             </nav>
@@ -527,8 +521,8 @@
     <script>
         function showNotification(status, title, message) {
             new Notify({
-                status:  status,
-                title:title,
+                status: status,
+                title: title,
                 text: message,
                 effect: "fade",
                 speed: 300,

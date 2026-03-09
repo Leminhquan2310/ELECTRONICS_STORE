@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <title>Coupon Management - Admin</title>
+    <th:block th:replace="~{layout/layout-admin :: css}"></th:block>
+</head>
+<body>
+<div th:replace="~{layout/layout-admin :: preloader}"></div>
+<div id="main-wrapper">
+    <div class="nav-header" th:replace="~{layout/layout-admin :: nav-header}"></div>
+
+    <div class="header" th:replace="~{layout/layout-admin :: header}"></div>
+
+    <div th:replace="~{layout/layout-admin :: nk-sidebar}"></div>
+    <div class="content-body">
+        <div class="row page-titles mx-0">
+            <div class="col-sm-6 p-md-0">
+                <div class="breadcrumb-range-picker">
+                    <span><i class="icon-folder-alt"></i></span>
+                    <span class="ml-1">Coupon Management</span>
+                </div>
+            </div>
+            <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="javascript:void(0)">Coupon overview</a></li>
+                </ol>
+            </div>
+        </div>
+
+        <div style="margin-left: 30px">
+            <a class="text-primary" th:href="@{/admin/coupons/create}">+ Create</a>
+        </div>
+
+        <!-- Page Content -->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <div class="x_panel">
+
+                        <!-- Coupons Table -->
+                        <div class="card">
+                            <div class="card-body">
+                                <form th:action="@{/admin/coupons}" method="get" class="form-inline mb-3">
+                                    <div class="form-group mr-2">
+                                        <input type="text" class="form-control" name="keyword"
+                                               placeholder="Search by code..." th:value="${keyword}">
+                                    </div>
+                                    <div class="form-group">
+                                        <select name="status" class="form-control">
+                                            <option value="">All Status</option>
+                                            <option value="active" th:selected="${status == 'active'}">Active</option>
+                                            <option value="inactive" th:selected="${status == 'inactive'}">Inactive
+                                            </option>
+                                            <option value="expired" th:selected="${status == 'expired'}">Expired
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary ml-2 mr-2">
+                                        <i class="fa fa-search"></i> Filter
+                                    </button>
+                                    <a th:href="@{/admin/coupons}" class="btn btn-secondary">
+                                        <i class="fa fa-refresh"></i> Reset
+                                    </a>
+                                </form>
+
+                                <div class="table-responsive">
+                                    <table id="example" class="display" style="min-width: 845px">
+                                        <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Code</th>
+                                            <th>Discount</th>
+                                            <th>Min Order</th>
+                                            <th>Expiry Date</th>
+                                            <th>Usage</th>
+                                            <th>Status</th>
+                                            <th>Due</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="coupon : ${coupons.content}">
+                                            <td th:text="${coupon.id}"></td>
+                                            <td th:text="${coupon.code}"></td>
+                                            <td>
+                                                    <span th:if="${coupon.discountType == 'FIXED'}"
+                                                          th:text="${#numbers.formatCurrency(coupon.discountValue)}"></span>
+                                                <span th:if="${coupon.discountType == 'PERCENT'}"
+                                                      th:text="${#numbers.formatDecimal(coupon.discountValue, 0, 1) + '%'}"></span>
+                                            </td>
+                                            <td>
+                                                    <span th:if="${coupon.minOrderAmount != null}"
+                                                          th:text="${#numbers.formatCurrency(coupon.minOrderAmount)}"></span>
+                                                <span th:if="${coupon.minOrderAmount == null}">-</span>
+                                            </td>
+                                            <td>
+                                                    <span th:if="${coupon.expiryDate != null}"
+                                                          th:text="${#temporals.format(coupon.expiryDate, 'dd/MM/yyyy HH:mm')}"></span>
+                                                <span th:if="${coupon.expiryDate == null}">No expiry</span>
+                                            </td>
+                                            <td>
+                                                <span th:text="${coupon.usedCount}"></span>
+                                                <span th:if="${coupon.usageLimit != null}"
+                                                      th:text="' / ' + ${coupon.usageLimit}"></span>
+                                                <span th:if="${coupon.usageLimit == null}"> / ∞</span>
+                                            </td>
+                                            <td>
+                                                <span th:if="${coupon.active}" class="label label-success">Active</span>
+                                                <span th:if="${!coupon.active}"
+                                                      class="label label-danger">Inactive</span>
+                                            </td>
+                                            <td>
+                                                <span th:if="${coupon.expiryDate != null && #temporals.createNow().isAfter(coupon.expiryDate)}"
+                                                      class="label label-warning">Expired</span>
+                                                <span th:if="${coupon.expiryDate != null && !#temporals.createNow().isAfter(coupon.expiryDate)}"
+                                                      class="label label-success">Unexpired</span>
+                                            </td>
+                                            <td class="last">
+                                                <div class="btn-group">
+                                                    <form th:action="@{/admin/coupons/toggle-status/{id}(id=${coupon.id})}"
+                                                          method="post" style="display: inline;" class="mr-2">
+                                                        <button type="submit" class="btn btn-warning btn-xs"
+                                                                th:text="${coupon.active ? 'Deactivate' : 'Activate'}">
+                                                        </button>
+                                                    </form>
+                                                    <a th:href="@{/admin/coupons/edit/{id}(id=${coupon.id})}"
+                                                       class="btn btn-info btn-xs mr-2">
+                                                        <i class="icon-pencil"></i>
+                                                    </a>
+                                                    <button type="submit" class="btn btn-danger btn-xs"
+                                                            th:onclick="'handleDelete(' + ${coupon.id} + ')'"
+                                                            th:disabled="${coupon.usedCount > 0}">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{layout/layout-admin :: script}"></th:block>
+<script>
+    function handleDelete(id) {
+        console.log(id)
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.value) {
+                console.log("Yes")
+                const form = document.createElement("form");
+                form.method = "POST";
+                form.action = "http://localhost:8080/admin/coupons/delete/" + id;
+
+                // _method=DELETE (Spring hiểu là DELETE)
+                const methodInput = document.createElement("input");
+                methodInput.type = "hidden";
+                methodInput.name = "_method";
+                methodInput.value = "DELETE";
+
+                // CSRF token (BẮT BUỘC nếu bật security)
+                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+                const csrfInput = document.createElement("input");
+                csrfInput.type = "hidden";
+                csrfInput.name = "_csrf";
+                csrfInput.value = csrfToken;
+
+                form.appendChild(methodInput);
+                form.appendChild(csrfInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    };
+</script>
+</body>
+</html>

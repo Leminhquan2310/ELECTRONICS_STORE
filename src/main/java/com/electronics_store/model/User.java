@@ -177,7 +177,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return status == UserStatus.ACTIVE && emailVerified;
+        return status == UserStatus.ACTIVE;
     }
 
     public enum Gender {

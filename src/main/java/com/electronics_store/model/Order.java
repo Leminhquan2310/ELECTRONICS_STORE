@@ -83,4 +83,25 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
+
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "estimated_delivery")
+    private LocalDateTime estimatedDelivery;
+
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+
+        // Mặc định 5 ngày sau khi tạo đơn
+        if (this.estimatedDelivery == null) {
+            this.estimatedDelivery = this.createdAt.plusDays(5);
+        }
+
+        if (this.orderDate == null) {
+            this.orderDate = this.createdAt;
+        }
+    }
 }

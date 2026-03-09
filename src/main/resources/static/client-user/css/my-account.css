@@ -101,6 +101,7 @@
 }
 
 .account-content-wrapper {
+    height: 100%;
     background: #fff;
     border: 1px solid #e5e5e5;
     padding: 40px;

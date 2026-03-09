@@ -1,17 +1,15 @@
 package com.electronics_store.security;
 
-import com.electronics_store.model.User;
-import com.electronics_store.service.CartService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 
@@ -21,31 +19,54 @@ import java.util.Collection;
 @Slf4j
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-    private final HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+
+    private final RequestCache requestCache = new HttpSessionRequestCache();
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Authentication authentication)
             throws IOException, ServletException {
 
-        // 1️⃣ Lấy request trước khi bị redirect login
+        /* ===============================
+           1️⃣ ƯU TIÊN: SavedRequest (bị chặn bởi Security)
+           =============================== */
         SavedRequest savedRequest = requestCache.getRequest(request, response);
-
         if (savedRequest != null) {
             String targetUrl = savedRequest.getRedirectUrl();
+            requestCache.removeRequest(request, response);
             response.sendRedirect(targetUrl);
             return;
         }
 
-        // 2️⃣ Không có request trước → redirect theo ROLE
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        for (GrantedAuthority authority : authorities) {
-            if (authority.getAuthority().equals("ROLE_ADMIN")) {
-                response.sendRedirect("/admin");
+        /* ===============================
+          2️⃣ Redirect theo ROLE
+           =============================== */
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch("ROLE_ADMIN"::equals);
+
+        if (isAdmin) {
+            response.sendRedirect("/admin");
+            return;
+        }
+
+        /* ===============================
+           3️⃣  Request public đã lưu thủ công
+           =============================== */
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            String lastPublicUrl = (String) session.getAttribute("LAST_PUBLIC_URL");
+            if (lastPublicUrl != null) {
+                session.removeAttribute("LAST_PUBLIC_URL");
+                response.sendRedirect(lastPublicUrl);
                 return;
             }
         }
 
-        // 3️⃣ Fallback
+        /* ===============================
+           4️⃣ Fallback
+           =============================== */
         response.sendRedirect("/");
     }
 }

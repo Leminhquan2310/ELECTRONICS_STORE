@@ -1,10 +1,157 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Admin - Order Manage</title>
+    <th:block th:replace="~{layout/layout-admin :: css}"></th:block>
 </head>
 <body>
+<div th:replace="~{layout/layout-admin :: preloader}"></div>
+<div id="main-wrapper">
+    <div class="nav-header" th:replace="~{layout/layout-admin :: nav-header}"></div>
 
+    <div class="header" th:replace="~{layout/layout-admin :: header}"></div>
+
+    <div th:replace="~{layout/layout-admin :: nk-sidebar}"></div>
+
+    <div class="content-body">
+        <div class="row page-titles mx-0">
+            <div class="col-sm-6 p-md-0">
+                <div class="breadcrumb-range-picker">
+                    <span><i class="icon-speedometer"></i></span>
+                    <span class="ml-1">Order Management</span>
+                </div>
+            </div>
+            <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
+                    <li class="breadcrumb-item active"><a th:href="@{/admin/orders}">Order</a></li>
+                </ol>
+            </div>
+        </div>
+
+        <div style="
+                margin-left: 30px;
+                gap: 15px;
+                display: grid;
+                grid-auto-flow: column;
+                grid-auto-columns: max-content;
+            ">
+            <span class="text-muted">Tất cả đơn hàng</span>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="example" class="display" style="min-width: 845px">
+                                    <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Khách hàng</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Thanh toán</th>
+                                        <th>Trạng thái</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="order : ${orders}">
+                                        <td th:text="'#' + ${order.id}">#1</td>
+                                        <td>
+                                            <span th:text="${order.billingAddress.firstName + ' ' + order.billingAddress.lastName}"></span><br/>
+                                            <small class="text-muted" th:text="${order.billingAddress.phone}"></small>
+                                        </td>
+                                        <td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}"></td>
+                                        <td th:text="'$' + ${#numbers.formatDecimal(order.totalAmount, 2, 'COMMA', 0, 'POINT')}"></td>
+                                        <td>
+                                        <span th:classappend="${order.paymentStatus.name() == 'PAID' ? 'badge-success' : 'badge-warning'}"
+                                              class="badge text-white" th:text="${order.paymentStatus}"></span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-primary" th:text="${order.status}"></span>
+                                        </td>
+                                        <td>
+                                        <span>
+                                            <a href="javascript:void(0)" class="mr-4"
+                                               style="cursor: pointer"
+                                               data-toggle="tooltip" data-placement="top" title="Update Status"
+                                               th:data-id="${order.id}"
+                                               th:data-status="${order.status}"
+                                               th:data-payment="${order.paymentStatus}"
+                                               onclick="openUpdateModal(this)">
+                                                <i class="icon-pencil"></i>
+                                            </a>
+                                            <a th:href="@{/admin/orders/detail/{id}(id=${order.id})}"
+                                               data-toggle="tooltip" data-placement="top" title="View Detail">
+                                                <i class="icon-eye"></i>
+                                            </a>
+                                        </span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form th:action="@{/admin/orders/update-status}" method="post">
+                    <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật đơn hàng #<span id="displayOrderId"></span></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" name="orderId" id="modalOrderId">
+                        <label class="text-label">Trạng thái đơn hàng</label>
+                        <select name="status" id="modalStatus" class="form-control">
+                            <option th:each="st : ${orderStatuses}" th:value="${st}" th:text="${st}"></option>
+                        </select>
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái thanh toán</label>
+                            <select name="paymentStatus" id="modalPaymentStatus" class="form-control">
+                                <option th:each="ps : ${paymentStatuses}" th:value="${ps}" th:text="${ps}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{layout/layout-admin :: script}"></th:block>
+<script th:inline="javascript">
+    function openUpdateModal(element) {
+        // Lấy dữ liệu từ các thuộc tính data-*
+        const id = $(element).data('id');
+        const status = $(element).data('status');
+        const paymentStatus = $(element).data('payment');
+
+        // Gán giá trị vào modal
+        $('#modalOrderId').val(id);
+        $('#displayOrderId').text(id);
+        $('#modalStatus').val(status);
+        $('#modalPaymentStatus').val(paymentStatus);
+
+        // Hiển thị modal
+        $('#updateStatusModal').modal('show');
+    }
+</script>
 </body>
 </html>

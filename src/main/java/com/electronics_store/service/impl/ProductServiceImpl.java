@@ -1,10 +1,9 @@
 package com.electronics_store.service.impl;
 
 import com.electronics_store.dto.image.ImageUploadResult;
-import com.electronics_store.dto.option.OptionDto;
 import com.electronics_store.dto.option.OptionInputDto;
 import com.electronics_store.dto.product.*;
-import com.electronics_store.mapper.ProductMapper;
+import com.electronics_store.helper.VariantGenerator;
 import com.electronics_store.model.*;
 import com.electronics_store.repository.*;
 import com.electronics_store.service.ImageStorageService;
@@ -32,8 +31,6 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
-    private ProductVariantRepository productVariantRepository;
-    @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
     private OptionRepository optionRepository;
@@ -45,6 +42,14 @@ public class ProductServiceImpl implements ProductService {
     private ProductImageRepository productImageRepository;
     @Autowired
     private ProductVariantService variantService;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+    @Autowired
+    private CartItemRepository cartItemRepository;
+    @Autowired
+    private WishlistRepository wishlistRepository;
+    @Autowired
+    private ProductReviewRepository productReviewRepository;
 
     @Transactional
     @Override
@@ -119,12 +124,11 @@ public class ProductServiceImpl implements ProductService {
         return product;
     }
 
-    private Product mapToProduct(Product product, ProductDtoUpdate productDtoUpdate, Category category) {
+    private void mapDataProduct(Product product, ProductDtoUpdate productDtoUpdate, Category category) {
         product.setName(productDtoUpdate.getName());
         product.setDescription(productDtoUpdate.getDescription());
         product.setBasePrice(productDtoUpdate.getBasePrice());
         product.setCategory(category);
-        return product;
     }
 
     @Override
@@ -184,32 +188,29 @@ public class ProductServiceImpl implements ProductService {
         try {
             Product product = productRepository.findById(productDtoUpdate.getId())
                     .orElseThrow(() -> new RuntimeException("Product not found"));
-            Category category = categoryRepository.findById(productDtoUpdate.getCategoryId()).orElseThrow();
+            Category category = categoryRepository.getReferenceById(productDtoUpdate.getCategoryId());
 
             // 1. Map thông tin cơ bản
-            mapToProduct(product, productDtoUpdate, category);
+            mapDataProduct(product, productDtoUpdate, category);
 
             // 2. Cập nhật ảnh
             updateImages(product, productDtoUpdate);
 
             // 3. Đồng bộ Options và OptionValues (Smart Sync)
-            syncProductOptions(product, productDtoUpdate.getOptions());
-
-            // 4. Lưu product trước để đảm bảo ID và các quan hệ Option đã ổn định
-            productRepository.save(product);
+            addMoreNewOptions(product, productDtoUpdate.getOptions());
 
             // 5. Đồng bộ Biến thể (Smart Sync Variants)
-            variantService.syncVariants(product);
+            updateVariant(product);
 
             return true;
         } catch (Exception e) {
-            log.error("Update product failed: {}", e.getMessage());
+            e.printStackTrace();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return false;
         }
     }
 
-    private void syncProductOptions(Product product, List<OptionInputDto> newOptions) {
+    private void addMoreNewOptions(Product product, List<OptionInputDto> newOptions) {
         // Lấy list hiện tại từ DB
         List<ProductOption> currentOptions = product.getProductOptions();
 
@@ -221,15 +222,10 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
-        // 1. Xóa những OptionValue không còn được chọn
+//         1. Xóa những OptionValue không còn được chọn
         currentOptions.removeIf(existing -> {
             String key = existing.getOption().getId() + "-" + existing.getOptionValue().getId();
-            boolean toRemove = !newKeys.contains(key);
-            if (toRemove && isVariantInOrder(existing)) {
-                // Nếu giá trị này đã có trong đơn hàng, có thể bạn không muốn xóa
-                // mà chỉ nên deactivate nó ở tầng Variant. Ở đây tạm thời cho phép xóa liên kết cấu hình.
-            }
-            return toRemove;
+            return !newKeys.contains(key);
         });
 
         // 2. Thêm những OptionValue mới được chọn
@@ -251,44 +247,18 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    // Hàm check xem thuộc tính này có đang nằm trong variant nào đã được đặt hàng không
-    private boolean isVariantInOrder(ProductOption option) {
-        // Logic này sẽ mở rộng sau khi bạn có bảng OrderItem
-        // return orderItemRepository.existsByVariant_VariantValues_OptionValue(option.getOptionValue());
-        return false;
-    }
-
-//    @Transactional
-//    @Override
-//    public boolean update(ProductDtoUpdate productDtoUpdate) {
-//        try {
-//            Category category = categoryRepository.findById(productDtoUpdate.getCategoryId())
-//                    .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-//            Product product = productMapper.dtoUpdateToEntity(productDtoUpdate, category);
-//            productRepository.save(product);
-//
-//            updateOptions(product, productDtoUpdate.getOptions());
-//
-//            variantService.syncVariants(product);
-//
-//            updateImages(product, productDtoUpdate);
-//            return true;
-//        } catch (Exception e) {
-//            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-//            log.error("Create product failed", e);
-//            return false;
-//        }
-//    }
-
     @Override
     public boolean delete(Long id) {
+        Product product = productRepository.findById(id).get();
         if (checkCanDelete(id)) {
-            Product product = productRepository.findById(id).get();
-            product.setIsActive(false);
-            productRepository.save(product);
+            productRepository.delete(product);
             return true;
         }
-        return false;
+
+        product.setIsActive(false);
+        product.getVariants().forEach(v -> v.setActive(false));
+        productRepository.save(product);
+        return true;
     }
 
     @Override
@@ -318,8 +288,6 @@ public class ProductServiceImpl implements ProductService {
             });
         }
 
-        log.info("Search for client: {}", spec);
-
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return productRepository.findAll(spec, pageable).map(this::convertToDto);
     }
@@ -347,66 +315,135 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private boolean checkCanDelete(Long id) {
-        // check product in order, invoice,...
-        return true;
+        // Check if product exists in wishlists
+        if (wishlistRepository.existsByProductId(id)) {
+            return false;
+        }
+
+        // Check if product has reviews
+        if (productReviewRepository.existsByProductId(id)) {
+            return false;
+        }
+
+        // Check if product exists in any cart items
+        if (cartItemRepository.existsByProductId(id)) {
+            return false;
+        }
+
+        // Check if product exists in any order items
+        return !orderItemRepository.existsByProductId(id);
     }
 
-    private void saveNewOptions(Product product, List<OptionInputDto> options) {
-        // 2. Xử lý phần Product Options
-        if (options != null) {
-            for (OptionInputDto input : options) {
+    public void updateVariant(Product product) {
+        // 1. Sinh ra các tổ hợp mong muốn hiện tại (từ ProductOption mới update)
+        List<List<OptionValue>> combinations = generateCombinationsFromProduct(product);
 
-                // Bỏ qua nếu dữ liệu rác (không chọn option hoặc không chọn value nào)
-                if (input.getOptionId() == null || input.getValueIds() == null || input.getValueIds().isEmpty()) {
-                    continue;
-                }
+        // 2. Lấy danh sách Variant hiện có trong DB
+        List<ProductVariant> existingVariants = product.getVariants();
 
-                // Lấy Proxy object của Option (để set FK mà không cần query DB select *)
-                Option option = optionRepository.getReferenceById(input.getOptionId());
+        // 3. Tạo Map SKU hoặc Map tập hợp OptionValue ID để so sánh
+        Map<String, ProductVariant> existingMap = existingVariants.stream()
+                .collect(Collectors.toMap(this::getVariantKey, v -> v));
 
-                // Lặp qua từng Value ID người dùng đã chọn (Select multiple)
-                for (Long valId : input.getValueIds()) {
-                    OptionValue value = optionValueRepository.getReferenceById(valId);
+        Set<String> processedKeys = new HashSet<>();
 
-                    // Tạo entity liên kết
-                    ProductOption attribute = new ProductOption();
-                    attribute.setProduct(product); // Gán sản phẩm
-                    attribute.setOption(option);   // Gán loại option
-                    attribute.setOptionValue(value);     // Gán giá trị
+        for (List<OptionValue> combo : combinations) {
+            String key = getComboKey(combo);
+            processedKeys.add(key);
 
-                    // Thêm vào list của product
-                    product.getProductOptions().add(attribute);
+            if (existingMap.containsKey(key)) {
+                // Nếu đã tồn tại tổ hợp này: Active lại nếu nó đang bị disable
+                ProductVariant v = existingMap.get(key);
+                v.setActive(true);
+            } else {
+                // Nếu là tổ hợp mới hoàn toàn: Thêm mới
+                ProductVariant newV = new ProductVariant();
+                newV.setProduct(product);
+                newV.setPriceAdjustment(product.getBasePrice());
+                newV.setStockQuantity(0);
+                newV.setSku(generateSku(product.getName(), combo));
+                combo.forEach(newV::addOptionValue);
+                existingVariants.add(newV);
+            }
+        }
+
+        // 7. Những Variant cũ không còn nằm trong tổ hợp mới -> Delete
+        Iterator<ProductVariant> it = existingVariants.iterator();
+        while (it.hasNext()) {
+            ProductVariant v = it.next();
+            if (!processedKeys.contains(getVariantKey(v))) {
+                if (canDeleteVariant(v)) {
+                    v.getVariantValues().clear(); // clear join table
+                    it.remove();
+                } else {
+                    v.setActive(false);
                 }
             }
         }
+
     }
 
-//    private void updateOptionValues(ProductOption option, List<ProductOptionValueDto> valueDtos) {
-//        if (valueDtos == null) return;
-//
-//        List<OptionValue> existingValues = optionValueRepository.findByProductOptionId(option.getId());
-//
-//        Map<Long, OptionValue> valueMap = existingValues.stream()
-//                .collect(Collectors.toMap(OptionValue::getId, v -> v));
-//
-//        for (ProductOptionValueDto dto : valueDtos) {
-//            // Bỏ qua null hoặc rỗng
-//            if (dto == null || dto.getValue() == null || dto.getValue().isBlank()) continue;
-//
-//            OptionValue value = dto.getId() != null
-//                    ? valueMap.remove(dto.getId())
-//                    : new OptionValue();
-//
+    private String generateSku(String productName, List<OptionValue> combo) {
+        // Làm sạch tên sản phẩm: "Áo Thun" -> "AO-THUN"
+        String prefix = productName.replaceAll("\\s+", "-").replaceAll("[^a-zA-Z0-9-]", "").toUpperCase();
 
-    /// /            value.setProductOption(option);
-//            value.setValue(dto.getValue());
-//
-//            optionValueRepository.save(value);
-//        }
-//
-//        // DELETE value bị remove
-//        valueMap.values().forEach(optionValueRepository::delete);
-//    }
+        // Lấy các giá trị: "Đỏ", "XL" -> "DO-XL"
+        String suffix = combo.stream()
+                .map(v -> v.getValue().replaceAll("\\s+", "").toUpperCase())
+                .collect(Collectors.joining("-"));
+
+        return prefix + "-" + suffix + "-" + System.currentTimeMillis() % 1000; // Thêm hậu tố tránh trùng
+    }
+
+    // Hàm check xem Variant này đã có đơn hàng chưa
+    private boolean canDeleteVariant(ProductVariant v) {
+        boolean existsInOrderItem = orderItemRepository.existsByProductVariant(v);
+        boolean existInProductReview = false;
+        boolean existInCartItem = cartItemRepository.existsByVariant(v);
+        return !existsInOrderItem && !existInProductReview && !existInCartItem;
+    }
+
+    // Tạo key đại diện cho tổ hợp: ví dụ "10-25" (optionValueId1-optionValueId2)
+    private String getVariantKey(ProductVariant v) {
+        return v.getVariantValues().stream()
+                .map(vv -> vv.getOptionValue().getId().toString())
+                .sorted()
+                .collect(Collectors.joining("-"));
+    }
+
+    private String getComboKey(List<OptionValue> combo) {
+        return combo.stream()
+                .map(ov -> ov.getId().toString())
+                .sorted()
+                .collect(Collectors.joining("-"));
+    }
+
+    private List<List<OptionValue>> generateCombinationsFromProduct(Product product) {
+        // 1. Lấy tất cả các ProductOption hiện có của Product
+        // Giả sử product.getProductOptions() đã được fetch hoặc lấy từ DB
+        List<ProductOption> productOptions = product.getProductOptions();
+
+        if (productOptions == null || productOptions.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 2. Nhóm các OptionValue theo Option ID
+        // Kết quả: Map<OptionID, List<OptionValue>>
+        // Ví dụ: { 1(Màu) -> [Đỏ, Xanh], 2(Size) -> [S, M] }
+        Map<Long, List<OptionValue>> groupedOptions = productOptions.stream()
+                .filter(po -> po.getOption() != null && po.getOptionValue() != null)
+                .collect(Collectors.groupingBy(
+                        po -> po.getOption().getId(),
+                        Collectors.mapping(ProductOption::getOptionValue, Collectors.toList())
+                ));
+
+        // 3. Chuyển Map thành List các List để đưa vào thuật toán tổ hợp
+        List<List<OptionValue>> listsToCombine = new ArrayList<>(groupedOptions.values());
+
+        // 4. Gọi thuật toán nhân tổ hợp (Cartesian Product)
+        return VariantGenerator.generate(listsToCombine);
+    }
+
     private void updateImages(Product product, ProductDtoUpdate dto) {
         // DELETE ảnh
         if (dto.getImageIdDelete() != null) {
@@ -443,22 +480,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<OptionValue> getProductOptionValuesByProductId(Long id) {
-//        List<OptionValue> values = optionValueRepository.findProductOptionValueByProductId(id);
-        return new ArrayList<>();
-    }
-
-    @Override
     public Page<ProductClientDto> getProductBySoldDesc(Pageable pageable) {
         Page<Product> products = productRepository.findProductsByIsActiveTrue(pageable);
         return products.map(this::convertToDto);
-    }
-
-    @Override
-    public Page<ProductClientDto> getProductByCreatedAt(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Product> productClientDtos = productRepository.findProductsByIsActiveTrue(pageable);
-        return productClientDtos.map(this::convertToDto);
     }
 
     @Override
@@ -468,7 +492,6 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> products = productRepository.findProductsByCategoryIdInAndIsActiveTrue(categoryIds, pageable);
         return products.map(this::convertToDto);
     }
-
 
     public List<Long> getAllCategoryIds(Category root) {
         List<Long> ids = new ArrayList<>();

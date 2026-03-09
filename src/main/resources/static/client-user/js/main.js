@@ -466,23 +466,60 @@ Note: main.js, All Default Scripting Languages For This Theme Included In This F
 /*----------------------------------------*/
 /* 22. Cart Plus Minus Button
 /*----------------------------------------*/
- $(".cart-plus-minus").append('<div class="dec qtybutton"><i class="fa fa-angle-down"></i></div><div class="inc qtybutton"><i class="fa fa-angle-up"></i></div>');
- $(".qtybutton").on("click", function() {
-    var $button = $(this);
-    var oldValue = $button.parent().find("input").val();
-    if ($button.hasClass('inc')) {
-       var newVal = parseFloat(oldValue) + 1;
-    } else {
-        // Don't allow decrementing below zero
-       if (oldValue > 0) {
-         var newVal = parseFloat(oldValue) - 1;
-         } else {
-         newVal = 0;
-       }
-       }
-    $button.parent().find("input").val(newVal);
-   });
-/*----------------------------------------*/
+	$(".cart-plus-minus").append(
+		'<div class="dec qtybutton"><i class="fa fa-angle-down"></i></div>' +
+		'<div class="inc qtybutton"><i class="fa fa-angle-up"></i></div>'
+	);
+
+// Click + / -
+	$(".qtybutton").on("click", function () {
+		// 🔒 Nếu bị khóa thì bỏ qua
+		if ($(this).hasClass("disabled")) return;
+
+		var $button = $(this);
+		var $input = $button.parent().find("input");
+
+		// Nếu input đang disabled → bỏ qua
+		if ($input.prop("disabled")) return;
+
+		var oldValue = parseInt($input.val()) || 1;
+		var min = parseInt($input.attr("min")) || 1;
+		var max = parseInt($input.attr("max")) || 999;
+
+		var newVal = oldValue;
+
+		if ($button.hasClass("inc")) {
+			if (oldValue < max) {
+				newVal = oldValue + 1;
+			}
+		} else {
+			if (oldValue > min) {
+				newVal = oldValue - 1;
+			}
+		}
+
+		$input.val(newVal).trigger("change");
+	});
+
+// Nhập tay
+	$(".cart-plus-minus-box").on("input", function () {
+		// 🔒 Nếu bị khóa thì reset về 0
+		if (this.disabled) {
+			this.value = 0;
+			return;
+		}
+
+		var val = parseInt(this.value) || 1;
+		var min = parseInt(this.min) || 1;
+		var max = parseInt(this.max) || 999;
+
+		if (val < min) val = min;
+		if (val > max) val = max;
+
+		this.value = val;
+	});
+
+	/*----------------------------------------*/
 /* 23. Single Prduct Carousel Activision
 /*----------------------------------------*/
  	$(".sp-carousel-active").owlCarousel({

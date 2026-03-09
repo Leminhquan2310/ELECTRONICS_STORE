@@ -1,6 +1,9 @@
 package com.electronics_store.service.impl;
 
+import com.electronics_store.dto.image.ImageUploadResult;
+import com.electronics_store.dto.user.UpdateProfileRequest;
 import com.electronics_store.dto.user.UserDtoRegister;
+import com.electronics_store.dto.user.UserProfileResponse;
 import com.electronics_store.exception.RoleNotFoundException;
 import com.electronics_store.model.Role;
 import com.electronics_store.model.User;
@@ -8,7 +11,9 @@ import com.electronics_store.repository.RoleRepository;
 import com.electronics_store.repository.UserRepository;
 import com.electronics_store.security.CustomUserDetails;
 import com.electronics_store.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -26,18 +32,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Primary
 @Service
 public class CustomUserDetailsService implements UserDetailsService, UserService {
 
+    @Value("${AVATAR_DEFAULT_URL}")
+    private String avatarDefaultUrl;
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private RoleRepository roleRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private CloudinaryImageService cloudinaryService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -64,6 +73,7 @@ public class CustomUserDetailsService implements UserDetailsService, UserService
         user.setStatus(User.UserStatus.ACTIVE);
         user.setFailedLoginAttempts(0);
         user.setEmailVerificationToken(generateVerificationToken());
+        user.setAvatarUrl(avatarDefaultUrl);
 
         if (user.getRoles().isEmpty()) {
             Role role = roleRepository.findByName("ROLE_USER")
@@ -71,10 +81,11 @@ public class CustomUserDetailsService implements UserDetailsService, UserService
             user.setRoles(Collections.singleton(role));
         }
 
+        log.info("Password create: {}", user.getPassword());
         return userRepository.save(user);
     }
 
-    public User toEntity(UserDtoRegister userDTORegister){
+    public User toEntity(UserDtoRegister userDTORegister) {
         User user = new User();
         user.setUsername(userDTORegister.getUsername());
         user.setFullName(userDTORegister.getFullName());
@@ -139,6 +150,13 @@ public class CustomUserDetailsService implements UserDetailsService, UserService
         return userDetails.getUser();
     }
 
+    @Override
+    public UserProfileResponse getProfile(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return toUserProfileResponse(user);
+    }
+
     /**
      * Lấy CustomUserDetails của user hiện tại
      */
@@ -154,6 +172,7 @@ public class CustomUserDetailsService implements UserDetailsService, UserService
         return (CustomUserDetails) auth.getPrincipal();
     }
 
+
     /**
      * Lấy ID của user hiện tại
      */
@@ -167,6 +186,61 @@ public class CustomUserDetailsService implements UserDetailsService, UserService
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found for email: " + email));
     }
+
+    @Override
+    public void updateUserProfile(String username, UpdateProfileRequest dto) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setFullName(dto.getFullName());
+        user.setEmail(dto.getEmail());
+        user.setPhone(dto.getPhone());
+        user.setAddress(dto.getAddress());
+        if (dto.getDateOfBirth() != null) {
+            user.setDateOfBirth(dto.getDateOfBirth().atStartOfDay());
+        } else {
+            user.setDateOfBirth(null); // Cho phép lưu null vào database
+        }
+        user.setGender(dto.getGender());
+
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateAvatar(String username, MultipartFile file) {
+        ImageUploadResult result = cloudinaryService.upload(file);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow();
+        if (!avatarDefaultUrl.equals(user.getAvatarUrl())) {
+            String publicId = cloudinaryService.extractPublicId(user.getAvatarUrl());
+            cloudinaryService.delete(publicId);
+        }
+
+        user.setAvatarUrl(result.getUrl());
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(String username, String currentPassword, String newPassword) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 1. Check current password
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+
+        // 2. Check new password != old password
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new RuntimeException("New password must be different from current password");
+        }
+
+        // 3. Encode & save
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
 
     public Optional<User> findByUsernameOrEmail(String usernameOrEmail) {
         return userRepository.findByUsernameOrEmail(usernameOrEmail);
@@ -255,5 +329,21 @@ public class CustomUserDetailsService implements UserDetailsService, UserService
 
     private String generateVerificationToken() {
         return UUID.randomUUID().toString();
+    }
+
+    private UserProfileResponse toUserProfileResponse(User user) {
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .avatarUrl(user.getAvatarUrl())
+                .dateOfBirth(user.getDateOfBirth())
+                .gender(user.getGender())
+                .createdAt(user.getCreatedAt())
+                .lastLoginAt(user.getLastLoginAt())
+                .build();
     }
 }

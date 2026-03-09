@@ -33,6 +33,7 @@ public class Coupon {
     private LocalDateTime expiryDate; // Ngày hết hạn
 
     private Integer usageLimit; // Tổng số lần mã có thể dùng
+
     private Integer usedCount;  // Số lần đã dùng thực tế
 
     @Column(nullable = false)

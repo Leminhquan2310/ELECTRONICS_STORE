@@ -11,6 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Long> {
+    List<ProductVariant> findAllByProductIsActiveIsTrue();
+
     List<ProductVariant> findByProductId(Long productId);
 
     @Query("SELECT pv FROM ProductVariant pv " +
@@ -25,4 +27,11 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
             @Param("expectedSize") Long expectedSize);
 
     void deleteByProductId(Long id);
+
+    @Query(value = "SELECT pv.* FROM product_variants pv " +
+            "JOIN product_variant_option_values pvov ON pv.id = pvov.product_variant_id " +
+            "WHERE pv.product_id = :productId AND pvov.option_value_id IN :optionValueIds " +
+            "GROUP BY pv.id " +
+            "HAVING COUNT(pvov.option_value_id) = :size", nativeQuery = true)
+    ProductVariant findByProductIdAndOptionValueIds(@Param("productId") Long productId, @Param("optionValueIds") List<Long> optionValueIds, @Param("size") int size);
 }

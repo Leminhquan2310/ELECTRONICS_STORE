@@ -3,19 +3,334 @@
 <head>
     <meta charset="UTF-8">
     <title>My Account - Electronic Store</title>
-    <th:block  th:replace="~{layout/layout :: css}"></th:block>
+    <th:block th:replace="~{layout/layout :: css}"></th:block>
     <link rel="stylesheet" th:href="@{/client-user/css/my-account.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Container chính của avatar */
+        .account-user-info form {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .user-avatar-wrapper {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 10px;
+            border: 3px solid #e0e0e0;
+        }
+
+        /* Ảnh Avatar */
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Lớp phủ khi hover để đổi ảnh */
+        .upload-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+
+        .user-avatar-wrapper:hover .upload-overlay {
+            opacity: 1;
+        }
+
+        .avatar-btns {
+            gap: 5px;
+        }
+
+        .btn-cancel-avatar,
+        .btn-save-avatar {
+            width: 35px;
+            height: 35px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-save-avatar {
+            background-color: #28a745; /* Màu xanh lá */
+        }
+
+        .btn-save-avatar:hover {
+            background-color: #218838;
+        }
+
+        .btn-cancel-avatar {
+            background-color: #888888;
+        }
+
+        .btn-cancel-avatar:hover {
+            background-color: #555555;
+        }
+
+
+        /* ... Các style đã có ... */
+        .order-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .order-btn {
+            min-width: 120px;
+            height: 34px;
+            padding: 0 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .order-btn-track {
+            background-color: #fed700;
+            color: #111;
+        }
+
+        .order-btn-track:hover {
+            background-color: #e6c200;
+            transform: translateY(-1px);
+        }
+
+        .li-btn-account {
+            padding: 0px 30px;
+        }
+
+        /* Timeline CSS for Modal */
+        .timeline {
+            list-style: none;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .timeline:before {
+            top: 0;
+            bottom: 0;
+            position: absolute;
+            content: " ";
+            width: 3px;
+            background-color: #f1f1f1;
+            left: 25px; /* Vị trí của đường kẻ dọc */
+            margin-left: -1.5px;
+        }
+
+        .timeline > li {
+            margin-bottom: 20px;
+            position: relative;
+            padding-left: 65px; /* Khoảng cách từ lề trái cho nội dung */
+            min-height: 50px;
+        }
+
+        .timeline .timeline-badge {
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            font-size: 1.5em;
+            text-align: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #999999;
+            z-index: 100;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timeline-panel {
+            position: relative;
+            background: #fff;
+            border-radius: 4px;
+            padding: 15px;
+            border: 1px solid #ddd;
+        }
+
+        .timeline-heading h4 {
+            font-size: 16px;
+            margin-top: 0;
+            font-weight: 600;
+        }
+
+        .timeline-heading p {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 0;
+        }
+
+        /* --- 1. Cấu trúc bảng Order History --- */
+        .my-account-order .table th {
+            background-color: #f8f9fa; /* Màu nền tiêu đề bảng nhẹ nhàng */
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: #495057;
+            vertical-align: middle;
+        }
+
+        .my-account-order .table td {
+            vertical-align: middle; /* Căn giữa nội dung theo chiều dọc */
+            font-size: 0.95rem;
+            color: #333;
+        }
+
+        /* --- 2. Định dạng Badge (Trạng thái) --- */
+        /* Style chung cho badge hình viên thuốc */
+        .badge {
+            padding: 0.5em 0.8em;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 50rem; /* Bo tròn hoàn toàn */
+            letter-spacing: 0.5px;
+        }
+
+        /* Màu sắc trạng thái - Phong cách hiện đại (Nền nhạt, chữ đậm) */
+        /* Thành công / Hoàn thành / Đã thanh toán */
+        .badge-success,
+        .badge.completed,
+        .badge.paid {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        /* Cảnh báo / Đang xử lý / Chưa thanh toán */
+        .badge-warning,
+        .badge.processing,
+        .badge.pending,
+        .badge.unpaid {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+
+        /* --- 3. Định dạng Tiền tệ & Số liệu --- */
+        .amount {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        /* --- 4. Tùy chỉnh Modal Chi tiết --- */
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .modal-body p {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        /* Bảng sản phẩm trong Modal */
+        .modal-body .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .modal-body .table td {
+            border-top: 1px solid #e9ecef;
+            padding: 0.75rem;
+        }
+
+        /* --- 5. Nút bấm (Button) --- */
+        .btn-sm {
+            font-size: 0.8rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-confirm {
+            position: fixed;
+            top: calc(50vh - 50px);
+            right: calc(50vw - 110px);
+            width: 220px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, .15);
+            padding: 12px;
+            display: none;
+            z-index: 9999;
+        }
+
+        .logout-confirm p {
+            margin: 0 0 10px;
+            font-size: 14px;
+        }
+
+        .logout-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn-yes {
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-no {
+            background: #e0e0e0;
+            border: none;
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .logout-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            z-index: 9998;
+        }
+
+    </style>
 </head>
 <body>
 <header th:replace="~{layout/layout :: header}"></header>
 
-<!-- Begin Body Wrapper -->
 <div class="body-wrapper">
-    <!-- Begin Header Area -->
-    <!-- [GIỮ NGUYÊN HEADER CODE TỪ TEMPLATE] -->
-    <!-- Header Area End Here -->
-
-    <!-- Begin Li's Breadcrumb Area -->
     <div class="breadcrumb-area">
         <div class="container">
             <div class="breadcrumb-content">
@@ -26,8 +341,6 @@
             </div>
         </div>
     </div>
-    <!-- Li's Breadcrumb Area End Here -->
-
     <!-- Begin Main Content Area -->
     <div class="main-content_area">
         <div class="container">
@@ -39,39 +352,84 @@
                             <div class="col-lg-3 col-md-4">
                                 <div class="my-account-sidebar">
                                     <div class="account-user-info">
-                                        <div class="user-avatar">
-                                            <img src="images/product/small-size/1.jpg" alt="User Avatar">
-                                        </div>
+                                        <form id="avatar-form" th:action="@{/user/my-accounts/update-avatar}"
+                                              method="POST"
+                                              enctype="multipart/form-data">
+
+                                            <div class="user-avatar-wrapper">
+                                                <img id="avatar-preview"
+                                                     class="avatar-img"
+                                                     th:src="${user.avatarUrl != null ? user.avatarUrl : '/images/default-avatar.png'}"
+                                                     alt="User Avatar">
+
+                                                <label for="avatar-input" class="upload-overlay">
+                                                    <i class="fa-solid fa-camera"></i>
+                                                </label>
+
+                                                <input type="file" id="avatar-input" name="avatar" accept="image/*"
+                                                       hidden>
+                                            </div>
+
+                                            <div id="avatar-btns" class="avatar-btns" style="display: none">
+                                                <button type="button" id="save-avatar-btn" class="btn-save-avatar">
+                                                    <i class="fa-solid fa-check"></i>
+                                                </button>
+                                                <button type="button" id="cancel-avatar-btn" class="btn-cancel-avatar">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+
                                         <div class="user-info">
-                                            <h4>Nguyễn Văn A</h4>
-                                            <p>nguyenvana@email.com</p>
+                                            <h4 th:text="${user.fullName}">Tên Người Dùng</h4>
+                                            <p th:text="${user.email}">email@example.com</p>
                                         </div>
                                     </div>
+
                                     <ul class="account-menu nav flex-column" role="tablist">
-                                        <li class="nav-item">
-                                            <a class="nav-link active" href="#personal-info" data-toggle="tab" role="tab" aria-controls="personal-info" aria-selected="true">
+
+                                        <li class="nav-item"
+                                            th:classappend="${param.tab == null or param.tab[0] == 'profile'} ? 'active'">
+                                            <a class="nav-link"
+                                               th:href="@{/user/my-accounts(tab='profile')}">
                                                 <i class="fa fa-user"></i> Personal Information
                                             </a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="#payment-info" data-toggle="tab" role="tab" aria-controls="payment-info" aria-selected="false">
-                                                <i class="fa fa-credit-card"></i> Payment Information
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="#order-history" data-toggle="tab" role="tab" aria-controls="order-history" aria-selected="false">
+
+                                        <li class="nav-item"
+                                            th:classappend="${param.tab != null and param.tab[0] == 'order'} ? 'active'">
+                                            <a class="nav-link"
+                                               th:href="@{/user/my-accounts(tab='order')}">
                                                 <i class="fa fa-shopping-bag"></i> Order History
                                             </a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="#change-password" data-toggle="tab" role="tab" aria-controls="change-password" aria-selected="false">
+
+                                        <li class="nav-item"
+                                            th:classappend="${param.tab != null and param.tab[0] == 'password'} ? 'active'">
+                                            <a class="nav-link"
+                                               th:href="@{/user/my-accounts(tab='password')}">
                                                 <i class="fa fa-lock"></i> Change Password
                                             </a>
                                         </li>
+
                                         <li class="nav-item">
-                                            <a href="login-register.html"><i class="fa fa-sign-out"></i> Logout</a>
+                                            <a href="javascript:void(0)" id="logout-btn" data-logout-url="/logout">
+                                                <i class="fa fa-sign-out"></i> Logout
+                                            </a>
                                         </li>
+
                                     </ul>
+
+                                </div>
+                            </div>
+
+                            <div id="logout-confirm" class="logout-confirm">
+                                <p>Are you sure logout?</p>
+                                <div class="logout-actions">
+                                    <form id="logout-form" th:action="@{/logout}" method="post">
+                                        <button id="confirm-logout" class="btn-yes" type="submit">Logout</button>
+                                    </form>
+                                    <button id="cancel-logout" class="btn-no">Cancel</button>
                                 </div>
                             </div>
                             <!-- Sidebar Area End Here -->
@@ -80,64 +438,88 @@
                             <div class="col-lg-9 col-md-8">
                                 <div class="tab-content">
                                     <!-- Begin Personal Information Tab -->
-                                    <div id="personal-info" class="tab-pane fade show active" role="tabpanel" aria-labelledby="personal-info-tab">
+                                    <div id="personal-info" class="tab-pane fade" role="tabpanel"
+                                         th:classappend="${param.tab == null or param.tab[0] == 'profile'} ? 'show active'"
+                                         aria-labelledby="personal-info-tab">
                                         <div class="account-content-wrapper">
                                             <div class="account-content-header">
                                                 <h3>Personal Information</h3>
                                                 <p>Manage your personal information and contact details</p>
                                             </div>
                                             <div class="account-form-wrapper">
-                                                <form action="#" method="post">
+                                                <form th:action="@{/user/my-accounts/update}" method="post"
+                                                      th:object="${updateProfile}">
                                                     <div class="row">
                                                         <div class="col-lg-6">
                                                             <div class="single-input-item">
-                                                                <label for="first-name" class="required">First Name</label>
-                                                                <input type="text" id="first-name" name="first_name" value="Nguyễn Văn" required>
+                                                                <label for="first-name" class="required">Full
+                                                                    Name</label>
+                                                                <input type="text" id="first-name" name="fullName"
+                                                                       th:value="${user.fullName}" readonly>
+                                                                <div class="text-danger"
+                                                                     th:if="${#fields.hasErrors('fullName')}"
+                                                                     th:errors="*{fullName}"></div>
                                                             </div>
                                                         </div>
                                                         <div class="col-lg-6">
                                                             <div class="single-input-item">
-                                                                <label for="last-name" class="required">Last Name</label>
-                                                                <input type="text" id="last-name" name="last_name" value="A" required>
+                                                                <label for="email" class="required">Email
+                                                                    Address</label>
+                                                                <input type="email" id="email" name="email"
+                                                                       th:value="${user.email}" readonly>
+                                                                <div class="text-danger"
+                                                                     th:if="${#fields.hasErrors('email')}"
+                                                                     th:errors="*{email}"></div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="single-input-item">
-                                                        <label for="email" class="required">Email Address</label>
-                                                        <input type="email" id="email" name="email" value="nguyenvana@email.com" required>
                                                     </div>
                                                     <div class="single-input-item">
                                                         <label for="phone" class="required">Phone Number</label>
-                                                        <input type="text" id="phone" name="phone" value="+84 123 456 789" required>
+                                                        <input type="text" id="phone" name="phone"
+                                                               th:value="${user.phone}">
+                                                        <div class="text-danger"
+                                                             th:if="${#fields.hasErrors('phone')}"
+                                                             th:errors="*{phone}"></div>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <label for="address">Date of birth</label>
+                                                        <input type="date"
+                                                               id="dateOfBirth"
+                                                               name="dateOfBirth"
+                                                               th:value="${#temporals.format(user.dateOfBirth, 'yyyy-MM-dd')}">
+                                                        <div class="text-danger"
+                                                             th:if="${#fields.hasErrors('dateOfBirth')}"
+                                                             th:errors="*{dateOfBirth}"></div>
+                                                    </div>
+                                                    <div class="single-input-item">
+                                                        <label for="address">Gender</label>
+                                                        <select id="gender" name="gender">
+                                                            <option th:value="MALE"
+                                                                    th:selected="${user.gender == T(com.electronics_store.model.User$Gender).MALE}">
+                                                                Male
+                                                            </option>
+                                                            <option th:value="FEMALE"
+                                                                    th:selected="${user.gender == T(com.electronics_store.model.User$Gender).FEMALE}">
+                                                                Female
+                                                            </option>
+                                                            <option th:value="OTHER"
+                                                                    th:selected="${user.gender == T(com.electronics_store.model.User$Gender).OTHER}">
+                                                                Other
+                                                            </option>
+                                                        </select>
+                                                        <div class="text-danger"
+                                                             th:if="${#fields.hasErrors('gender')}"
+                                                             th:errors="*{gender}"></div>
                                                     </div>
                                                     <div class="single-input-item">
                                                         <label for="address">Address</label>
-                                                        <input type="text" id="address" name="address" value="123 Đường ABC, Quận 1">
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-lg-6">
-                                                            <div class="single-input-item">
-                                                                <label for="city">City</label>
-                                                                <input type="text" id="city" name="city" value="Hồ Chí Minh">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-6">
-                                                            <div class="single-input-item">
-                                                                <label for="zipcode">Zip Code</label>
-                                                                <input type="text" id="zipcode" name="zipcode" value="700000">
-                                                            </div>
-                                                        </div>
+                                                        <input type="text" id="address" name="address"
+                                                               th:value="${user.address}">
                                                     </div>
                                                     <div class="single-input-item">
-                                                        <label for="country">Country</label>
-                                                        <select class="nice-select" id="country" name="country">
-                                                            <option value="VN" selected>Vietnam</option>
-                                                            <option value="US">United States</option>
-                                                            <option value="UK">United Kingdom</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="single-input-item">
-                                                        <button class="li-btn-account li-btn-dark">Save Changes</button>
+                                                        <button class="li-btn-account li-btn-dark" style="height: 50px">
+                                                            Save Changes
+                                                        </button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -145,370 +527,244 @@
                                     </div>
                                     <!-- Personal Information Tab End Here -->
 
-                                    <!-- Begin Payment Information Tab -->
-                                    <div id="payment-info" class="tab-pane fade" role="tabpanel" aria-labelledby="payment-info-tab">
-                                        <div class="account-content-wrapper">
-                                            <div class="account-content-header">
-                                                <h3>Payment Information</h3>
-                                                <p>Manage your payment methods</p>
-                                            </div>
-
-                                            <!-- Saved Cards -->
-                                            <div class="saved-payment-methods">
-                                                <h4>Saved Payment Methods</h4>
-                                                <div class="payment-card-list">
-                                                    <div class="payment-card-item">
-                                                        <div class="card-info">
-                                                            <i class="fa fa-credit-card"></i>
-                                                            <div class="card-details">
-                                                                <h5>Visa ending in 4242</h5>
-                                                                <p>Expires 12/2025</p>
-                                                            </div>
-                                                        </div>
-                                                        <div class="card-actions">
-                                                            <span class="badge badge-primary">Default</span>
-                                                            <button class="btn-edit"><i class="fa fa-edit"></i></button>
-                                                            <button class="btn-delete"><i class="fa fa-trash"></i></button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="payment-card-item">
-                                                        <div class="card-info">
-                                                            <i class="fa fa-credit-card"></i>
-                                                            <div class="card-details">
-                                                                <h5>Mastercard ending in 8888</h5>
-                                                                <p>Expires 06/2026</p>
-                                                            </div>
-                                                        </div>
-                                                        <div class="card-actions">
-                                                            <button class="btn-edit"><i class="fa fa-edit"></i></button>
-                                                            <button class="btn-delete"><i class="fa fa-trash"></i></button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Add New Card -->
-                                            <div class="add-payment-method mt-30">
-                                                <h4>Add New Payment Method</h4>
-                                                <form action="#" method="post">
-                                                    <div class="single-input-item">
-                                                        <label for="card-name" class="required">Cardholder Name</label>
-                                                        <input type="text" id="card-name" name="card_name" placeholder="John Doe" required>
-                                                    </div>
-                                                    <div class="single-input-item">
-                                                        <label for="card-number" class="required">Card Number</label>
-                                                        <input type="text" id="card-number" name="card_number" placeholder="1234 5678 9012 3456" required>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-lg-6">
-                                                            <div class="single-input-item">
-                                                                <label for="expiry-date" class="required">Expiry Date</label>
-                                                                <input type="text" id="expiry-date" name="expiry_date" placeholder="MM/YY" required>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-6">
-                                                            <div class="single-input-item">
-                                                                <label for="cvv" class="required">CVV</label>
-                                                                <input type="text" id="cvv" name="cvv" placeholder="123" required>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="single-input-item">
-                                                        <label class="checkbox-label">
-                                                            <input type="checkbox" name="default_card">
-                                                            <span>Set as default payment method</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="single-input-item">
-                                                        <button class="li-btn li-btn-dark">Add Card</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Payment Information Tab End Here -->
-
                                     <!-- Begin Order History Tab -->
-                                    <div id="order-history" class="tab-pane fade" role="tabpanel" aria-labelledby="order-history-tab">
+                                    <div class="tab-pane fade" id="order-history" role="tabpanel"
+                                         th:classappend="${param.tab != null and param.tab[0] == 'order'} ? 'show active'"
+                                         aria-labelledby="order-history-tab">
                                         <div class="account-content-wrapper">
                                             <div class="account-content-header">
                                                 <h3>Order History</h3>
-                                                <p>View and track your orders</p>
+                                                <p>View and track your previous orders</p>
                                             </div>
 
-                                            <!-- Order List -->
-                                            <div class="order-list">
-                                                <!-- Single Order Item -->
-                                                <div class="order-item">
-                                                    <div class="order-header">
-                                                        <div class="order-info-group">
-                                                            <div class="order-info-item">
-                                                                <span class="label">Order ID:</span>
-                                                                <span class="value">#ORD-2024-001</span>
-                                                            </div>
-                                                            <div class="order-info-item">
-                                                                <span class="label">Date:</span>
-                                                                <span class="value">Dec 15, 2024</span>
-                                                            </div>
-                                                            <div class="order-info-item">
-                                                                <span class="label">Total:</span>
-                                                                <span class="value price">$250.00</span>
-                                                            </div>
-                                                            <div class="order-info-item">
-                                                                <span class="badge badge-success">Delivered</span>
-                                                            </div>
-                                                        </div>
-                                                        <button class="toggle-order-details"><i class="fa fa-angle-down"></i></button>
-                                                    </div>
-                                                    <div class="order-details" style="display: none;">
-                                                        <div class="order-products">
-                                                            <h5>Products:</h5>
-                                                            <div class="product-item">
-                                                                <div class="product-image">
-                                                                    <img src="images/product/small-size/1.jpg" alt="Product">
-                                                                </div>
-                                                                <div class="product-info">
-                                                                    <h6>Accusantium dolorem laptop</h6>
-                                                                    <p>Quantity: 1</p>
-                                                                </div>
-                                                                <div class="product-price">
-                                                                    <span>$150.00</span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="product-item">
-                                                                <div class="product-image">
-                                                                    <img src="images/product/small-size/2.jpg" alt="Product">
-                                                                </div>
-                                                                <div class="product-info">
-                                                                    <h6>Wireless Mouse Gaming</h6>
-                                                                    <p>Quantity: 2</p>
-                                                                </div>
-                                                                <div class="product-price">
-                                                                    <span>$100.00</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="order-summary">
-                                                            <div class="summary-row">
-                                                                <span>Subtotal:</span>
-                                                                <span>$250.00</span>
-                                                            </div>
-                                                            <div class="summary-row">
-                                                                <span>Shipping:</span>
-                                                                <span>Free</span>
-                                                            </div>
-                                                            <div class="summary-row total">
-                                                                <span>Total:</span>
-                                                                <span>$250.00</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="order-actions">
-                                                            <button class="li-btn li-btn-sm">Track Order</button>
-                                                            <button class="li-btn li-btn-sm li-btn-secondary">Download Invoice</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                            <div class="my-account-order">
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered table-hover">
+                                                        <thead class="thead-light">
+                                                        <tr>
+                                                            <th>Order ID</th>
+                                                            <th>Date</th>
+                                                            <th>Status</th>
+                                                            <th>Payment</th>
+                                                            <th>Total</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <th:block th:if="${myOrders != null and !myOrders.isEmpty()}">
+                                                            <tr th:each="order : ${myOrders}">
+                                                                <td><strong
+                                                                        th:text="'#' + ${order.orderId}">#12345</strong>
+                                                                </td>
+                                                                <td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}">
+                                                                    25/01/2026
+                                                                </td>
 
-                                                <!-- Single Order Item -->
-                                                <div class="order-item">
-                                                    <div class="order-header">
-                                                        <div class="order-info-group">
-                                                            <div class="order-info-item">
-                                                                <span class="label">Order ID:</span>
-                                                                <span class="value">#ORD-2024-002</span>
-                                                            </div>
-                                                            <div class="order-info-item">
-                                                                <span class="label">Date:</span>
-                                                                <span class="value">Dec 20, 2024</span>
-                                                            </div>
-                                                            <div class="order-info-item">
-                                                                <span class="label">Total:</span>
-                                                                <span class="value price">$180.50</span>
-                                                            </div>
-                                                            <div class="order-info-item">
-                                                                <span class="badge badge-warning">Processing</span>
-                                                            </div>
-                                                        </div>
-                                                        <button class="toggle-order-details"><i class="fa fa-angle-down"></i></button>
-                                                    </div>
-                                                    <div class="order-details" style="display: none;">
-                                                        <div class="order-products">
-                                                            <h5>Products:</h5>
-                                                            <div class="product-item">
-                                                                <div class="product-image">
-                                                                    <img src="images/product/small-size/3.jpg" alt="Product">
-                                                                </div>
-                                                                <div class="product-info">
-                                                                    <h6>Mechanical Keyboard RGB</h6>
-                                                                    <p>Quantity: 1</p>
-                                                                </div>
-                                                                <div class="product-price">
-                                                                    <span>$180.50</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="order-summary">
-                                                            <div class="summary-row">
-                                                                <span>Subtotal:</span>
-                                                                <span>$180.50</span>
-                                                            </div>
-                                                            <div class="summary-row">
-                                                                <span>Shipping:</span>
-                                                                <span>Free</span>
-                                                            </div>
-                                                            <div class="summary-row total">
-                                                                <span>Total:</span>
-                                                                <span>$180.50</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="order-shipping-info">
-                                                            <h5>Shipping Information:</h5>
-                                                            <div class="shipping-timeline">
-                                                                <div class="timeline-item completed">
-                                                                    <div class="timeline-icon"><i class="fa fa-check"></i></div>
-                                                                    <div class="timeline-content">
-                                                                        <h6>Order Confirmed</h6>
-                                                                        <p>Dec 20, 2024 - 10:30 AM</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="timeline-item completed">
-                                                                    <div class="timeline-icon"><i class="fa fa-check"></i></div>
-                                                                    <div class="timeline-content">
-                                                                        <h6>Processing</h6>
-                                                                        <p>Dec 20, 2024 - 02:00 PM</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="timeline-item active">
-                                                                    <div class="timeline-icon"><i class="fa fa-spinner"></i></div>
-                                                                    <div class="timeline-content">
-                                                                        <h6>Preparing for Shipment</h6>
-                                                                        <p>In progress...</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="timeline-item">
-                                                                    <div class="timeline-icon"><i class="fa fa-circle-o"></i></div>
-                                                                    <div class="timeline-content">
-                                                                        <h6>Shipped</h6>
-                                                                        <p>Pending</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="timeline-item">
-                                                                    <div class="timeline-icon"><i class="fa fa-circle-o"></i></div>
-                                                                    <div class="timeline-content">
-                                                                        <h6>Delivered</h6>
-                                                                        <p>Pending</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="order-actions">
-                                                            <button class="li-btn li-btn-sm li-btn-danger">Cancel Order</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                                <td>
+                                                                    <span class="badge"
+                                                                          th:classappend="${order.status.name().toLowerCase()}"
+                                                                          th:text="${order.status}">PROCESSING</span>
+                                                                </td>
 
-                                                <!-- Single Order Item -->
-                                                <div class="order-item">
-                                                    <div class="order-header">
-                                                        <div class="order-info-group">
-                                                            <div class="order-info-item">
-                                                                <span class="label">Order ID:</span>
-                                                                <span class="value">#ORD-2024-003</span>
-                                                            </div>
-                                                            <div class="order-info-item">
-                                                                <span class="label">Date:</span>
-                                                                <span class="value">Dec 25, 2024</span>
-                                                            </div>
-                                                            <div class="order-info-item">
-                                                                <span class="label">Total:</span>
-                                                                <span class="value price">$420.00</span>
-                                                            </div>
-                                                            <div class="order-info-item">
-                                                                <span class="badge badge-info">Shipped</span>
-                                                            </div>
-                                                        </div>
-                                                        <button class="toggle-order-details"><i class="fa fa-angle-down"></i></button>
-                                                    </div>
-                                                    <div class="order-details" style="display: none;">
-                                                        <div class="order-products">
-                                                            <h5>Products:</h5>
-                                                            <div class="product-item">
-                                                                <div class="product-image">
-                                                                    <img src="images/product/small-size/4.jpg" alt="Product">
-                                                                </div>
-                                                                <div class="product-info">
-                                                                    <h6>Gaming Headset Pro</h6>
-                                                                    <p>Quantity: 3</p>
-                                                                </div>
-                                                                <div class="product-price">
-                                                                    <span>$420.00</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="order-summary">
-                                                            <div class="summary-row">
-                                                                <span>Subtotal:</span>
-                                                                <span>$420.00</span>
-                                                            </div>
-                                                            <div class="summary-row">
-                                                                <span>Shipping:</span>
-                                                                <span>Free</span>
-                                                            </div>
-                                                            <div class="summary-row total">
-                                                                <span>Total:</span>
-                                                                <span>$420.00</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="order-shipping-info">
-                                                            <h5>Tracking Information:</h5>
-                                                            <div class="tracking-info-box">
-                                                                <p><strong>Carrier:</strong> DHL Express</p>
-                                                                <p><strong>Tracking Number:</strong> DHL123456789VN</p>
-                                                                <p><strong>Estimated Delivery:</strong> Dec 28, 2024</p>
-                                                            </div>
-                                                        </div>
-                                                        <div class="order-actions">
-                                                            <button class="li-btn li-btn-sm">Track Package</button>
-                                                            <button class="li-btn li-btn-sm li-btn-secondary">Contact Support</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                                <td>
+                                                                    <span class="badge"
+                                                                          th:classappend="${order.paymentStatus.name().toLowerCase()}"
+                                                                          th:text="${order.paymentStatus}">PAID</span>
+                                                                </td>
 
-                                            <!-- Empty State (ẩn khi có đơn hàng) -->
-                                            <div class="empty-orders" style="display: none;">
-                                                <i class="fa fa-shopping-bag"></i>
-                                                <h4>No Orders Yet</h4>
-                                                <p>You haven't placed any orders yet. Start shopping now!</p>
-                                                <a href="shop-left-sidebar.html" class="li-btn">Start Shopping</a>
+                                                                <td class="amount">
+                                                                    <strong th:text="${'$' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">$150.00</strong>
+                                                                </td>
+
+                                                                <td>
+                                                                    <button type="button"
+                                                                            class="li-btn-account li-btn-dark btn-sm"
+                                                                            style="padding: 5px 15px; height: auto; line-height: normal;"
+                                                                            data-toggle="modal"
+                                                                            th:attr="data-target='#modalOrder-' + ${order.orderId}">
+                                                                        Details
+                                                                    </button>
+
+                                                                    <div class="modal fade"
+                                                                         th:id="'modalOrder-' + ${order.orderId}"
+                                                                         tabindex="-1" role="dialog" aria-hidden="true">
+                                                                        <div class="modal-dialog modal-lg modal-dialog-centered"
+                                                                             role="document">
+                                                                            <div class="modal-content"
+                                                                                 style="border-radius: 0;">
+                                                                                <div class="modal-header">
+                                                                                    <h5 class="modal-title">Order
+                                                                                        Details <span
+                                                                                                th:text="'#' + ${order.orderId}"></span>
+                                                                                    </h5>
+                                                                                    <button type="button" class="close"
+                                                                                            data-dismiss="modal"
+                                                                                            aria-label="Close">
+                                                                                        <span aria-hidden="true">&times;</span>
+                                                                                    </button>
+                                                                                </div>
+                                                                                <div class="modal-body">
+                                                                                    <div class="row mb-3">
+                                                                                        <div class="col-md-6 text-left">
+                                                                                            <p><strong>Order
+                                                                                                Date:</strong> <span
+                                                                                                    th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy HH:mm')}"></span>
+                                                                                            </p>
+                                                                                            <p><strong>Payment
+                                                                                                Method:</strong> <span
+                                                                                                    th:text="${order.paymentMethod}"></span>
+                                                                                            </p>
+                                                                                        </div>
+                                                                                        <div class="col-md-6 text-right">
+                                                                                            <p><strong>Payment
+                                                                                                Status:</strong> <span
+                                                                                                    th:text="${order.paymentStatus}"></span>
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <div class="table-responsive">
+                                                                                        <table class="table table-sm">
+                                                                                            <thead class="thead-light">
+                                                                                            <tr>
+                                                                                                <th>Product</th>
+                                                                                                <th>Variant</th>
+                                                                                                <th class="text-center">
+                                                                                                    Qty
+                                                                                                </th>
+                                                                                                <th class="text-right">
+                                                                                                    Price
+                                                                                                </th>
+                                                                                                <th class="text-right">
+                                                                                                    Subtotal
+                                                                                                </th>
+                                                                                            </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+                                                                                            <tr th:each="item : ${order.items}">
+                                                                                                <td th:text="${item.productName}">
+                                                                                                    Product Name
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <small th:if="${item.variantName != null}"
+                                                                                                           class="text-muted"
+                                                                                                           th:text="${item.variantName}">Red/XL</small>
+                                                                                                    <span th:unless="${item.variantName != null}">-</span>
+                                                                                                </td>
+                                                                                                <td class="text-center"
+                                                                                                    th:text="${item.quantity}">
+                                                                                                    1
+                                                                                                </td>
+                                                                                                <td class="text-right"
+                                                                                                    th:text="${'$' + #numbers.formatDecimal(item.price, 1, 2)}">
+                                                                                                    10.00
+                                                                                                </td>
+                                                                                                <td class="text-right"
+                                                                                                    th:text="${'$' + #numbers.formatDecimal(item.price * item.quantity, 1, 2)}">
+                                                                                                    10.00
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                    </div>
+
+                                                                                    <div class="row justify-content-end">
+                                                                                        <div class="col-md-5">
+                                                                                            <table class="table table-sm table-borderless">
+                                                                                                <tr>
+                                                                                                    <td class="text-left">
+                                                                                                        Subtotal:
+                                                                                                    </td>
+                                                                                                    <td class="text-right"
+                                                                                                        th:text="${'$' + #numbers.formatDecimal(order.subTotal, 1, 2)}"></td>
+                                                                                                </tr>
+                                                                                                <tr>
+                                                                                                    <td class="text-left text-danger">
+                                                                                                        Discount:
+                                                                                                    </td>
+                                                                                                    <td class="text-right text-danger"
+                                                                                                        th:text="${'-$' + #numbers.formatDecimal(order.discountAmount, 1, 2)}"></td>
+                                                                                                </tr>
+                                                                                                <tr class="border-top">
+                                                                                                    <td class="text-left">
+                                                                                                        <strong>Total:</strong>
+                                                                                                    </td>
+                                                                                                    <td class="text-right">
+                                                                                                        <strong class="text-primary"
+                                                                                                                th:text="${'$' + #numbers.formatDecimal(order.totalAmount, 1, 2)}"></strong>
+                                                                                                    </td>
+                                                                                                </tr>
+                                                                                            </table>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="modal-footer">
+                                                                                    <button type="button"
+                                                                                            class="li-btn-account li-btn-dark"
+                                                                                            style="height: 40px; line-height: 40px;"
+                                                                                            data-dismiss="modal">Close
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </th:block>
+
+                                                        <th:block th:if="${myOrders == null or myOrders.isEmpty()}">
+                                                            <tr>
+                                                                <td colspan="6" class="text-center py-5">
+                                                                    <i class="fa fa-shopping-bag fa-3x text-muted mb-3"
+                                                                       style="display: block;"></i>
+                                                                    <p class="text-muted">You haven't placed any orders
+                                                                        yet.</p>
+                                                                    <a href="/shop" class="li-btn-account li-btn-dark"
+                                                                       style="display: inline-block; height: 40px; line-height: 40px; margin-top: 10px;">Shop
+                                                                        Now</a>
+                                                                </td>
+                                                            </tr>
+                                                        </th:block>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Order History Tab End Here -->
 
                                     <!-- Begin Change Password Tab -->
-                                    <div id="change-password" class="tab-pane fade" role="tabpanel" aria-labelledby="change-password-tab">
+                                    <div id="change-password" class="tab-pane fade" role="tabpanel"
+                                         th:classappend="${param.tab != null and param.tab[0] == 'password'} ? 'show active'"
+                                         aria-labelledby="change-password-tab">
                                         <div class="account-content-wrapper">
                                             <div class="account-content-header">
                                                 <h3>Change Password</h3>
                                                 <p>Update your password to keep your account secure</p>
                                             </div>
                                             <div class="account-form-wrapper">
-                                                <form action="#" method="post">
+                                                <form th:action="@{/user/my-accounts/change-password}" method="post">
                                                     <div class="single-input-item">
-                                                        <label for="current-pwd" class="required">Current Password</label>
-                                                        <input type="password" id="current-pwd" name="current_password" required>
+                                                        <label for="current-pwd" class="required">Current
+                                                            Password</label>
+                                                        <input type="password" id="current-pwd" name="current_password"
+                                                               required>
                                                     </div>
                                                     <div class="single-input-item">
                                                         <label for="new-pwd" class="required">New Password</label>
-                                                        <input type="password" id="new-pwd" name="new_password" required>
+                                                        <input type="password" id="new-pwd" name="new_password"
+                                                               required>
                                                     </div>
                                                     <div class="single-input-item">
-                                                        <label for="confirm-pwd" class="required">Confirm New Password</label>
-                                                        <input type="password" id="confirm-pwd" name="confirm_password" required>
+                                                        <label for="confirm-pwd" class="required">Confirm New
+                                                            Password</label>
+                                                        <input type="password" id="confirm-pwd" name="confirm_password"
+                                                               required>
                                                     </div>
                                                     <div class="single-input-item">
-                                                        <button class="li-btn li-btn-dark">Change Password</button>
+                                                        <button type="submit" class="li-btn-account li-btn-dark"
+                                                                style="height: 45px">
+                                                            Change Password
+                                                        </button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -524,21 +780,37 @@
             </div>
         </div>
     </div>
-    <!-- Main Content Area End Here -->
-
-    <!-- Begin Footer Area -->
-    <!-- [GIỮ NGUYÊN FOOTER CODE TỪ TEMPLATE] -->
-    <!-- Footer Area End Here -->
 </div>
+
+<!-- Order Tracking Modal -->
+<div class="modal fade" id="trackOrderModal" tabindex="-1" role="dialog" aria-labelledby="trackOrderModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="trackOrderModalLabel">Order Tracking Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="tracking-history-container">
+                    <!-- Tracking steps will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <footer th:replace="~{layout/layout :: footer}"></footer>
 
 <div th:replace="~{layout/layout :: script}"></div>
 <script>
     // Toggle Order Details - Chờ DOM và jQuery ready
-    jQuery(document).ready(function($) {
+    jQuery(document).ready(function ($) {
         // Toggle Order Details
-        $(document).on('click', '.toggle-order-details', function(e) {
+        $(document).on('click', '.toggle-order-details', function (e) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -552,7 +824,7 @@
         });
 
         // Click on order header to toggle
-        $(document).on('click', '.order-header', function(e) {
+        $(document).on('click', '.order-header', function (e) {
             if ($(e.target).hasClass('toggle-order-details') || $(e.target).closest('.toggle-order-details').length) {
                 return;
             }
@@ -560,5 +832,189 @@
         });
     });
 </script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const avatarInput = document.getElementById('avatar-input');
+        const avatarPreview = document.getElementById('avatar-preview');
+        const saveBtn = document.getElementById('save-avatar-btn');
+        const removeBtn = document.getElementById('cancel-avatar-btn');
+        const avatarBtns = document.getElementById('avatar-btns');
+        const form = document.getElementById('avatar-form');
+
+        let avatarOrigin = avatarPreview.src;
+
+        // 1. Xử lý xem trước ảnh (Preview Image)
+        avatarInput.addEventListener('change', function (event) {
+
+            const file = event.target.files[0];
+
+            if (file) {
+                // Kiểm tra định dạng ảnh (nếu cần)
+                if (!file.type.startsWith('image/')) {
+                    alert('Vui lòng chọn file ảnh!');
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // Thay thế src của thẻ img bằng dữ liệu ảnh mới
+                    avatarPreview.src = e.target.result;
+                    // Hiển thị nút Lưu & Hủy
+                    avatarBtns.style.display = 'flex';
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 2. Xử lý khi bấm nút Lưu (Gửi lên server)
+        saveBtn.addEventListener('click', function () {
+            // Cách 1: Submit form truyền thống (Load lại trang)
+            // form.submit();
+
+            // Cách 2: Sử dụng Fetch API (AJAX) để không load lại trang (Khuyên dùng)
+            const formData = new FormData(form);
+
+            // Thay đổi text nút để báo hiệu đang xử lý
+            const originalBtnText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin fa-spin-fast"></i>';
+            saveBtn.disabled = true;
+
+            fetch(form.action, { // Lấy url từ th:action
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (response.ok) {
+                        showNotification("success", "Updated", "Update avatar successfully!");
+                        avatarBtns.style.display = 'none'; // Ẩn nút lưu đi
+                        avatarOrigin = avatarPreview.src;
+                    } else {
+                        showNotification("error", "Error", "Update avatar failed!");
+                    }
+                })
+                .catch(error => {
+                    showNotification("error", "Error", "Update avatar failed!");
+                })
+                .finally(() => {
+                    saveBtn.innerHTML = originalBtnText;
+                    saveBtn.disabled = false;
+                });
+        });
+
+        removeBtn.addEventListener('click', function () {
+            // Rollback ảnh về ảnh gốc từ DB
+            avatarPreview.src = avatarOrigin;
+
+            // Reset input file để lần sau chọn lại cùng file vẫn trigger change
+            avatarInput.value = '';
+
+            // Ẩn nút Lưu & Hủy
+            avatarBtns.style.display = 'none';
+        })
+
+
+        const logoutBtn = document.getElementById('logout-btn');
+        const logoutPopup = document.getElementById('logout-confirm');
+        const cancelLogout = document.getElementById('cancel-logout');
+        const logoutOverlay = document.getElementById('logout-overlay');
+
+        logoutBtn.addEventListener('click', function () {
+            logoutPopup.style.display = 'block';
+            document.getElementById('logout-overlay').style.display = 'block';
+        });
+
+        cancelLogout.addEventListener('click', function () {
+            logoutPopup.style.display = 'none';
+            document.getElementById('logout-overlay').style.display = 'none';
+        });
+
+        logoutOverlay.addEventListener('click', function () {
+            logoutPopup.style.display = 'none';
+            logoutOverlay.style.display = 'none';
+        });
+
+    });
+</script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#trackOrderModal').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const orderId = button.data('order-id');
+            const modal = $(this);
+            const trackingContainer = modal.find('#tracking-history-container');
+
+            modal.find('.modal-title').text(`Order Tracking Details for #${orderId}`);
+            trackingContainer.html('<p class="text-center">Loading tracking details...</p>');
+
+            fetch(`/user/my-accounts/orders/track/${orderId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch tracking data.');
+                    }
+                    return response.json();
+                })
+                .then(history => {
+                    trackingContainer.empty();
+                    if (history && history.length > 0) {
+                        const timeline = $('<ul class="timeline"></ul>');
+                        history.forEach(item => {
+                            const date = new Date(item.changeTime).toLocaleString('en-GB', {
+                                day: '2-digit', month: '2-digit', year: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                            });
+                            const timelineItem = `
+                                <li>
+                                    <div class="timeline-badge">${getStatusIcon(item.status)}</div>
+                                    <div class="timeline-panel">
+                                        <div class="timeline-heading">
+                                            <h4 class="timeline-title">${formatStatus(item.status)}</h4>
+                                            <p><small class="text-muted"><i class="fa fa-clock"></i> ${date}</small></p>
+                                        </div>
+                                        <div class="timeline-body">
+                                            <p>${item.description || ''}</p>
+                                        </div>
+                                    </div>
+                                </li>
+                            `;
+                            timeline.append(timelineItem);
+                        });
+                        trackingContainer.append(timeline);
+                    } else {
+                        trackingContainer.html('<p class="text-center">No tracking history available for this order.</p>');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching tracking history:', error);
+                    trackingContainer.html('<p class="text-center text-danger">Could not load tracking details. Please try again later.</p>');
+                });
+        });
+
+        function formatStatus(status) {
+            if (!status) return 'Unknown';
+            return status.replace(/_/g, ' ').replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+        }
+
+        function getStatusIcon(status) {
+            switch (status) {
+                case 'PROCESSING':
+                    return '<i class="fa fa-cogs"></i>';
+                case 'SHIPPED':
+                    return '<i class="fa fa-truck"></i>';
+                case 'DELIVERED':
+                    return '<i class="fa fa-check-circle"></i>';
+                case 'CANCELLED':
+                    return '<i class="fa fa-times-circle"></i>';
+                case 'PENDING':
+                default:
+                    return '<i class="fa fa-hourglass-start"></i>';
+            }
+        }
+    });
+</script>
+
+<div id="logout-overlay" class="logout-overlay"></div>
 </body>
 </html>

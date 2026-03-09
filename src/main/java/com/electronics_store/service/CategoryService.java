@@ -26,11 +26,7 @@ public interface CategoryService {
 
     boolean delete(Long id);
 
-    List<Category> getListByParentId(Long parentId);
-
-    List<Category> getListByIsLeafTrue();
-
-    List<CategoryDto> getListByIsLeafTrueForClient();
+    List<CategoryDto> getListByIsLeafTrue();
 
     List<CategoryDto> getListRootForClient();
 

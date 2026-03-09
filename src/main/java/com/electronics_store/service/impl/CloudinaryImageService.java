@@ -27,7 +27,7 @@ public class CloudinaryImageService implements ImageStorageService {
             Map<String, Object> result = cloudinary.uploader().upload(
                     file.getBytes(),
                     ObjectUtils.asMap(
-                            "folder", "products",
+                            "folder", "electronics_store",
                             "resource_type", "image"
                     )
             );
@@ -63,5 +63,25 @@ public class CloudinaryImageService implements ImageStorageService {
 
         if (file.getSize() > 5 * 1024 * 1024)
             throw new RuntimeException("Max image size is 5MB");
+    }
+
+    @Override
+    public String extractPublicId(String imageUrl) {
+        if (imageUrl == null) return null;
+
+        String noQuery = imageUrl.split("\\?")[0];
+
+        int uploadIndex = noQuery.indexOf("/upload/");
+        if (uploadIndex == -1) return null;
+
+        String publicPath = noQuery.substring(uploadIndex + 8); // sau /upload/
+
+        // bỏ version
+        if (publicPath.startsWith("v")) {
+            publicPath = publicPath.substring(publicPath.indexOf("/") + 1);
+        }
+
+        // bỏ extension
+        return publicPath.substring(0, publicPath.lastIndexOf("."));
     }
 }

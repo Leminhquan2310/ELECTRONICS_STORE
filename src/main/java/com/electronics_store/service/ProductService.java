@@ -28,11 +28,8 @@ public interface ProductService {
 
     List<ProductImage> getImagesByProductId (Long id);
 
-    List<OptionValue> getProductOptionValuesByProductId(Long id);
-
     Page<ProductClientDto> getProductBySoldDesc(Pageable pageable);
 
-     Page<ProductClientDto> getProductByCreatedAt(int page, int size);
 
     Page<ProductClientDto> getProductByCategoryName(String categoryName, Pageable pageable);
 

@@ -94,6 +94,10 @@
             border-bottom: none !important;
         }
 
+        .form-check-input {
+            margin-top: 0px !important;
+        }
+
         .form-check-input.filter-checkbox:checked {
             background-color: #fed700; /* Màu vàng đặc trưng của Limupa */
             border-color: #fed700;
@@ -154,30 +158,57 @@
             }
         }
 
-        /* Tối ưu ảnh bên trong */
-        .product-img-main {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Quan trọng: Ảnh lấp đầy khung mà không bị méo */
-            transition: transform 0.5s ease; /* Hiệu ứng mượt khi zoom */
-        }
-
-        /* Hiệu ứng khi di chuột vào sản phẩm */
-        .single-product-wrap:hover .product-img-main {
-            transform: scale(1.1); /* Phóng to nhẹ ảnh */
-        }
-
-        .product-img-link {
-            width: 100%;
-            height: 100%;
-        }
-
         /* Responsive cho mobile: nếu màn hình nhỏ quá có thể chỉnh lại tỉ lệ */
         @media (max-width: 576px) {
             .img-container {
                 aspect-ratio: 4 / 5; /* Chuyển sang khung hơi chữ nhật đứng trên mobile nếu cần */
             }
         }
+
+        .shop-products-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+        }
+
+        .shop-products-wrapper .alert {
+            max-width: 600px;
+            width: 100%;
+            background: #fff8e5;
+            border: 1px solid #ffe0a3;
+            border-radius: 10px;
+            padding: 24px 28px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .shop-products-wrapper .alert-heading {
+            font-size: 22px;
+            font-weight: 600;
+            color: #b7791f;
+            margin-bottom: 10px;
+        }
+
+        .shop-products-wrapper p {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .shop-products-wrapper hr {
+            border: none;
+            border-top: 1px solid #f5d58d;
+            margin: 16px 0;
+        }
+
+        .shop-products-wrapper a {
+            color: #d97706;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .shop-products-wrapper a:hover {
+            text-decoration: underline;
+        }
+
     </style>
 </head>
 <body>
@@ -252,12 +283,20 @@
                             <div class="product-short">
                                 <p>Sort By:</p>
                                 <select class="nice-select" id="sort-by-select">
-                                    <option value="trending" th:selected="${sortBy == 'trending'}">Relevance (Newest)</option>
+                                    <option value="trending" th:selected="${sortBy == 'trending'}">Relevance (Newest)
+                                    </option>
                                     <option value="name-asc" th:selected="${sortBy == 'name-asc'}">Name (A - Z)</option>
-                                    <option value="name-desc" th:selected="${sortBy == 'name-desc'}">Name (Z - A)</option>
-                                    <option value="price-asc" th:selected="${sortBy == 'price-asc'}">Price (Low > High)</option>
-                                    <option value="price-desc" th:selected="${sortBy == 'price-desc'}">Price (High > Low)</option>
-                                    <option value="rating-desc" th:selected="${sortBy == 'rating-desc'}">Rating (Highest)</option>
+                                    <option value="name-desc" th:selected="${sortBy == 'name-desc'}">Name (Z - A)
+                                    </option>
+                                    <option value="price-asc" th:selected="${sortBy == 'price-asc'}">Price (Low >
+                                        High)
+                                    </option>
+                                    <option value="price-desc" th:selected="${sortBy == 'price-desc'}">Price (High >
+                                        Low)
+                                    </option>
+                                    <option value="rating-desc" th:selected="${sortBy == 'rating-desc'}">Rating
+                                        (Highest)
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -265,7 +304,17 @@
                     </div>
                     <!-- shop-top-bar end -->
                     <!-- shop-products-wrapper start -->
-                    <div class="shop-products-wrapper">
+                    <div class="shop-products-wrapper" th:if="${productPage.numberOfElements == 0}">
+                        <div class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading">No products found!</h4>
+                            <p>We couldn't find any products matching your search criteria.</p>
+                            <hr>
+                            <p class="mb-0">Try changing your search criteria or <a th:href="@{/shop}">browse all
+                                products</a>.</p>
+                        </div>
+                    </div>
+
+                    <div class="shop-products-wrapper" th:if="${productPage.numberOfElements > 0}">
                         <div class="tab-content">
                             <div id="grid-view" class="tab-pane fade" role="tabpanel">
                                 <div class="product-area shop-product-area">
@@ -275,11 +324,14 @@
                                             <!-- single-product-wrap start -->
                                             <div class="single-product-wrap">
                                                 <div class="img-container position-relative overflow-hidden rounded shadow-sm">
-                                                    <a th:href="@{/product-detail/{id}(id=${product.id})}" class="d-block product-img-link">
-                                                        <img th:src="${product.imageMain}" class="img-fluid product-img-main" alt="Product Image">
+                                                    <a th:href="@{/product-detail/{id}(id=${product.id})}"
+                                                       class="d-block product-img-link">
+                                                        <img th:src="${product.imageMain}"
+                                                             class="img-fluid product-img-main" alt="Product Image">
                                                     </a>
 
-                                                    <span th:if="${product.ratingAvg >= 4.5}" class="sticker-hot">HOT</span>
+                                                    <span th:if="${product.ratingAvg >= 4.5}"
+                                                          class="sticker-hot">HOT</span>
                                                 </div>
                                                 <div class="product_desc">
                                                     <div class="product_desc_info">
@@ -291,7 +343,8 @@
                                                                 <ul class="rating">
                                                                     <li th:each="i : ${#numbers.sequence(1, 5)}"
                                                                         th:classappend="${i <= product.ratingAvg ? '' : 'no-star' }">
-                                                                        <i class="fa" th:classappend="${i <= product.ratingAvg ? 'fa-star text-warning' : 'fa-star-o text-muted' }"></i>
+                                                                        <i class="fa"
+                                                                           th:classappend="${i <= product.ratingAvg ? 'fa-star text-warning' : 'fa-star-o text-muted' }"></i>
                                                                 </ul>
                                                             </div>
                                                         </div>
@@ -344,18 +397,22 @@
                                              th:each="product : ${productPage.getContent()}">
                                             <div class="col-lg-3 col-md-5 ">
                                                 <div class="img-container position-relative overflow-hidden rounded shadow-sm">
-                                                    <a th:href="@{/product-detail/{id}(id=${product.id})}" class="d-block product-img-link">
-                                                        <img th:src="${product.imageMain}" class="img-fluid product-img-main" alt="Product Image">
+                                                    <a th:href="@{/product-detail/{id}(id=${product.id})}"
+                                                       class="d-block product-img-link">
+                                                        <img th:src="${product.imageMain}"
+                                                             class="img-fluid product-img-main" alt="Product Image">
                                                     </a>
 
-                                                    <span th:if="${product.ratingAvg >= 4.5}" class="sticker-hot">HOT</span>
+                                                    <span th:if="${product.ratingAvg >= 4.5}"
+                                                          class="sticker-hot">HOT</span>
                                                 </div>
                                             </div>
                                             <div class="col-lg-5 col-md-7">
                                                 <div class="product_desc py-2">
                                                     <div class="product_desc_info">
                                                         <div class="product-review mb-2 d-flex align-items-center justify-content-between">
-                                                            <h5 class="manufacturer m-0">Graphic Corner </h5>
+                                                            <h5 class="manufacturer m-0"
+                                                                th:text="${product.categoryName}">Graphic Corner </h5>
                                                             <div class="rating-box">
                                                                 <ul class="rating d-flex list-unstyled m-0">
                                                                     <li th:each="i : ${#numbers.sequence(1, 5)}"
@@ -377,7 +434,7 @@
 
                                                         <div class="price-box mb-3">
                                                             <span class="new-price text-danger fs-5 fw-bold"
-                                                                  th:text="${#numbers.formatDecimal(product.basePrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                                                  th:text="'$' + ${#numbers.formatDecimal(product.basePrice, 0, 'COMMA', 0, 'POINT')}">
                                                             </span>
                                                         </div>
                                                         <p class="text-muted small mb-0 text-truncate-3"
@@ -456,12 +513,10 @@
                 <div class="col-lg-3 order-2 order-lg-1">
                     <!--sidebar-categores-box start  -->
                     <div class="sidebar-categores-box">
-                        <div class="sidebar-title">
+                        <div class="sidebar-title d-flex justify-content-between align-items-center">
                             <h2>Filter By</h2>
+                            <a th:href="@{/shop}" class="btn-clear-all">Clear all</a>
                         </div>
-
-                        <a th:href="@{/shop}" class="btn-clear-all mb-sm-30 mb-xs-30">Clear all</a>
-
                         <div id="filter-wrapper">
 
                             <div class="filter-sub-area pt-sm-10 pt-xs-10">
@@ -487,7 +542,7 @@
                                 </div>
                             </div>
 
-                            <div th:each="filter : ${filters}"
+                            <div th:each="filter : ${filters}" th:if="${filter.values.size() > 0}"
                                  class="filter-sub-area pt-sm-10 pt-xs-10 border-bottom mb-3 pb-3">
                                 <h5 class="filter-sub-titel text-uppercase mb-3"
                                     th:text="${filter.name}">Color</h5>
@@ -515,15 +570,14 @@
                                     </ul>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
+
 <!-- Modal Quick View-->
 <div class="modal fade modal-wrapper" id="modalQuickView">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -574,6 +628,10 @@
                                     <div class="product-variants d-flex flex-wrap gap-3 mb-3">
                                         <div class="product-variants-size"></div>
                                     </div>
+                                    <div class="product-variants-stock d-flex">
+                                        <label>Stock:</label>
+                                        <span id="product-variant-stock"></span>
+                                    </div>
                                     <div class="single-add-to-cart">
                                         <div class="quantity">
                                             <label>Quantity</label>
@@ -588,20 +646,12 @@
                                     </div>
                                 </form>
                                 <div class="product-additional-info pt-25">
-                                    <a class="wishlist-btn" href="wishlist.html"><i class="fa fa-heart-o"></i>Add to
-                                        wishlist</a>
-                                    <div class="product-social-sharing pt-25">
-                                        <ul>
-                                            <li class="facebook"><a href="#"><i class="fa fa-facebook"></i>Facebook</a>
-                                            </li>
-                                            <li class="twitter"><a href="#"><i class="fa fa-twitter"></i>Twitter</a>
-                                            </li>
-                                            <li class="google-plus"><a href="#"><i class="fa fa-google-plus"></i>Google
-                                                +</a></li>
-                                            <li class="instagram"><a href="#"><i
-                                                    class="fa fa-instagram"></i>Instagram</a></li>
-                                        </ul>
-                                    </div>
+                                    <form th:action="@{/user/wishlist/add}" method="post">
+                                        <input type="hidden" name="productIdModal" value="">
+                                        <a href="javascript:void(0)"
+                                           onclick="this.closest('form').submit()">
+                                            <i class="fa fa-heart-o"></i>Add to wishlist</a>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -708,6 +758,8 @@
                         // Update product options
                         updateOption(data.options || []);
 
+                        getStockByOptionValue();
+
                         // Create images
                         const imagesContainer = document.getElementById('qv-images');
                         const thumbsContainer = document.getElementById('qv-thumbs');
@@ -754,6 +806,9 @@
                             if (loadedImages === totalImages) {
                                 initQuickViewSlick();
                             }
+
+                            // add product id for add wishlist
+                            quickViewModal.find('input[name="productIdModal"]').val(productId);
                         } else {
                             console.log("false")
                             initQuickViewSlick();
@@ -772,30 +827,9 @@
                     });
             });
         });
-
-        // Quantity buttons functionality
-        document.addEventListener('click', function (e) {
-            const modal = document.getElementById('modalQuickView');
-            if (!modal.classList.contains('show')) return;
-
-            const qtyInput = modal.querySelector('.cart-plus-minus-box');
-            if (!qtyInput) return;
-
-            if (e.target.closest('.inc') || e.target.closest('.inc i')) {
-                let value = parseInt(qtyInput.value) || 1;
-                qtyInput.value = value + 1;
-                e.preventDefault();
-            } else if (e.target.closest('.dec') || e.target.closest('.dec i')) {
-                let value = parseInt(qtyInput.value) || 1;
-                if (value > 1) {
-                    qtyInput.value = value - 1;
-                }
-                e.preventDefault();
-            }
-        });
     });
 
-    document.querySelector('#sort-by-select').addEventListener('change', function() {
+    document.querySelector('#sort-by-select').addEventListener('change', function () {
         const urlParams = new URLSearchParams(window.location.search);
         urlParams.set('sortBy', this.value);
         urlParams.set('page', '0'); // Reset về trang đầu khi đổi kiểu sắp xếp
@@ -836,7 +870,6 @@
         window.location.href = url.pathname + '?' + params.toString();
     }
 
-    // Function to update rating stars
     function updateRatingStars(ratingAvg) {
         const ratingContainer = document.querySelector('#modalQuickView .rating');
         if (!ratingContainer) return;
@@ -870,7 +903,6 @@
         ratingContainer.appendChild(writeReview);
     }
 
-    // Function to update product options
     function updateOption(options) {
         const optionsContainer = document.querySelector('#modalQuickView .product-variants');
         if (!optionsContainer) return;
@@ -892,6 +924,7 @@
                 const select = document.createElement('select');
                 select.className = 'nice-select  pr-15';
                 select.name = 'optionValueIds';
+                select.onchange = getStockByOptionValue;
 
                 // Add options
                 if (option.values && option.values.length > 0) {
@@ -985,6 +1018,68 @@
             // Trigger resize event để Slick tính toán lại kích thước
             $(window).trigger('resize');
         }, 100);
+    }
+
+    function getStockByOptionValue() {
+        const allSelects = document.querySelectorAll("select[name='optionValueIds']");
+        const values = Array.from(allSelects).map(select => select.value);
+        const productId = document.getElementById('qv-id').value;
+
+        const stockSpan = document.getElementById("product-variant-stock");
+        const addToCartBtn = document.querySelector(".add-to-cart");
+
+        fetch(`/api/product-details/get-stock?productId=${productId}&optionValueIds=${values.join(',')}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                stockSpan.className = "";
+
+                const stock = data?.stock ?? 0;
+
+                if (data && stock > 0) {
+                    stockSpan.innerText = stock;
+                    stockSpan.classList.add("stock-status-in");
+                    addToCartBtn.disabled = false;
+                } else {
+                    stockSpan.innerText = stock
+                    stockSpan.classList.add("stock-status-out");
+                    addToCartBtn.disabled = true;
+                }
+
+                updateQuantityMaxByStock(stock);
+            }).catch(error => {
+            console.log(error)
+            document.getElementById("product-variant-stock").innerText = 0;
+            addToCartBtn.disabled = true;
+            updateQuantityMaxByStock(0);
+        });
+    }
+
+    function updateQuantityMaxByStock(stock) {
+        const qtyInput = document.querySelector(".cart-plus-minus-box");
+        const incBtn = document.querySelector(".inc.qtybutton");
+
+        if (!qtyInput) return;
+
+        if (stock <= 0) {
+            qtyInput.value = 1;
+            qtyInput.max = 0;
+            qtyInput.disabled = true;
+            if (incBtn) incBtn.classList.add("disabled");
+        } else {
+            qtyInput.max = stock;
+            qtyInput.disabled = false;
+            if (incBtn) incBtn.classList.remove("disabled");
+
+            const current = parseInt(qtyInput.value, 10) || 1;
+            if (current > stock) {
+                qtyInput.value = stock;
+            }
+        }
     }
 </script>
 

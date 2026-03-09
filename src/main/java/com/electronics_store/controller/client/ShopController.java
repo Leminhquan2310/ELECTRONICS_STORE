@@ -32,36 +32,6 @@ public class ShopController {
     private CategoryService categoryService;
     @Autowired
     private ShopService shopService;
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-//    @GetMapping("")
-//    public ModelAndView showShop(
-//            @RequestParam(value = "page", defaultValue = "0") int page,
-//            @RequestParam(value = "optionValues", required = false) List<String> optionValues,
-//            @RequestParam(value = "keyword", required = false) String keyword
-//    ) {
-//        int pageSize = 12;
-//        ModelAndView mav = new ModelAndView("client/shop");
-//        List<CategoryDto> categories = categoryService.getListRootForClient();
-//        mav.addObject("categories", categories);
-////        List<FilterOptionDto> globalFilters = productOptionService.getGlobalFilters();
-////        mav.addObject("globalFilters", globalFilters);
-//        // Nếu có keyword hoặc type, thực hiện tìm kiếm/lọc
-//        if (keyword != null) {
-//            // Logic tìm kiếm
-//            Page<ProductClientDto> productPage = productService.searchForClient(keyword, optionValues, page, pageSize);
-//            mav.addObject("selectedOptions", optionValues);
-//            mav.addObject("productPage", productPage);
-//            mav.addObject("keyword", keyword);
-//        } else {
-//            // Hiển thị tất cả sản phẩm
-//            Page<ProductClientDto> productPage = productService.getProductByCreatedAt(page, pageSize);
-//            mav.addObject("productPage", productPage);
-//        }
-//
-//        return mav;
-//    }
 
 
     @GetMapping

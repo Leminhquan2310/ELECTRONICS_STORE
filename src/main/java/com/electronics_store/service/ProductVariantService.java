@@ -14,5 +14,6 @@ public interface ProductVariantService {
 
     ProductVariant update(Object productVariantDtoUpdate);
 
-    void syncVariants(Product product);
+    ProductVariant getByProductIdAndOptionValues(Long productId, List<Long> optionValues);
+
 }

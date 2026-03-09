@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Coupon</title>
+  <link rel="stylesheet" th:href="@{/admin/plugins/bootstrap-select/dist/css/bootstrap-select.min.css}">
+  <th:block th:replace="~{layout/layout-admin :: css}"></th:block>
+</head>
+<body>
+<div th:replace="~{layout/layout-admin :: preloader}"></div>
+<div id="main-wrapper">
+  <div class="nav-header" th:replace="~{layout/layout-admin :: nav-header}"></div>
+
+  <div class="header" th:replace="~{layout/layout-admin :: header}"></div>
+
+  <div th:replace="~{layout/layout-admin :: nk-sidebar}"></div>
+
+  <div class="content-body">
+    <div class="row page-titles mx-0">
+      <div class="col-sm-6 p-md-0">
+        <div class="breadcrumb-range-picker">
+          <span><i class="icon-folder-alt"></i></span>
+          <span class="ml-1">Coupon Management</span>
+        </div>
+      </div>
+      <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
+          <li class="breadcrumb-item active"><a th:href="@{/admin/coupons}">Coupon</a></li>
+          <li class="breadcrumb-item active"><a th:href="@{/admin/coupons/edit/{id}(id=${couponId})}">Edit</a></li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Edit Coupon</h4>
+              <p class="text-muted">Update coupon information</p>
+            </div>
+            <div class="card-body">
+              <form th:action="@{/admin/coupons/edit/{id}(id=${couponId})}" th:method="post"
+                    th:object="${couponDto}" id="step-form-horizontal">
+                <div>
+                  <section>
+                    <div class="row">
+                      <!-- Coupon Code -->
+                      <div class="col-lg-6 mb-4">
+                        <div class="form-group">
+                          <label class="text-label">Coupon Code*</label>
+                          <input type="text" th:field="*{code}"
+                                 class="form-control border-primary"
+                                 placeholder="SUMMER2026" required
+                                 style="text-transform: uppercase;">
+                          <div class="text-danger mt-1"
+                               th:if="${#fields.hasErrors('code')}"
+                               th:errors="*{code}"></div>
+                          <small class="form-text text-muted">Code must contain only uppercase letters and numbers (3-20 characters)</small>
+                        </div>
+                      </div>
+
+                      <!-- Discount Type -->
+                      <div class="col-lg-6 mb-4">
+                        <div class="form-group">
+                          <label class="text-label">Discount Type*</label>
+                          <select class="form-control border-primary" th:field="*{discountType}" required>
+                            <option value="">Select discount type</option>
+                            <option value="FIXED" th:selected="${couponDto.discountType == 'FIXED'}">Fixed Amount</option>
+                            <option value="PERCENT" th:selected="${couponDto.discountType == 'PERCENT'}">Percentage</option>
+                          </select>
+                          <div class="text-danger mt-1"
+                               th:if="${#fields.hasErrors('discountType')}"
+                               th:errors="*{discountType}"></div>
+                        </div>
+                      </div>
+
+                      <!-- Discount Value -->
+                      <div class="col-lg-6 mb-4">
+                        <div class="form-group">
+                          <label class="text-label">Discount Value*</label>
+                          <input type="number" th:field="*{discountValue}"
+                                 class="form-control border-primary"
+                                 placeholder="50000 or 10" required
+                                 step="0.01" min="0.01">
+                          <div class="text-danger mt-1"
+                               th:if="${#fields.hasErrors('discountValue')}"
+                               th:errors="*{discountValue}"></div>
+                          <small class="form-text text-muted">Enter amount in VND for fixed discount or percentage for percent discount</small>
+                        </div>
+                      </div>
+
+                      <!-- Minimum Order Amount -->
+                      <div class="col-lg-6 mb-4">
+                        <div class="form-group">
+                          <label class="text-label">Minimum Order Amount</label>
+                          <input type="number" th:field="*{minOrderAmount}"
+                                 class="form-control border-primary"
+                                 placeholder="100000"
+                                 step="0.01" min="0">
+                          <div class="text-danger mt-1"
+                               th:if="${#fields.hasErrors('minOrderAmount')}"
+                               th:errors="*{minOrderAmount}"></div>
+                          <small class="form-text text-muted">Leave empty for no minimum requirement</small>
+                        </div>
+                      </div>
+
+                      <!-- Expiry Date -->
+                      <div class="col-lg-6 mb-4">
+                        <div class="form-group">
+                          <label class="text-label">Expiry Date</label>
+                          <input type="datetime-local" th:field="*{expiryDate}"
+                                 class="form-control border-primary">
+                          <div class="text-danger mt-1"
+                               th:if="${#fields.hasErrors('expiryDate')}"
+                               th:errors="*{expiryDate}"></div>
+                          <small class="form-text text-muted">Leave empty for no expiration</small>
+                        </div>
+                      </div>
+
+                      <!-- Usage Limit -->
+                      <div class="col-lg-6 mb-4">
+                        <div class="form-group">
+                          <label class="text-label">Usage Limit</label>
+                          <input type="number" th:field="*{usageLimit}"
+                                 class="form-control border-primary"
+                                 placeholder="100"
+                                 min="1">
+                          <div class="text-danger mt-1"
+                               th:if="${#fields.hasErrors('usageLimit')}"
+                               th:errors="*{usageLimit}"></div>
+                          <small class="form-text text-muted">Leave empty for unlimited usage</small>
+                        </div>
+                      </div>
+
+                      <!-- Active Status -->
+                      <div class="col-lg-12 mb-4">
+                        <div class="form-group">
+                          <div class="form-check">
+                            <input type="checkbox" th:field="*{active}"
+                                   class="form-check-input" id="activeCheck">
+                            <label class="form-check-label" for="activeCheck">
+                              Active
+                            </label>
+                          </div>
+                          <small class="form-text text-muted">Uncheck to deactivate coupon</small>
+                        </div>
+                      </div>
+
+                      <!-- Usage Information (Read-only) -->
+                      <div class="col-lg-12 mb-4">
+                        <div class="alert alert-info">
+                          <h6 class="alert-heading"><i class="fa fa-info-circle"></i> Usage Information</h6>
+                          <p class="mb-0">
+                            <strong>Current Usage:</strong>
+                            <span th:if="${currentUsage != null}" th:text="${currentUsage}">0</span>
+                            <span th:if="${currentUsage == null}">0</span> times used
+                          </p>
+                          <small class="text-muted">
+                            Note: You cannot reduce usage limit below current usage count.
+                          </small>
+                        </div>
+                      </div>
+
+                      <!-- Submit Buttons -->
+                      <div class="col-lg-12 mb-4">
+                        <button type="submit" class="btn btn-rounded btn-ft btn-primary">
+                          <i class="fa fa-save"></i> Update Coupon
+                        </button>
+                        <a th:href="@{/admin/coupons}" class="btn btn-rounded btn-secondary ml-2">
+                          <i class="fa fa-times"></i> Cancel
+                        </a>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:replace="~{layout/layout-admin :: script}"></th:block>
+<script th:src="@{/admin/plugins/bootstrap-select/dist/js/bootstrap-select.min.js}"></script>
+
+<script>
+  $(document).ready(function() {
+    // Auto uppercase for coupon code
+    $('input[name="code"]').on('input', function() {
+      this.value = this.value.toUpperCase();
+    });
+
+    // Dynamic placeholder for discount value based on discount type
+    function updateDiscountValuePlaceholder() {
+      var discountType = $('select[name="discountType"]').val();
+      var discountInput = $('input[name="discountValue"]');
+
+      if (discountType === 'FIXED') {
+        discountInput.attr('placeholder', '50000');
+        discountInput.siblings('.form-text').text('Enter amount in VND');
+        discountInput.attr('max', '999999999');
+      } else if (discountType === 'PERCENT') {
+        discountInput.attr('placeholder', '10');
+        discountInput.siblings('.form-text').text('Enter percentage (0-100)');
+        discountInput.attr('max', '100');
+      } else {
+        discountInput.attr('placeholder', '50000 or 10');
+        discountInput.siblings('.form-text').text('Enter amount in VND for fixed discount or percentage for percent discount');
+        discountInput.removeAttr('max');
+      }
+    }
+
+    // Initialize placeholder on page load
+    updateDiscountValuePlaceholder();
+
+    // Update placeholder when discount type changes
+    $('select[name="discountType"]').on('change', updateDiscountValuePlaceholder);
+
+    // Validation for usage limit based on current usage
+    var currentUsage = parseInt($('.alert-info p span').first().text()) || 0;
+
+    $('input[name="usageLimit"]').on('input', function() {
+      var newLimit = parseInt($(this).val()) || 0;
+      var warningDiv = $(this).siblings('.usage-warning');
+
+      if (newLimit > 0 && newLimit < currentUsage) {
+        if (warningDiv.length === 0) {
+          $(this).after('<div class="text-warning mt-1 usage-warning"><small>Warning: Usage limit cannot be less than current usage (' + currentUsage + ')</small></div>');
+        }
+        $(this).addClass('border-warning');
+      } else {
+        warningDiv.remove();
+        $(this).removeClass('border-warning');
+      }
+    });
+
+    // Form validation before submit
+    $('#step-form-horizontal').on('submit', function(e) {
+      var usageLimit = parseInt($('input[name="usageLimit"]').val()) || 0;
+
+      if (usageLimit > 0 && usageLimit < currentUsage) {
+        e.preventDefault();
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Usage Limit',
+          text: 'Usage limit cannot be less than current usage (' + currentUsage + ')',
+        });
+        return false;
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

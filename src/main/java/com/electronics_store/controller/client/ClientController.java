@@ -21,12 +21,9 @@ import java.util.List;
 public class ClientController {
     @Autowired
     private ProductService  productService;
-
     @Autowired
     private CategoryService categoryService;
 
-    @Autowired
-    private ProductMapper productMapper;
 
     @GetMapping("")
     public ModelAndView showHome(){
@@ -44,5 +41,10 @@ public class ClientController {
     @GetMapping("/about")
     public String about(){
         return "client/about-us";
+    }
+
+    @GetMapping("/contact")
+    public String contact(){
+        return "client/contact";
     }
 }

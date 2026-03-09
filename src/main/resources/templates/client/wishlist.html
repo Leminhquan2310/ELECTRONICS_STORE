@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Wishlish - Electronic Store</title>
+    <title>Wishlist - Electronic Store</title>
     <meta name="_csrf" th:content="${_csrf.token}">
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <th:block th:replace="~{layout/layout :: css}"></th:block>
@@ -11,7 +11,7 @@
 <div class="body-wrapper">
     <header th:replace="~{layout/layout :: header}"></header>
 
-    <!--Wishlist Area Strat-->
+    <!--Wishlist Area Start-->
     <div class="wishlist-area pt-60 pb-60">
         <div class="container">
             <div class="row">
@@ -38,18 +38,24 @@
                                     </form>
                                 </td>
                                 <td class="li-product-thumbnail">
-                                    <img th:src="${wishlishItem.productImage}" th:alt="${wishlishItem.productName}"
-                                         width="110px" height="fit-content">
+                                    <a th:href="@{/product-detail/{id}(id=${wishlishItem.productId})}">
+                                        <img th:src="${wishlishItem.productImage}" th:alt="${wishlishItem.productName}"
+                                             width="110px" height="fit-content">
+                                    </a>
                                 </td>
                                 <td class="li-product-name">
-                                    <a href="javascript:void(0)" th:text="${wishlishItem.productName}">Giro
-                                        Civilia</a>
+                                    <a th:href="@{/product-detail/{id}(id=${wishlishItem.productId})}"
+                                       th:text="${wishlishItem.productName}">Product Name</a>
                                 </td>
                                 <td class="li-product-price">
                                     <span class="amount" th:text="${wishlishItem.basePrice}">$23.39</span>
                                 </td>
                                 <td class="li-product-add-cart">
-                                    <a href="#">add to cart</a>
+                                    <a href="#" class="add-to-cart-btn"
+                                       th:data-product-id="${wishlishItem.productId}"
+                                       th:data-product-name="${wishlishItem.productName}"
+                                       th:data-product-image="${wishlishItem.productImage}"
+                                       th:data-product-price="${wishlishItem.basePrice}">Add to cart</a>
                                 </td>
                             </tr>
                             </tbody>
@@ -64,7 +70,8 @@
                         </div>
 
                         <div class="wishlist-empty-text">
-                            <h2 style="font-weight: 600; color: #242424; margin-bottom: 15px;">Your wishlist is currently empty!</h2>
+                            <h2 style="font-weight: 600; color: #242424; margin-bottom: 15px;">Your wishlist is
+                                currently empty!</h2>
                             <p style="font-size: 16px; color: #7a7a7a; margin-bottom: 30px;">
                                 It looks like you haven't added any products to your wishlist yet. <br>
                                 Explore our latest tech products and find something you love.
@@ -87,8 +94,374 @@
     <footer th:replace="~{layout/layout :: footer}"></footer>
 </div>
 
+<!-- Add to Cart Confirmation Modal -->
+<div class="modal fade" id="addToCartModal" tabindex="-1" role="dialog" aria-labelledby="addToCartModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addToCartModalLabel">Add to Cart</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <i class="fa fa-shopping-cart fa-3x text-success mb-3"></i>
+                </div>
+                <h6 class="mb-3">Are you sure you want to add this product to your cart?</h6>
+                <div class="product-info">
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <img id="modal-product-image" src="" alt="Product Image"
+                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" class="me-3">
+                        <div class="text-start">
+                            <h6 id="modal-product-name" class="mb-1"></h6>
+                            <p id="modal-product-price" class="mb-0 text-muted"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Options Section -->
+                <div class="product-options mb-3" id="modal-product-options">
+                    <!-- Options will be dynamically loaded here -->
+                </div>
+
+                <!-- Stock Information -->
+                <div class="stock-info mb-3">
+                    <label class="form-label">Stock:</label>
+                    <span id="modal-product-stock" class="stock-status">Loading...</span>
+                </div>
+
+                <div class="quantity-selector mb-3">
+                    <label for="modal-quantity" class="form-label">Quantity:</label>
+                    <div class="input-group justify-content-center" style="max-width: 150px; margin: 0 auto;">
+                        <button class="btn btn-outline-secondary" type="button" id="decrease-qty">-</button>
+                        <input type="number" class="form-control text-center" id="modal-quantity" value="1" min="1">
+                        <button class="btn btn-outline-secondary" type="button" id="increase-qty">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirm-add-to-cart">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div th:replace="~{layout/layout :: script}"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentProductId = null;
+
+        // Handle Add to Cart buttons
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('add-to-cart-btn')) {
+                e.preventDefault();
+
+                const productId = e.target.getAttribute('data-product-id');
+                const productName = e.target.getAttribute('data-product-name');
+                const productImage = e.target.getAttribute('data-product-image');
+                const productPrice = e.target.getAttribute('data-product-price');
+
+                currentProductId = productId;
+
+                // Set product info in modal
+                document.getElementById('modal-product-name').textContent = productName;
+                document.getElementById('modal-product-image').src = productImage;
+                document.getElementById('modal-product-price').textContent = productPrice;
+                document.getElementById('modal-quantity').value = 1;
+
+                // Store product ID for later use
+                document.getElementById('confirm-add-to-cart').setAttribute('data-product-id', productId);
+
+                // Load product options and stock
+                loadProductOptionsForModal(productId);
+
+                // Show modal
+                $('#addToCartModal').modal('show');
+            }
+        });
+
+        // Function to load product options for modal
+        function loadProductOptionsForModal(productId) {
+            const optionsContainer = document.getElementById('modal-product-options');
+            const stockSpan = document.getElementById('modal-product-stock');
+            const addToCartBtn = document.getElementById('confirm-add-to-cart');
+
+            // Reset options and stock
+            optionsContainer.innerHTML = '<div class="text-muted">Loading options...</div>';
+            stockSpan.textContent = 'Loading...';
+            stockSpan.className = 'stock-status';
+
+            fetch('/api/product-details/' + productId)
+                .then(res => {
+                    if (!res.ok) throw new Error('Fetch error');
+                    return res.json();
+                })
+                .then(data => {
+                    // Update product options
+                    updateModalOptions(data.options || []);
+                    // Load initial stock
+                    getModalStockByOptionValue();
+                })
+                .catch(error => {
+                    console.error('Error loading product options:', error);
+                    optionsContainer.innerHTML = '<div class="text-danger">Error loading options</div>';
+                    stockSpan.textContent = 'N/A';
+                    addToCartBtn.disabled = true;
+                });
+        }
+
+        // Function to update product options in modal
+        function updateModalOptions(options) {
+            const optionsContainer = document.getElementById('modal-product-options');
+
+            // Clear existing options
+            optionsContainer.innerHTML = '';
+
+            if (options && options.length > 0) {
+                options.forEach(option => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'product-option-group mb-2';
+
+                    // Create label
+                    const label = document.createElement('label');
+                    label.className = 'form-label';
+                    label.textContent = option.name || 'Option';
+                    optionDiv.appendChild(label);
+
+                    // Create select
+                    const select = document.createElement('select');
+                    select.className = 'form-select';
+                    select.name = 'modalOptionValueIds';
+                    select.onchange = getModalStockByOptionValue;
+
+                    // Add options
+                    if (option.values && option.values.length > 0) {
+                        option.values.forEach(optionValue => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = optionValue.id || '';
+                            optionElement.textContent = optionValue.value || '';
+                            select.appendChild(optionElement);
+                        });
+                    } else {
+                        // Default option if no values
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = '';
+                        defaultOption.textContent = 'Select option';
+                        select.appendChild(defaultOption);
+                    }
+
+                    optionDiv.appendChild(select);
+                    optionsContainer.appendChild(optionDiv);
+                });
+            } else {
+                // No options available
+                const noOptionsDiv = document.createElement('div');
+                noOptionsDiv.className = 'text-muted';
+                noOptionsDiv.textContent = 'No options available';
+                optionsContainer.appendChild(noOptionsDiv);
+            }
+        }
+
+        // Function to get stock by option values for modal
+        function getModalStockByOptionValue() {
+            if (!currentProductId) return;
+
+            const allSelects = document.querySelectorAll("select[name='modalOptionValueIds']");
+            const values = Array.from(allSelects).map(select => select.value);
+
+            const stockSpan = document.getElementById('modal-product-stock');
+            const addToCartBtn = document.getElementById('confirm-add-to-cart');
+            const qtyInput = document.getElementById('modal-quantity');
+
+            fetch(`/api/product-details/get-stock?productId=${currentProductId}&optionValueIds=${values.join(',')}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    stockSpan.className = "stock-status";
+
+                    const stock = data?.stock ?? 0;
+
+                    if (data && stock > 0) {
+                        stockSpan.textContent = `${stock} available`;
+                        stockSpan.classList.add("stock-status-in");
+                        addToCartBtn.disabled = false;
+
+                        // Update quantity max
+                        qtyInput.max = stock;
+                        qtyInput.disabled = false;
+
+                        // If current quantity exceeds stock, adjust it
+                        if (parseInt(qtyInput.value) > stock) {
+                            qtyInput.value = stock;
+                        }
+                    } else {
+                        stockSpan.textContent = 'Out of stock';
+                        stockSpan.classList.add("stock-status-out");
+                        addToCartBtn.disabled = true;
+
+                        // Disable quantity input
+                        qtyInput.max = 0;
+                        qtyInput.disabled = true;
+                        qtyInput.value = 1;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading stock:', error);
+                    stockSpan.textContent = 'Error loading stock';
+                    stockSpan.className = 'stock-status stock-status-out';
+                    addToCartBtn.disabled = true;
+                });
+        }
+
+        // Handle quantity buttons in modal
+        document.getElementById('decrease-qty').addEventListener('click', function () {
+            const qtyInput = document.getElementById('modal-quantity');
+            const currentQty = parseInt(qtyInput.value);
+            if (currentQty > 1) {
+                qtyInput.value = currentQty - 1;
+            }
+        });
+
+        document.getElementById('increase-qty').addEventListener('click', function () {
+            const qtyInput = document.getElementById('modal-quantity');
+            const maxQty = parseInt(qtyInput.max) || 999;
+            const currentQty = parseInt(qtyInput.value);
+            if (currentQty < maxQty) {
+                qtyInput.value = currentQty + 1;
+            }
+        });
+
+        // Handle confirm add to cart
+        document.getElementById('confirm-add-to-cart').addEventListener('click', function () {
+            const productId = this.getAttribute('data-product-id');
+            const quantity = document.getElementById('modal-quantity').value;
+
+            // Get selected option values
+            const optionSelects = document.querySelectorAll("select[name='modalOptionValueIds']");
+            const optionValueIds = Array.from(optionSelects).map(select => select.value).filter(val => val);
+
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/user/cart/add';
+
+            // Add CSRF token
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') ||
+                document.querySelector('input[name="_csrf"]')?.value;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') ||
+                document.querySelector('input[name="_csrf"]')?.getAttribute('name');
+
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_csrf';
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+            }
+
+            // Add product ID
+            const productIdInput = document.createElement('input');
+            productIdInput.type = 'hidden';
+            productIdInput.name = 'productId';
+            productIdInput.value = productId;
+            form.appendChild(productIdInput);
+
+            // Add quantity
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'hidden';
+            quantityInput.name = 'quantity';
+            quantityInput.value = quantity;
+            form.appendChild(quantityInput);
+
+            // Add option value IDs
+            optionValueIds.forEach(optionValueId => {
+                const optionInput = document.createElement('input');
+                optionInput.type = 'hidden';
+                optionInput.name = 'optionValueIds';
+                optionInput.value = optionValueId;
+                form.appendChild(optionInput);
+            });
+
+            // Submit form
+            document.body.appendChild(form);
+            form.submit();
+        });
+    });
+</script>
+
+<style>
+    .product-option-group {
+        text-align: left;
+        margin-bottom: 15px;
+    }
+
+    .product-option-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    .product-option-group select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+    }
+
+    .stock-status {
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .stock-status-in {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .stock-status-out {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f1b0b7;
+    }
+
+    .stock-info {
+        text-align: left;
+        padding: 0 20px;
+    }
+
+    .stock-info label {
+        font-weight: 500;
+        margin-right: 10px;
+    }
+
+    .li-product-add-cart a {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #fed700;
+        color: #242424;
+        text-transform: uppercase;
+        font-weight: 600;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .li-product-add-cart a:hover {
+        background-color: #242424;
+        color: #fff;
+    }
+</style>
 
 </body>
 </html>

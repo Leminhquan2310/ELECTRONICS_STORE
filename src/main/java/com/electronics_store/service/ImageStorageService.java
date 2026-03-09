@@ -7,4 +7,6 @@ public interface ImageStorageService {
     ImageUploadResult upload(MultipartFile file);
 
     void delete(String publicId);
+
+    String extractPublicId(String imageUrl);
 }
